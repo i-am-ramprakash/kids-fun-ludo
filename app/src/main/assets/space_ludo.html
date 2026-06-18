@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Space Ludo</title>
+    <title>Kids Fun Ludo</title>
     <script>
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             var string = msg.toLowerCase();
@@ -80,12 +80,12 @@
                 <div class="splash-logo-ring"></div>
                 <div class="splash-logo">🛸</div>
             </div>
-            <h1 class="splash-title">SPACE LUDO</h1>
-            <div class="splash-subtitle">ASTEROID CLASH</div>
+            <h1 class="splash-title">FUN LUDO</h1>
+            <div class="splash-subtitle">BOARD GAME</div>
             <div class="splash-loading-bar-container">
                 <div class="splash-loading-progress"></div>
             </div>
-            <div class="splash-loading-text">ENGAGING QUANTUM THRUSTERS...</div>
+            <div class="splash-loading-text">GETTING READY...</div>
         </div>
     </div>
 
@@ -197,39 +197,39 @@
                 
                 <div class="mode-cards-grid">
                     <div class="mode-card card-quick-play" onclick="openMultiplayerLobby()" style="background:linear-gradient(135deg, #1d4ed8, #2563eb) !important; border-color:#3b82f6 !important;">
-                        <div class="card-icon">🌐</div>
-                        <div class="card-title">Online Multiplayer</div>
-                        <div class="card-desc">Connect to the global network. Host or join private lobbies with a 6-digit access code via Firebase.</div>
-                        <button type="button" class="action-btn mode-card-btn" style="background:#3b82f6;">CONNECT TO NETWORK</button>
-                    </div>
+                    <div class="card-icon">🌐</div>
+                    <div class="card-title">Play Online</div>
+                    <div class="card-desc">Play with friends online!</div>
+                    <button type="button" class="action-btn mode-card-btn" style="background:#3b82f6;">CONNECT</button>
+                </div>
 
-                    <div class="mode-card card-pass-play" onclick="selectPassAndPlay()">
-                        <div class="card-icon">👥</div>
-                        <div class="card-title">Pass & Play</div>
-                        <div class="card-desc">Local multiplayer split desk. Share your combat terminal with 2–4 players side-by-side.</div>
-                        <button type="button" class="action-btn mode-card-btn">PREPARE LAUNCHPAD</button>
-                    </div>
+                <div class="mode-card card-pass-play" onclick="selectPassAndPlay()">
+                    <div class="card-icon">👥</div>
+                    <div class="card-title">Party Mode</div>
+                    <div class="card-desc">Pass & play with family and friends on one device!</div>
+                    <button type="button" class="action-btn mode-card-btn">LET'S PLAY</button>
+                </div>
 
-                    <div class="mode-card card-quick-play" onclick="selectQuickPlay()">
-                        <div class="card-icon">🤖</div>
-                        <div class="card-title">Quick Play</div>
-                        <div class="card-desc">Solo combat simulation versus 3 automated droid pilots on intermediate asteroid quadrant.</div>
-                        <button type="button" class="action-btn mode-card-btn">DEPLOY PROBES</button>
-                    </div>
+                <div class="mode-card card-quick-play" onclick="selectQuickPlay()">
+                    <div class="card-icon">🤖</div>
+                    <div class="card-title">Solo Adventure</div>
+                    <div class="card-desc">Play all by yourself against fun robot friends!</div>
+                    <button type="button" class="action-btn mode-card-btn">START ADVENTURE</button>
+                </div>
 
-                    <div class="mode-card card-ufo-clash" onclick="selectUFOClash()">
-                        <div class="card-icon">☄</div>
-                        <div class="card-title">UFO Clash (The Anomaly)</div>
-                        <div class="card-desc">Extreme theme zone! Double gravity portals, unpredictable space-warps, and aggressive droids.</div>
-                        <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #a855f7, #6366f1) !important; border-color:#a855f7 !important;">ENTER THE VOID</button>
-                    </div>
+                <div class="mode-card card-ufo-clash" onclick="selectUFOClash()">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">Super Battle</div>
+                    <div class="card-desc">Extra fun with super special powers and surprises!</div>
+                    <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #e040fb, #ff6d3a) !important; border-color:#FF6B9D !important;">LET'S BATTLE</button>
+                </div>
 
-                    <div class="mode-card card-rockets-wormholes" onclick="selectSLGame()">
-                        <div class="card-icon">🚀</div>
-                        <div class="card-title">Rockets & Wormholes</div>
-                        <div class="card-desc">Ride the rockets. Dodge the wormholes. Classic 10x10 grid with your UFO pawns!</div>
-                        <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #7c3aed, #4ade80) !important; border-color:#7c3aed !important;">LAUNCH MISSION</button>
-                    </div>
+                <div class="mode-card card-rockets-wormholes" onclick="selectSLGame()">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-title">Rocket Race</div>
+                    <div class="card-desc">Climb ladders and ride rockets — so much fun!</div>
+                    <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #1E90FF, #2ED573) !important; border-color:#1E90FF !important;">LET'S RACE</button>
+                </div>
 
 
                     <div class="mode-card card-more-fun" onclick="selectMoreFun()">
@@ -526,8 +526,8 @@
     <!-- 4. CONFIGURATION CONSOLE (MISSION BRIEFING / SETUP SCREEN) -->
     <div class="modal" id="setup-modal">
         <div class="modal-content setup-content" style="border-color: var(--cyan); box-shadow: 0 0 35px rgba(0, 229, 255, 0.45);">
-            <h2 class="modal-title">MISSION BRIEFING</h2>
-            <p class="setup-subtitle">Configure your orbital crew before launch</p>
+            <h2 class="modal-title">GAME SETUP</h2>
+            <p class="setup-subtitle">Choose how you want to play!</p>
 
             <div class="setup-section" onclick="cycleCrewSize(event)">
                 <span class="setup-label">Crew size</span>
@@ -551,6 +551,11 @@
             </div>
 
             <!-- Change 2: CHOOSE YOUR COLOR Picker Segment -->
+            <div class="setup-section" id="theme-section">
+                <span class="setup-label">THEME</span>
+                <div class="color-swatches-grid" id="theme-swatches-grid"></div>
+            </div>
+
             <div class="setup-section" id="choose-color-section" style="display: none;">
                 <span class="setup-label">CHOOSE YOUR COLOR</span>
                 <div class="color-swatches-grid" id="color-swatches-grid"></div>

@@ -5,6 +5,41 @@ function setButtonText(id, full, short) {
     }
 }
 
+function spawnConfetti() {
+    if (typeof document === 'undefined') return;
+    const colors = ['#FF4757', '#2ED573', '#FFC312', '#1E90FF', '#FF6B9D', '#FFA502', '#00D2D3'];
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden;';
+    document.body.appendChild(container);
+
+    for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        const size = Math.random() * 10 + 6;
+        const startX = Math.random() * 100;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const delay = Math.random() * 0.6;
+        const duration = Math.random() * 1.4 + 1.4;
+        el.style.cssText = `
+            position: absolute;
+            left: ${startX}%;
+            top: -20px;
+            width: ${size}px;
+            height: ${size * (Math.random() > 0.5 ? 1 : 0.6)}px;
+            background: ${color};
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+            opacity: 0.95;
+            transform: rotate(${Math.random() * 360}deg);
+            transition: transform ${duration}s cubic-bezier(0.22,1,0.36,1) ${delay}s, opacity ${duration}s ease ${delay}s;
+        `;
+        container.appendChild(el);
+        requestAnimationFrame(() => {
+            el.style.transform = `translateY(110vh) rotate(${Math.random() * 720 - 360}deg)`;
+            el.style.opacity = '0';
+        });
+    }
+    setTimeout(() => container.remove(), 3200);
+}
+
 const __playerRgbCache = {};
 // Dynamic RGB helper to fetch values from CSS custom properties safely under caching
 function getPlayerRGB(colorVarName) {
@@ -99,14 +134,14 @@ function updateTurnUIVisually() {
             if (state.warpUnlocked[i] && !state.warpUsed[i] && i === state.activePlayer && !state.isAnimating && state.hasRolled) {
                 warpBtn.classList.add('unlocked');
                 warpBtn.disabled = false;
-                setButtonText(`warp-${i}`, state.activeWarpSelect ? "TAP PAWN" : "⚡ WARP", state.activeWarpSelect ? "🎯" : "⚡");
+                setButtonText(`warp-${i}`, 'ZOOM!', '⚡');
             } else {
                 warpBtn.classList.remove('unlocked');
                 warpBtn.disabled = true;
                 if (state.warpUsed[i]) {
-                    setButtonText(`warp-${i}`, "⚡ USED", "⚡❌");
+                    setButtonText(`warp-${i}`, "DONE!", "⚡❌");
                 } else {
-                    setButtonText(`warp-${i}`, "⚡ WARP", "⚡");
+                    setButtonText(`warp-${i}`, "ZOOM!", "⚡");
                 }
             }
         }
@@ -121,7 +156,7 @@ function updateTurnUIVisually() {
                 alienCombinedBtn.style.opacity = "0.5";
                 alienCombinedBtn.disabled = true;
             } else if (!state.canDeployAliens[i]) {
-                setButtonText(`alien-${i}-combined`, "🔒 👾 DEPLOY", "🔒 👾");
+                setButtonText(`alien-${i}-combined`, "🔒 👾 LOCKED", "🔒 👾");
                 alienCombinedBtn.style.opacity = "0.4";
                 alienCombinedBtn.disabled = true;
                 alienCombinedBtn.title = "Unlocks when your pawn is captured by opponent";
@@ -197,7 +232,9 @@ function renderPawns() {
             pawnDOM.id = `pawn-${playerIdx}-${pawnIdx}`;
             pawnDOM.setAttribute('data-player', playerIdx);
             pawnDOM.setAttribute('data-pawn', pawnIdx);
-            pawnDOM.innerHTML = `🛸<div class="engine-flame"></div>`;
+            const themeEmojis = getThemePawnEmojis ? getThemePawnEmojis() : null;
+            const pawnEmoji = (themeEmojis && themeEmojis[playerIdx]) ? themeEmojis[playerIdx] : '🛸';
+            pawnDOM.innerHTML = `${pawnEmoji}<div class="engine-flame"></div>`;
 
             // Determine targeting container
             if (pos === -1) {
@@ -520,33 +557,34 @@ function triggerWinnerScreen(playerIdx) {
     const firstWinnerIdx = (state.rankings && state.rankings.length > 0) ? state.rankings[0] : playerIdx;
     const p = players[firstWinnerIdx];
     
-    // Core profile completion trigger
     if (typeof registerMatchCompletion === 'function') {
         registerMatchCompletion(p.name, firstWinnerIdx);
     }
 
-    // Play victory sound deck
     playSynthSound(400, 1200, 1.5, 'sine');
 
-    // Populate Results Screen elements
+    if (typeof state !== 'undefined' && state && state.gameConfig && state.gameConfig.gameStarted) {
+        spawnConfetti();
+    }
+
     const resultsWinnerBadge = document.getElementById('results-winner-badge');
     const resultsWinnerName = document.getElementById('results-winner-name');
     const resultsWinnerSub = document.getElementById('results-winner-sub');
     const resultsPilotStats = document.getElementById('results-pilot-stats');
 
     if (resultsWinnerBadge) {
-        resultsWinnerBadge.innerText = isHuman(firstWinnerIdx) ? "🏆🛸" : "🤖👽";
+        resultsWinnerBadge.innerText = isHuman(firstWinnerIdx) ? "🏆🎉" : "🤖🎉";
     }
 
     if (resultsWinnerName) {
-        resultsWinnerName.innerText = `${p.name} WON!`;
+        resultsWinnerName.innerText = `${p.name} WINS!`;
         resultsWinnerName.style.color = `var(--${p.color})`;
     }
 
     if (resultsWinnerSub) {
         resultsWinnerSub.innerText = isHuman(firstWinnerIdx) 
-            ? "MOTHERSHIP COMMAND DECLARED COSMIC SUPREMACY!" 
-            : "ROBOT PILOT DOMINANCE ENGAGED!";
+            ? "AMAZING! YOU ARE THE CHAMPION!" 
+            : "GREAT TRY! ROBOT WINS THIS TIME!";
     }
 
     if (resultsPilotStats) {

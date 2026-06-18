@@ -64,52 +64,52 @@
 }
 
 .pawn.selectable {
-    animation: selectPulse 0.8s infinite, pawnPumpSingle 0.8s infinite alternate !important;
+    animation: selectPulse 1.2s infinite ease-in-out, pawnPumpSingle 1.2s infinite alternate !important;
     z-index: 999 !important;
 }
 .pawn.warpable {
-    animation: warpPulse 0.8s infinite, pawnPumpSingle 0.8s infinite alternate !important;
+    animation: warpPulse 1.2s infinite ease-in-out, pawnPumpSingle 1.2s infinite alternate !important;
     z-index: 999 !important;
 }
 
 .pawn.selectable[style*="--shift-x"] {
-    animation: selectPulse 0.8s infinite, pawnPumpStacked 0.8s infinite alternate !important;
+    animation: selectPulse 1.2s infinite ease-in-out, pawnPumpStacked 1.2s infinite alternate !important;
 }
 .pawn.warpable[style*="--shift-x"] {
-    animation: warpPulse 0.8s infinite, pawnPumpStacked 0.8s infinite alternate !important;
+    animation: warpPulse 1.2s infinite ease-in-out, pawnPumpStacked 1.2s infinite alternate !important;
 }
 
 @keyframes float {
-    0% { transform: translateY(-2px); }
-    100% { transform: translateY(2px); }
+    0% { transform: translateY(-3px); }
+    100% { transform: translateY(3px); }
 }
 
 /* Animated border pulsing for active player side panels */
 @keyframes borderPulseGreen {
-    0% { border-color: rgba(0, 230, 118, 0.35); box-shadow: 0 0 4px rgba(0, 230, 118, 0.1); }
-    50% { border-color: rgba(0, 230, 118, 1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.5); }
-    100% { border-color: rgba(0, 230, 118, 0.35); box-shadow: 0 0 4px rgba(0, 230, 118, 0.1); }
+    0% { border-color: rgba(46, 213, 115, 0.35); box-shadow: 0 0 6px rgba(46, 213, 115, 0.15); }
+    50% { border-color: rgba(46, 213, 115, 1); box-shadow: 0 0 18px rgba(46, 213, 115, 0.55); }
+    100% { border-color: rgba(46, 213, 115, 0.35); box-shadow: 0 0 6px rgba(46, 213, 115, 0.15); }
 }
 @keyframes borderPulseYellow {
-    0% { border-color: rgba(255, 214, 0, 0.35); box-shadow: 0 0 4px rgba(255, 214, 0, 0.1); }
-    50% { border-color: rgba(255, 214, 0, 1); box-shadow: 0 0 10px rgba(255, 214, 0, 0.5); }
-    100% { border-color: rgba(255, 214, 0, 0.35); box-shadow: 0 0 4px rgba(255, 214, 0, 0.1); }
+    0% { border-color: rgba(255, 195, 18, 0.35); box-shadow: 0 0 6px rgba(255, 195, 18, 0.15); }
+    50% { border-color: rgba(255, 195, 18, 1); box-shadow: 0 0 18px rgba(255, 195, 18, 0.55); }
+    100% { border-color: rgba(255, 195, 18, 0.35); box-shadow: 0 0 6px rgba(255, 195, 18, 0.15); }
 }
 @keyframes borderPulseRed {
-    0% { border-color: rgba(255, 64, 129, 0.35); box-shadow: 0 0 4px rgba(255, 64, 129, 0.1); }
-    50% { border-color: rgba(255, 64, 129, 1); box-shadow: 0 0 10px rgba(255, 64, 129, 0.5); }
-    100% { border-color: rgba(255, 64, 129, 0.35); box-shadow: 0 0 4px rgba(255, 64, 129, 0.1); }
+    0% { border-color: rgba(255, 71, 87, 0.35); box-shadow: 0 0 6px rgba(255, 71, 87, 0.15); }
+    50% { border-color: rgba(255, 71, 87, 1); box-shadow: 0 0 18px rgba(255, 71, 87, 0.55); }
+    100% { border-color: rgba(255, 71, 87, 0.35); box-shadow: 0 0 6px rgba(255, 71, 87, 0.15); }
 }
 @keyframes borderPulseBlue {
-    0% { border-color: rgba(68, 138, 255, 0.35); box-shadow: 0 0 4px rgba(68, 138, 255, 0.1); }
-    50% { border-color: rgba(68, 138, 255, 1); box-shadow: 0 0 10px rgba(68, 138, 255, 0.5); }
-    100% { border-color: rgba(68, 138, 255, 0.35); box-shadow: 0 0 4px rgba(68, 138, 255, 0.1); }
+    0% { border-color: rgba(30, 144, 255, 0.35); box-shadow: 0 0 6px rgba(30, 144, 255, 0.15); }
+    50% { border-color: rgba(30, 144, 255, 1); box-shadow: 0 0 18px rgba(30, 144, 255, 0.55); }
+    100% { border-color: rgba(30, 144, 255, 0.35); box-shadow: 0 0 6px rgba(30, 144, 255, 0.15); }
 }
 
-.panel.green-panel.active { animation: borderPulseGreen 1.8s infinite ease-in-out; }
-.panel.yellow-panel.active { animation: borderPulseYellow 1.8s infinite ease-in-out; }
-.panel.red-panel.active { animation: borderPulseRed 1.8s infinite ease-in-out; }
-.panel.blue-panel.active { animation: borderPulseBlue 1.8s infinite ease-in-out; }
+.panel.green-panel.active { animation: borderPulseGreen 2.2s infinite ease-in-out; }
+.panel.yellow-panel.active { animation: borderPulseYellow 2.2s infinite ease-in-out; }
+.panel.red-panel.active { animation: borderPulseRed 2.2s infinite ease-in-out; }
+.panel.blue-panel.active { animation: borderPulseBlue 2.2s infinite ease-in-out; }
 
 @keyframes dicePulseGlow {
     0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0,0,0,0.3); transform: scale(1.0); }

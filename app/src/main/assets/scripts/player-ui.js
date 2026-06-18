@@ -18,8 +18,15 @@ const SPECIES_EMOJIS = {
     "Android": "🤖"
 };
 
-// Fallback visual character avatars (updated to use colored UFO emojis per player index)
+// Fallback visual character avatars
 const PLAYER_CHARACTERS = ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'];
+
+function getThemePawnEmojis() {
+    if (typeof getCurrentThemePawnEmojis === 'function') {
+        return getCurrentThemePawnEmojis();
+    }
+    return PLAYER_CHARACTERS;
+}
 
 /**
  * Checks if a given player slot index is mapped to a human player in the current session.
@@ -36,7 +43,6 @@ function isHumanInSession(playerIdx) {
 
 /**
  * Resolves the character avatar emoji for the specified player.
- * Maps players strictly to their respective colored UFOs.
  */
 function getPlayerCharacter(playerIdx) {
     if (isHumanInSession(playerIdx)) {
@@ -44,7 +50,8 @@ function getPlayerCharacter(playerIdx) {
             return SPECIES_EMOJIS[commanderProfile.species] || '🧑‍🚀';
         }
     }
-    return PLAYER_CHARACTERS[playerIdx] || '🛸';
+    const themeEmojis = getThemePawnEmojis();
+    return themeEmojis[playerIdx] || PLAYER_CHARACTERS[playerIdx] || '🛸';
 }
 
 /**

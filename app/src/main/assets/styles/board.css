@@ -116,10 +116,10 @@
     height: var(--board-size) !important;
     background-color: #ffffff;
     border: none;
-    border-top: 2px solid var(--cyan);
-    border-bottom: 2px solid var(--cyan);
-    border-radius: 0;
-    box-shadow: 0 0 25px rgba(0, 229, 255, 0.35);
+    border-top: 3px solid #FFB8D0;
+    border-bottom: 3px solid #FFB8D0;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(255, 107, 157, 0.2);
     position: relative;
     padding: 4px;
     overflow: visible;
@@ -133,7 +133,7 @@
     grid-template-columns: repeat(15, minmax(0, 1fr));
     grid-template-rows: repeat(15, minmax(0, 1fr));
     gap: 2px;
-    background-color: #cbd5e1;
+    background-color: #f0e6f6;
     border-radius: 12px;
     padding: 2px;
 }
@@ -214,12 +214,12 @@
     transform: translateX(-50%);
     letter-spacing: 0.8px;
     padding: 1px 6px;
-    border-radius: 4px;
-    background: rgba(0,0,0,0.85);
-    color: #ffffff;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #2d3436;
     white-space: nowrap;
     z-index: 15;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
 
 .home-base-inactive {
@@ -387,22 +387,22 @@
 
 .finish-triangle.green-t {
     border-width: 40px 0 40px 40px;
-    border-color: transparent transparent transparent rgba(0, 188, 70, 0.25);
+    border-color: transparent transparent transparent rgba(46, 213, 115, 0.35);
     top: 0; bottom: 0; left: 0; margin: auto;
 }
 .finish-triangle.yellow-t {
     border-width: 40px 40px 0 40px;
-    border-color: rgba(220, 163, 0, 0.25) transparent transparent transparent;
+    border-color: rgba(255, 195, 18, 0.35) transparent transparent transparent;
     top: 0; left: 0; right: 0; margin: auto;
 }
 .finish-triangle.blue-t {
     border-width: 40px 40px 40px 0;
-    border-color: transparent rgba(0, 119, 230, 0.25) transparent transparent;
+    border-color: transparent rgba(30, 144, 255, 0.35) transparent transparent;
     top: 0; bottom: 0; right: 0; margin: auto;
 }
 .finish-triangle.red-t {
     border-width: 0 40px 40px 40px;
-    border-color: transparent transparent rgba(204, 0, 51, 0.25) transparent;
+    border-color: transparent transparent rgba(255, 71, 87, 0.35) transparent;
     bottom: 0; left: 0; right: 0; margin: auto;
 }
 
@@ -595,30 +595,27 @@
 
 /* Gradients and bright glowing borders matched perfectly to highly saturated path colors */
 .panel.green-panel {
-    background: radial-gradient(circle at center, rgba(0, 230, 118, 0.95) 0%, rgba(0, 120, 60, 0.98) 100%) !important;
-    border: 2.5px solid rgba(0, 230, 118, 0.6) !important;
-    box-shadow: 0 0 12px rgba(0, 230, 118, 0.4) !important;
+    background: #2ED573 !important;
+    border: 3px solid #7bed9f !important;
 }
 .panel.yellow-panel {
-    background: radial-gradient(circle at center, rgba(255, 214, 0, 0.95) 0%, rgba(180, 130, 0, 0.98) 100%) !important;
-    border: 2.5px solid rgba(255, 214, 0, 0.6) !important;
-    box-shadow: 0 0 12px rgba(255, 214, 0, 0.4) !important;
+    background: #FFC312 !important;
+    border: 3px solid #ffe066 !important;
 }
 .panel.red-panel {
-    background: radial-gradient(circle at center, rgba(255, 64, 129, 0.95) 0%, rgba(180, 20, 80, 0.98) 100%) !important;
-    border: 2.5px solid rgba(255, 64, 129, 0.6) !important;
-    box-shadow: 0 0 12px rgba(255, 64, 129, 0.4) !important;
+    background: #FF4757 !important;
+    border: 3px solid #ff6b81 !important;
 }
 .panel.blue-panel {
-    background: radial-gradient(circle at center, rgba(68, 138, 255, 0.95) 0%, rgba(20, 80, 200, 0.98) 100%) !important;
-    border: 2.5px solid rgba(68, 138, 255, 0.6) !important;
-    box-shadow: 0 0 12px rgba(68, 138, 255, 0.4) !important;
+    background: #1E90FF !important;
+    border: 3px solid #70a1ff !important;
 }
 
-/* Make all texts inside player cards bold and extremely high contrast with rich drop-shadows */
+/* Make all texts inside player cards bold and kid-friendly contrast */
 .panel, .panel * {
     font-weight: 900 !important;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.95), -1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95) !important;
+    text-shadow: none !important;
+    color: #ffffff !important;
 }
 
 /* Touch Targets Expander Pseudo-Elements for all interactions */

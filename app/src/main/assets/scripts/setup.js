@@ -1,6 +1,7 @@
 let lobbyConfig = getDefaultGameConfig();
-lobbyConfig.ufoCount = 4; // ALWAYS 4!
-lobbyConfig.humanColorIndex = null; // No default color pre-selected
+lobbyConfig.ufoCount = 4;
+lobbyConfig.humanColorIndex = 0;
+lobbyConfig.theme = getCurrentThemeKey();
 loadLobbyConfigFromStorage();
 
 function saveLobbyConfigToStorage() {
@@ -10,7 +11,8 @@ function saveLobbyConfigToStorage() {
             playerTypes: lobbyConfig.playerTypes,
             botDifficulty: lobbyConfig.botDifficulty,
             ufoCount: 4,
-            humanColorIndex: lobbyConfig.humanColorIndex
+            humanColorIndex: lobbyConfig.humanColorIndex,
+            theme: lobbyConfig.theme
         }));
     }
 }
@@ -34,6 +36,9 @@ function loadLobbyConfigFromStorage() {
                     lobbyConfig.ufoCount = 4;
                     if (parsed.humanColorIndex !== undefined) {
                         lobbyConfig.humanColorIndex = parsed.humanColorIndex;
+                    }
+                    if (parsed.theme && KID_THEMES[parsed.theme]) {
+                        lobbyConfig.theme = parsed.theme;
                     }
                 }
             } catch (e) {
@@ -127,6 +132,18 @@ function setLobbyBotDifficulty(diff, event) {
     renderSetupUI();
 }
 
+function getModeDisplayName(mode) {
+    const themeModeNames = getCurrentThemeModeNames();
+    const map = {
+        passAndPlay: 'Party Mode',
+        quick: 'Solo Adventure',
+        clash: 'Super Battle',
+        sl: 'Rocket Race',
+        miniLudo: 'Mini Ludo'
+    };
+    return themeModeNames[mode] || map[mode] || mode;
+}
+
 function renderSetupUI() {
     document.querySelectorAll('#player-count-options .setup-chip').forEach(btn => {
         btn.classList.toggle('selected', parseInt(btn.dataset.count, 10) === lobbyConfig.playerCount);
@@ -166,8 +183,9 @@ function renderSetupUI() {
     const container = document.getElementById('player-slot-config');
     if (!container) return;
 
-    // Colored UFO emojis per slot
-    const slotUFOs = ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'];
+    // Theme-aware slot emojis
+    const themeEmojis = getThemePawnEmojis ? getThemePawnEmojis() : null;
+    const slotUFOs = themeEmojis || ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'];
 
     let html = slots.map(playerIdx => {
         const p = players[playerIdx];
@@ -201,6 +219,7 @@ function renderSetupUI() {
     container.innerHTML = html;
 
     renderUFODotsSelector();
+    renderThemeSwatches();
     renderChooseColorSection();
 }
 
@@ -232,7 +251,46 @@ function renderUFODotsSelector() {
         dotsContainer.appendChild(dot);
     }
 
-    displayLabel.textContent = `${currentCount} UFOs per pilot`;
+    displayLabel.textContent = `${currentCount} Pawns`;
+}
+
+function renderThemeSwatches() {
+    const grid = document.getElementById('theme-swatches-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    Object.entries(KID_THEMES).forEach(([key, t]) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'color-swatch-wrapper';
+
+        const swatch = document.createElement('div');
+        swatch.className = `color-swatch ${lobbyConfig.theme === key ? 'selected' : ''}`;
+        swatch.style.backgroundColor = t.colors.bg;
+        swatch.style.borderColor = (lobbyConfig.theme === key) ? '#ffffff' : 'rgba(255,255,255,0.3)';
+        swatch.textContent = t.emoji;
+
+        const label = document.createElement('span');
+        label.className = 'color-swatch-label';
+        label.textContent = t.name;
+
+        wrapper.appendChild(swatch);
+        wrapper.appendChild(label);
+
+        wrapper.addEventListener('click', (e) => {
+            e.stopPropagation();
+            lobbyConfig.theme = key;
+            applyThemeToRoot(key);
+            saveLobbyConfigToStorage();
+            renderThemeSwatches();
+            renderSetupUI();
+            if (typeof playSynthSound === 'function') {
+                playSynthSound(600, 120, 0.35, 'triangle');
+            }
+        });
+
+        grid.appendChild(wrapper);
+    });
 }
 
 function renderChooseColorSection() {
@@ -384,13 +442,19 @@ function startGameFromSetup() {
         gameStarted: true
     };
 
+    if (lobbyConfig.theme && KID_THEMES[lobbyConfig.theme]) {
+        applyThemeToRoot(lobbyConfig.theme);
+    }
+
     saveLobbyConfigToStorage();
     closeSetupModal();
 
     const wrapper = document.querySelector('.game-wrapper');
     if (wrapper) wrapper.classList.remove('game-hidden');
 
-    beginMatch();
+    if (typeof beginMatch === 'function') {
+        beginMatch();
+    }
 
     if (typeof navigateTo === 'function') {
         navigateTo('game-screen');
@@ -415,7 +479,7 @@ function syncPlayerSlotsWithSelectedColor() {
         }
     }
 
-    const defaultNames = ['PILOT GREEN', 'PILOT YELLOW', 'PILOT RED', 'PILOT BLUE'];
+    const defaultNames = ['GREEN HERO', 'YELLOW HERO', 'RED HERO', 'BLUE HERO'];
 
     for (let i = 0; i < 4; i++) {
         if (lobbyConfig.playerTypes[i] === 'human') {
@@ -436,10 +500,10 @@ function syncPlayerSlotsWithSelectedColor() {
 function adjustPlayerColorsAndSlots() {
     const isMini = (window.state && window.state.gameConfig && window.state.gameConfig.mode === 'miniLudo') || (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
     const originalPlayers = [
-        { id: 0, color: 'green', name: 'PILOT GREEN', startIdx: isMini ? 1 : 1, homeCells: isMini ? [[5,1], [5,2], [5,3], [5,4]] : [[7,1], [7,2], [7,3], [7,4], [7,5]], baseCoords: isMini ? [] : [[2,2], [2,3], [3,2], [3,3], [4,2]] },
-        { id: 1, color: 'yellow', name: 'PILOT YELLOW', startIdx: isMini ? 10 : 14, homeCells: isMini ? [[1,5], [2,5], [3,5], [4,5]] : [[1,7], [2,7], [3,7], [4,7], [5,7]], baseCoords: isMini ? [] : [[2,11], [2,12], [3,11], [3,12], [4,11]] },
-        { id: 2, color: 'red', name: 'PILOT RED', startIdx: isMini ? 28 : 40, homeCells: isMini ? [[9,5], [8,5], [7,5], [6,5]] : [[13,7], [12,7], [11,7], [10,7], [9,7]], baseCoords: isMini ? [] : [[11,2], [11,3], [12,2], [12,3], [13,2]] },
-        { id: 3, color: 'blue', name: 'PILOT BLUE', startIdx: isMini ? 19 : 27, homeCells: isMini ? [[5,9], [5,8], [5,7], [5,6]] : [[7,13], [7,12], [7,11], [7,10], [7,9]], baseCoords: isMini ? [] : [[11,11], [11,12], [12,11], [12,12], [13,11]] }
+        { id: 0, color: 'green', name: 'GREEN HERO', startIdx: isMini ? 1 : 1, homeCells: isMini ? [[5,1], [5,2], [5,3], [5,4]] : [[7,1], [7,2], [7,3], [7,4], [7,5]], baseCoords: isMini ? [] : [[2,2], [2,3], [3,2], [3,3], [4,2]] },
+        { id: 1, color: 'yellow', name: 'YELLOW HERO', startIdx: isMini ? 10 : 14, homeCells: isMini ? [[1,5], [2,5], [3,5], [4,5]] : [[1,7], [2,7], [3,7], [4,7], [5,7]], baseCoords: isMini ? [] : [[2,11], [2,12], [3,11], [3,12], [4,11]] },
+        { id: 2, color: 'red', name: 'RED HERO', startIdx: isMini ? 28 : 40, homeCells: isMini ? [[9,5], [8,5], [7,5], [6,5]] : [[13,7], [12,7], [11,7], [10,7], [9,7]], baseCoords: isMini ? [] : [[11,2], [11,3], [12,2], [12,3], [13,2]] },
+        { id: 3, color: 'blue', name: 'BLUE HERO', startIdx: isMini ? 19 : 27, homeCells: isMini ? [[5,9], [5,8], [5,7], [5,6]] : [[7,13], [7,12], [7,11], [7,10], [7,9]], baseCoords: isMini ? [] : [[11,11], [11,12], [12,11], [12,12], [13,11]] }
     ];
 
     const defaultNames = ['PILOT GREEN', 'PILOT YELLOW', 'PILOT RED', 'PILOT BLUE'];
@@ -518,7 +582,7 @@ function beginMatch() {
             msg.id = 'quick-play-msg';
             msg.innerHTML = `
                 <span style="font-size:1.1rem;">🎲</span>
-                <span>QUICK PLAY &nbsp;·&nbsp; Roll a <strong>6</strong> — All UFOs inside home launch automatically!</span>
+                <span>🎲 QUICK PLAY &nbsp;·&nbsp; Roll a <strong>6</strong> — All pawns inside home launch automatically!</span>
                 <span style="font-size:1.1rem;">🛸</span>
             `;
             msg.style.cssText = [
@@ -696,7 +760,14 @@ function initSetupScreen() {
     lobbyConfig = getDefaultGameConfig();
     lobbyConfig.ufoCount = 4;
     lobbyConfig.humanColorIndex = 0; // Default GREEN
+    lobbyConfig.theme = getCurrentThemeKey();
     loadLobbyConfigFromStorage();
+
+    if (lobbyConfig.theme && KID_THEMES[lobbyConfig.theme]) {
+        applyThemeToRoot(lobbyConfig.theme);
+    } else {
+        applyThemeToRoot(getCurrentThemeKey());
+    }
 
     if (lobbyConfig.humanColorIndex === null || lobbyConfig.humanColorIndex === undefined) {
         lobbyConfig.humanColorIndex = 0;

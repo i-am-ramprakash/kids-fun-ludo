@@ -1,14 +1,14 @@
 :root {
-    --bg-color: #1a0836;
-    --cell-bg: #1e0a44;
-    --cell-border: #5a2ab0;
-    --green: #00e676;
-    --yellow: #ffd600;
-    --red: #ff4081;
-    --blue: #448aff;
-    --purple: #e040fb;
-    --gold: #ffb300;
-    --cyan: #ff6d3a;
+    --bg-color: #FFF9E6;
+    --cell-bg: #E8F8F5;
+    --cell-border: #FFB8D0;
+    --green: #2ED573;
+    --yellow: #FFC312;
+    --red: #FF4757;
+    --blue: #1E90FF;
+    --purple: #FF6B9D;
+    --gold: #FFA502;
+    --cyan: #00D2D3;
 }
 
 *, *::before, *::after {
@@ -35,7 +35,7 @@ html, body {
 
 body {
     background-color: var(--bg-color);
-    color: #ffffff;
+    color: #2d3436;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
     display: flex;
@@ -95,7 +95,7 @@ body {
     height: 100vh;
     z-index: -2;
     overflow: hidden;
-    background: radial-gradient(circle at center, #2e0f5c 0%, #1a0836 100%);
+    background: radial-gradient(circle at center, #FFE8CC 0%, #FFF9E6 100%);
 }
 
 .star {
@@ -119,25 +119,26 @@ body {
 }
 
 .icon-btn {
-    background: rgba(30, 10, 68, 0.9);
-    border: 1px solid var(--cell-border);
-    color: #ffffff;
+    background: #ffffff;
+    border: 2px solid #FFB8D0;
+    color: #2d3436;
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transition: all 0.2s;
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     pointer-events: auto;
 }
 
 .icon-btn:hover {
-    border-color: var(--cyan);
-    box-shadow: 0 0 10px rgba(255, 109, 58, 0.4);
+    border-color: #FF6B9D;
+    box-shadow: 0 0 16px rgba(255, 107, 157, 0.4);
+    transform: scale(1.05);
 }
 
 /* Toasts panel */
@@ -154,20 +155,21 @@ body {
 }
 
 .toast {
-    background: rgba(26, 8, 54, 0.95);
-    border: 1px solid var(--cyan);
-    color: #ffffff;
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #FFB8D0;
+    color: #2d3436;
+    border-radius: 16px;
+    padding: 12px 20px;
+    font-size: 0.82rem;
     line-height: 1.3;
-    letter-spacing: 0.5px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 8px rgba(255, 109, 58, 0.3);
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.25);
     animation: slideIn 0.3s cubic-bezier(0.19, 1, 0.22, 1), fadeOut 0.4s ease 5.8s forwards;
     display: flex;
     align-items: center;
     gap: 8px;
     text-transform: capitalize;
+    font-weight: 800;
 }
 
 /* Full Screen Dialogs */

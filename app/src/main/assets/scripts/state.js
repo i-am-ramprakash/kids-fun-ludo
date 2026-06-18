@@ -63,10 +63,10 @@ window.getCommonTrackLength = function() {
 
 // Players metadata
 const players = [
-    { id: 0, color: 'green', name: 'PILOT GREEN', startIdx: 1, homeCells: [[7,1], [7,2], [7,3], [7,4], [7,5]], baseCoords: [[2,2], [2,3], [3,2], [3,3], [4,2]] },
-    { id: 1, color: 'yellow', name: 'PILOT YELLOW', startIdx: 14, homeCells: [[1,7], [2,7], [3,7], [4,7], [5,7]], baseCoords: [[2,11], [2,12], [3,11], [3,12], [4,11]] },
-    { id: 2, color: 'red', name: 'PILOT RED', startIdx: 40, homeCells: [[13,7], [12,7], [11,7], [10,7], [9,7]], baseCoords: [[11,2], [11,3], [12,2], [12,3], [13,2]] },
-    { id: 3, color: 'blue', name: 'PILOT BLUE', startIdx: 27, homeCells: [[7,13], [7,12], [7,11], [7,10], [7,9]], baseCoords: [[11,11], [11,12], [12,11], [12,12], [13,11]] }
+    { id: 0, color: 'green', name: 'GREEN HERO', startIdx: 1, homeCells: [[7,1], [7,2], [7,3], [7,4], [7,5]], baseCoords: [[2,2], [2,3], [3,2], [3,3], [4,2]] },
+    { id: 1, color: 'yellow', name: 'YELLOW HERO', startIdx: 14, homeCells: [[1,7], [2,7], [3,7], [4,7], [5,7]], baseCoords: [[2,11], [2,12], [3,11], [3,12], [4,11]] },
+    { id: 2, color: 'red', name: 'RED HERO', startIdx: 40, homeCells: [[13,7], [12,7], [11,7], [10,7], [9,7]], baseCoords: [[11,2], [11,3], [12,2], [12,3], [13,2]] },
+    { id: 3, color: 'blue', name: 'BLUE HERO', startIdx: 27, homeCells: [[7,13], [7,12], [7,11], [7,10], [7,9]], baseCoords: [[11,11], [11,12], [12,11], [12,12], [13,11]] }
 ];
 
 // Game State Variables

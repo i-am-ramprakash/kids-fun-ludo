@@ -1,4 +1,88 @@
-// Player slot presets by crew size (standard Ludo corners)
+// Kid-friendly theme definitions
+const KID_THEMES = {
+    candyLand: {
+        name: 'Candy Land',
+        emoji: '🍭',
+        colors: {
+            bg: '#FFF9E6', cellBg: '#E8F8F5', cellBorder: '#FFB8D0',
+            green: '#2ED573', yellow: '#FFC312', red: '#FF4757', blue: '#1E90FF',
+            purple: '#FF6B9D', gold: '#FFA502', cyan: '#00D2D3'
+        },
+        pawnEmojis: ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'],
+        modeNames: {
+            passAndPlay: 'Party Mode', quick: 'Solo Adventure', clash: 'Super Battle', sl: 'Rocket Race'
+        }
+    },
+    jungle: {
+        name: 'Jungle Adventure',
+        emoji: '🌴',
+        colors: {
+            bg: '#F1F8E9', cellBg: '#E8F5E9', cellBorder: '#A5D6A7',
+            green: '#00C853', yellow: '#FFD600', red: '#FF5252', blue: '#448AFF',
+            purple: '#69F0AE', gold: '#FFAB00', cyan: '#64FFDA'
+        },
+        pawnEmojis: ['🦁', '🐯', '🐻', '🐵'],
+        modeNames: {
+            passAndPlay: 'Safari Party', quick: 'Jungle Solo', clash: 'Wild Battle', sl: 'Banana Race'
+        }
+    },
+    ocean: {
+        name: 'Ocean World',
+        emoji: '🌊',
+        colors: {
+            bg: '#E0F7FA', cellBg: '#E1F5FE', cellBorder: '#80DEEA',
+            green: '#00E676', yellow: '#FFEA00', red: '#FF4081', blue: '#2979FF',
+            purple: '#40C4FF', gold: '#FF9100', cyan: '#18FFFF'
+        },
+        pawnEmojis: ['🐬', '🐙', '🐠', '🐡'],
+        modeNames: {
+            passAndPlay: 'Beach Party', quick: 'Ocean Solo', clash: 'Wave Battle', sl: 'Coral Race'
+        }
+    },
+    heroes: {
+        name: 'Super Heroes',
+        emoji: '🦸',
+        colors: {
+            bg: '#FFFFFF', cellBg: '#F5F5F5', cellBorder: '#BDBDBD',
+            green: '#00E676', yellow: '#FFD600', red: '#FF1744', blue: '#2979FF',
+            purple: '#D500F9', gold: '#FFC400', cyan: '#00E5FF'
+        },
+        pawnEmojis: ['🦸', '🦹', '🦺', '🦸‍♀️'],
+        modeNames: {
+            passAndPlay: 'Hero Party', quick: 'Hero Solo', clash: 'Epic Battle', sl: 'Hero Race'
+        }
+    }
+};
+
+function getThemeCSSVars(themeKey) {
+    const t = KID_THEMES[themeKey] || KID_THEMES.candyLand;
+    return `--bg-color:${t.colors.bg}; --cell-bg:${t.colors.cellBg}; --cell-border:${t.colors.cellBorder}; --green:${t.colors.green}; --yellow:${t.colors.yellow}; --red:${t.colors.red}; --blue:${t.colors.blue}; --purple:${t.colors.purple}; --gold:${t.colors.gold}; --cyan:${t.colors.cyan};`;
+}
+
+function applyThemeToRoot(themeKey) {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    const vars = getThemeCSSVars(themeKey);
+    vars.split(';').filter(Boolean).forEach(v => {
+        const [k, val] = v.split(':');
+        if (k && val) root.style.setProperty(k.trim(), val.trim());
+    });
+    localStorage.setItem('kids_ludo_theme', themeKey);
+}
+
+function getCurrentThemeKey() {
+    return localStorage.getItem('kids_ludo_theme') || 'candyLand';
+}
+
+function getCurrentThemeModeNames() {
+    const key = getCurrentThemeKey();
+    return KID_THEMES[key] ? KID_THEMES[key].modeNames : {};
+}
+
+function getCurrentThemePawnEmojis() {
+    const key = getCurrentThemeKey();
+    return KID_THEMES[key] ? KID_THEMES[key].pawnEmojis : ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'];
+}
 const PLAYER_SLOT_PRESETS = {
     1: [0, 1, 2, 3], // 1 Human player vs 3 Bots
     2: [0, 2],
@@ -14,6 +98,7 @@ function getDefaultGameConfig() {
         botDifficulty: 'medium',
         humanColorIndex: 0,
         ufoCount: 4,
+        theme: getCurrentThemeKey() || 'candyLand',
         gameStarted: false
     };
 }
@@ -209,13 +294,13 @@ function resetMatchControls() {
     players.forEach(p => {
         const alienBtn = document.getElementById(`alien-${p.id}-combined`);
         if (alienBtn) {
-            setButtonText(`alien-${p.id}-combined`, '👾 ALIEN DEPLOY', '👾');
+            setButtonText(`alien-${p.id}-combined`, '👾 SEND MONSTER', '👾');
             alienBtn.disabled = false;
             alienBtn.style.opacity = '1';
         }
         const w = document.getElementById(`warp-${p.id}`);
         if (w) {
-            setButtonText(`warp-${p.id}`, '⚡ WARP', '⚡');
+            setButtonText(`warp-${p.id}`, 'ZOOM!', '⚡');
             w.disabled = true;
             w.classList.remove('unlocked', 'active-warp');
         }
