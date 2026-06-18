@@ -1,0 +1,28 @@
+# Android Studio
+.idea/
+local.properties
+
+# Gradle
+.gradle/
+build/
+*/build/
+
+# APK/AAB
+*.apk
+*.aab
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# Keystores
+*.keystore
+*.jks
+debug.keystore
+debug.keystore.base64
+
+# OS files
+.DS_Store
+Thumbs.db

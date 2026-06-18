@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Space Ludo</title>
+    <script>
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            var string = msg.toLowerCase();
+            var substring = "script error";
+            if (string.indexOf(substring) > -1){
+                alert('Script Error: See Browser Console for Detail');
+            } else {
+                var message = [
+                    'Message: ' + msg,
+                    'URL: ' + url,
+                    'Line: ' + lineNo,
+                    'Column: ' + columnNo,
+                    'Error object: ' + JSON.stringify(error)
+                ].join(' - ');
+                alert(message);
+            }
+            return false;
+        };
+    </script>
+
+    <link rel="stylesheet" href="styles/fonts.css">
+
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/setup.css">
+    <link rel="stylesheet" href="styles/board.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+</head>
+<body>
+
+    <div id="starfield"></div>
+
+    <div class="toast-overlay" id="toast-container"></div>
+
+    <!-- MULTIPLAYER LOBBY SCREEN -->
+    <div id="multiplayer-lobby-screen" class="view hidden" style="display: none; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: #09122c; border: 2px solid var(--cyan); padding: 30px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%;">
+            <h2 style="color: var(--cyan); margin-bottom: 20px;"> MULTIPLAYER PILOTS</h2>
+            
+            <div id="mp-auth-status" style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 20px;">Initializing secure connection...</div>
+
+            <div id="mp-actions" style="display: none; flex-direction: column; gap: 15px;">
+                <button class="action-btn" onclick="quickMatchMultiplayer()" style="padding: 15px; border-radius: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white;">GLOBAL QUICK MATCH</button>
+                <div style="color: #64748b; font-size: 0.8rem;">- OR -</div>
+                <button class="action-btn roll-btn" onclick="hostMultiplayerRoom()" style="padding: 15px; border-radius: 8px;">HOST PRIVATE ROOM</button>
+                <div style="color: #64748b; font-size: 0.8rem;">— OR —</div>
+                <input type="text" id="mp-join-code" placeholder="ENTER 6-DIGIT CODE" maxLength="6" style="background: #000; color: #fff; border: 1px solid var(--gold); padding: 10px; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; font-family: monospace;">
+                <button class="action-btn" onclick="joinMultiplayerRoom()" style="background: var(--gold); color: #000; padding: 15px; border-radius: 8px;">JOIN ROOM</button>
+                <button class="action-btn" onclick="navigateTo('home-screen')" style="margin-top: 15px; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 15px; border-radius: 8px;">RETURN TO HUB</button>
+            </div>
+
+            <div id="mp-room-lobby" style="display: none;">
+                <h3 style="color: #fff;">ROOM CODE</h3>
+                <div id="mp-room-code-display" style="font-size: 2.5rem; color: var(--gold); letter-spacing: 5px; font-family: monospace; margin: 10px 0;">------</div>
+                
+                <div style="text-align: left; margin: 20px 0;">
+                    <div style="color: var(--cyan); margin-bottom: 5px;">Player 1 (Host): <span id="mp-p1-status" style="color: #10b981;">Waiting...</span></div>
+                    <div style="color: var(--yellow); margin-bottom: 5px;">Player 2: <span id="mp-p2-status" style="color: #64748b;">Empty</span></div>
+                    <div style="color: var(--red); margin-bottom: 5px;">Player 3: <span id="mp-p3-status" style="color: #64748b;">Empty</span></div>
+                    <div style="color: var(--blue);">Player 4: <span id="mp-p4-status" style="color: #64748b;">Empty</span></div>
+                </div>
+
+                <button id="mp-start-btn" class="action-btn roll-btn" onclick="startMultiplayerMatch()" style="padding: 15px; border-radius: 8px; width: 100%; display: none;">LAUNCH MATCH</button>
+            </div>
+            
+            <button class="action-btn" onclick="closeMultiplayerLobby()" style="margin-top: 20px; background: transparent; border: 1px solid #ef4444; color: #ef4444;">CANCEL / BACK</button>
+        </div>
+    </div>
+
+    <!-- 1. SPLASH SCREEN -->
+    <div id="splash-screen" class="view">
+        <div class="splash-container">
+            <div class="splash-logo-container">
+                <div class="splash-logo-ring"></div>
+                <div class="splash-logo">🛸</div>
+            </div>
+            <h1 class="splash-title">SPACE LUDO</h1>
+            <div class="splash-subtitle">ASTEROID CLASH</div>
+            <div class="splash-loading-bar-container">
+                <div class="splash-loading-progress"></div>
+            </div>
+            <div class="splash-loading-text">ENGAGING QUANTUM THRUSTERS...</div>
+        </div>
+    </div>
+
+    <!-- ONBOARDING & LOGIN SCREEN -->
+    <div id="login-screen" class="view hidden">
+        <div class="login-container">
+            <!-- 1. Form Section (For unregistered users) -->
+            <div id="login-form-card" class="login-card">
+                <div class="splash-logo-container" style="width: 100px; height: 100px; margin: 0 auto;">
+                    <div class="login-logo-ring"></div>
+                    <div class="splash-logo" style="font-size: 3rem; line-height: 100px; z-index: 2;">🛸</div>
+                </div>
+                <div>
+                    <h2 class="login-title">SPACE LUDO</h2>
+                    <div class="login-subtitle">PILOT REGISTRATION</div>
+                </div>
+                
+                <div class="login-input-group">
+                    <label class="setup-label" style="text-align: center; display: block;">Email Address</label>
+                    <input type="email" id="login-email-input" class="login-input" placeholder="ENTER EMAIL" style="text-transform: none;" />
+                </div>
+
+                <div class="login-input-group">
+                    <label class="setup-label" style="text-align: center; display: block;">Access Code (Password)</label>
+                    <input type="password" id="login-password-input" class="login-input" placeholder="ENTER PASSWORD" />
+                </div>
+
+                <div id="login-register-fields" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+                    <div class="login-input-group">
+                        <label class="setup-label" style="text-align: center; display: block;">Pilot Call-sign</label>
+                        <input type="text" id="login-username-input" class="login-input" placeholder="ENTER NAME" maxLength="14" />
+                    </div>
+
+                    <div class="login-input-group">
+                        <label class="avatar-picker-title">Select Avatar Species</label>
+                        <div class="avatar-picker-grid" id="login-avatar-grid">
+                            <!-- Filled dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 5px;">
+                    <button type="button" class="action-btn roll-btn" id="login-submit-btn" onclick="submitAuthForm()" style="width: 100%; font-size: 0.85rem; padding: 13px;">🚀 REGISTER PILOT</button>
+                    <button type="button" class="action-btn guest-btn" onclick="loginAsGuest()" style="width: 100%; font-size: 0.8rem; padding: 11px;">EXPLORE AS GUEST</button>
+                    <div style="margin-top: 5px;">
+                        <a href="javascript:void(0)" id="login-mode-toggle" onclick="toggleAuthMode()" style="color: var(--cyan); font-size: 0.65rem; text-decoration: underline; letter-spacing: 0.5px; font-family: 'Nunito', sans-serif; outline: none;">ALREADY A PILOT? SIGN IN</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Welcome Back Section (For registered users) -->
+            <div id="login-welcome-card" class="login-card welcome-back-card" style="display: none;">
+                <div class="welcome-avatar-container">
+                    <div class="login-logo-ring" style="width: 90px; height: 90px; border-color: var(--gold);"></div>
+                    <span class="welcome-avatar-emoji" id="welcome-avatar-display">🧑‍🚀</span>
+                </div>
+                <div>
+                    <div class="login-subtitle" style="color: var(--gold);">WELCOME BACK</div>
+                    <h2 class="welcome-name" id="welcome-name-display">COSMIC CADET</h2>
+                </div>
+
+                <div class="welcome-stats-row">
+                    <div class="welcome-stat-box">
+                        <span class="welcome-stat-val" id="welcome-stat-played">0</span>
+                        <span class="welcome-stat-lbl">MISSIONS</span>
+                    </div>
+                    <div class="welcome-stat-box" style="border-left: 1px solid rgba(255,255,255,0.1);">
+                        <span class="welcome-stat-val" id="welcome-stat-wins" style="color: #10b981;">0</span>
+                        <span class="welcome-stat-lbl">WINS</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 10px; align-items: center;">
+                    <button type="button" class="action-btn roll-btn" onclick="confirmWelcomeLogin()" style="width: 100%; font-size: 0.85rem; padding: 13px; background: linear-gradient(135deg, var(--gold) 0%, #ca8a04 100%); border-color: var(--gold); box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3);">🚀 CONTINUE MISSION</button>
+                    <button type="button" class="welcome-switch-pilot" onclick="showRegistrationForm()">SWITCH PILOT ACCOUNT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PILOT PORTAL HUB (HOME SCREEN) -->
+    <div id="home-screen" class="view hidden" style="display: none;">
+        <div class="flying-ludo-board-bg"></div>
+        <div class="home-header">
+            <div class="home-title-box">
+                <span class="home-logo-glow">🌌</span>
+                <span class="home-main-title">SPACE LUDO</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="stars-counter-header" onclick="switchTab('profile', event)">
+                    <span class="stars-icon-mini">🌌</span>
+                    <span id="header-stars-balance" class="stars-balance-mini">1,000 STARS</span>
+                </div>
+                <div class="commander-tag-header" onclick="switchTab('profile', event)">
+                    <span id="header-commander-avatar" class="cmd-icon-mini">🧑‍🚀</span>
+                    <span id="header-commander-name" class="cmd-name-mini">COSMIC CADET</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="home-content-container">
+            
+            <!-- TAB 1: HOME PANEL -->
+            <div id="tab-home" class="tab-content">
+                <div class="welcome-banner">
+                    <h3>READY TO CLASH, OPERATOR?</h3>
+                    <p>Select your orbital flight path and guide your team of UFOs safely into the Home Portal!</p>
+                </div>
+                
+                <div class="mode-cards-grid">
+                    <div class="mode-card card-quick-play" onclick="openMultiplayerLobby()" style="background:linear-gradient(135deg, #1d4ed8, #2563eb) !important; border-color:#3b82f6 !important;">
+                        <div class="card-icon">🌐</div>
+                        <div class="card-title">Online Multiplayer</div>
+                        <div class="card-desc">Connect to the global network. Host or join private lobbies with a 6-digit access code via Firebase.</div>
+                        <button type="button" class="action-btn mode-card-btn" style="background:#3b82f6;">CONNECT TO NETWORK</button>
+                    </div>
+
+                    <div class="mode-card card-pass-play" onclick="selectPassAndPlay()">
+                        <div class="card-icon">👥</div>
+                        <div class="card-title">Pass & Play</div>
+                        <div class="card-desc">Local multiplayer split desk. Share your combat terminal with 2–4 players side-by-side.</div>
+                        <button type="button" class="action-btn mode-card-btn">PREPARE LAUNCHPAD</button>
+                    </div>
+
+                    <div class="mode-card card-quick-play" onclick="selectQuickPlay()">
+                        <div class="card-icon">🤖</div>
+                        <div class="card-title">Quick Play</div>
+                        <div class="card-desc">Solo combat simulation versus 3 automated droid pilots on intermediate asteroid quadrant.</div>
+                        <button type="button" class="action-btn mode-card-btn">DEPLOY PROBES</button>
+                    </div>
+
+                    <div class="mode-card card-ufo-clash" onclick="selectUFOClash()">
+                        <div class="card-icon">☄</div>
+                        <div class="card-title">UFO Clash (The Anomaly)</div>
+                        <div class="card-desc">Extreme theme zone! Double gravity portals, unpredictable space-warps, and aggressive droids.</div>
+                        <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #a855f7, #6366f1) !important; border-color:#a855f7 !important;">ENTER THE VOID</button>
+                    </div>
+
+                    <div class="mode-card card-rockets-wormholes" onclick="selectSLGame()">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-title">Rockets & Wormholes</div>
+                        <div class="card-desc">Ride the rockets. Dodge the wormholes. Classic 10x10 grid with your UFO pawns!</div>
+                        <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #7c3aed, #4ade80) !important; border-color:#7c3aed !important;">LAUNCH MISSION</button>
+                    </div>
+
+
+                    <div class="mode-card card-more-fun" onclick="selectMoreFun()">
+                        <div class="card-icon">✨</div>
+                        <div class="card-title">More Fun & Secrets</div>
+                        <div class="card-desc">Explore space badges log, achievements dashboard, and live science facts from the stars.</div>
+                        <button type="button" class="action-btn mode-card-btn" style="background:linear-gradient(135deg, #eab308, #ca8a04) !important; border-color:#eab308 !important;">OPEN COMMUNICATOR</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: LEADERBOARD -->
+            <div id="tab-leaderboard" class="tab-content hidden">
+                <div class="tab-header-banner">
+                    <h4> SECTOR RANKINGS</h4>
+                    <p>Records of the elite stellar flight commanders in this region</p>
+                </div>
+                <div class="leaderboard-table-container">
+                    <div class="leaderboard-header-row">
+                        <span class="lh-rank">RANK</span>
+                        <span class="lh-pilot">PILOT NAME</span>
+                        <span class="lh-pts">SCORE</span>
+                        <span class="lh-rate">WINRATE</span>
+                    </div>
+                    <div id="leaderboard-record-list"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: COMMANDER PROFILE -->
+            <div id="tab-profile" class="tab-content hidden">
+                <div class="tab-header-banner" style="border-color: var(--gold);">
+                    <h4>👤 CONSOLE OPERATOR</h4>
+                    <p>Calibrate pilot call-signs and display earned galaxy certificates</p>
+                </div>
+                
+                <div class="profile-editor-card">
+                    <div class="profile-input-row">
+                        <label class="setup-label">Commander Call-sign</label>
+                        <input type="text" id="profile-commander-name" class="setup-slot-input" maxLength="14" oninput="updateCommanderName(this.value); document.getElementById('header-commander-name').innerText=this.value.trim().toUpperCase()||'COSMIC CADET';" placeholder="ENTER NAME" />
+                    </div>
+                    
+                    <div class="profile-input-row" style="margin-top: 10px;">
+                        <label class="setup-label">Designated Species</label>
+                        <select id="profile-species-select" class="setup-slot-input" style="background:#09122c; border-color:var(--cyan); height:40px; border-radius:8px;" onchange="updateCommanderSpecies(this.value)">
+                        </select>
+                    </div>
+                    
+                    <div class="profile-stats-grid" style="display:flex; gap:12px; margin-top:16px;">
+                        <div class="p-stat-box" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(0,229,255,0.15); padding:10px; border-radius:10px; text-align:center;">
+                            <span style="font-size:0.55rem; color:#9ca3af; display:block; letter-spacing:0.5px;">SYSTEM MISSIONS</span>
+                            <span id="profile-games-played" style="font-size:1.35rem; font-weight:bold; color:var(--cyan); font-family:'Nunito',sans-serif;">0</span>
+                        </div>
+                        <div class="p-stat-box" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(0,229,255,0.15); padding:10px; border-radius:10px; text-align:center;">
+                            <span style="font-size:0.55rem; color:#9ca3af; display:block; letter-spacing:0.5px;">CONQUEST WINS</span>
+                            <span id="profile-total-wins" style="font-size:1.35rem; font-weight:bold; color:#10b981; font-family:'Nunito',sans-serif;">0</span>
+                        </div>
+                        <div class="p-stat-box" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(250,204,21,0.15); padding:10px; border-radius:10px; text-align:center;">
+                            <span style="font-size:0.55rem; color:#9ca3af; display:block; letter-spacing:0.5px;">STELLAR STARS</span>
+                            <span id="profile-stars-balance" style="font-size:1.35rem; font-weight:bold; color:#ffd600; font-family:'Nunito',sans-serif;">1,000</span>
+                        </div>
+                    </div>
+                    <button type="button" class="action-btn profile-logout-btn" onclick="logoutPilot()">LOG OUT / SWITCH PILOT</button>
+                </div>
+
+                <div class="tab-sub-header">🎖 GALAXY DECORATIONS UNLOCKED</div>
+                <div id="profile-badges-list" class="profile-badges-scroll-row"></div>
+            </div>
+
+            <!-- TAB 4: SYSTEM SETTINGS -->
+            <div id="tab-settings" class="tab-content hidden">
+                <div class="tab-header-banner">
+                    <h4>⚙ BRIDGE CAPTAIN PANEL</h4>
+                    <p>Calibrate starship systems and hardware controllers</p>
+                </div>
+                
+                <div class="settings-rows-sheet">
+                    <div class="settings-row-item">
+                        <div class="settings-col">
+                            <span class="settings-title">🌌 Quantum Audio Deck</span>
+                            <span class="settings-desc">Toggle the central music generator and ultrasonic feedback.</span>
+                        </div>
+                        <button type="button" class="action-btn toggle-btn-glow" onclick="toggleAudio()" style="margin-top:4px;">🔉 TOGGLE AUDIO DECK</button>
+                    </div>
+
+                    <div class="settings-row-item" style="margin-top: 5px;">
+                        <div class="settings-col">
+                            <span class="settings-title">🚀 Hyperdrive Jump Speed</span>
+                            <span class="settings-desc">Adjust computational time for droid pilot decisions and move speed.</span>
+                        </div>
+                        <select id="settings-flight-speed" class="setup-slot-input" style="background:#09122c; border-color:var(--cyan); height:40px; margin-top:4px;" onchange="updateFlightSpeed(this.value)">
+                            <option value="easy">Sub-Light Speed (Slow AI)</option>
+                            <option value="medium" selected>Light Speed (Normal AI)</option>
+                            <option value="hard">Warp Thrusters (Fast AI)</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-row-item" style="margin-top: 5px;">
+                        <div class="settings-col">
+                            <span class="settings-title">✨ Cosmic Star Dust Density</span>
+                            <span class="settings-desc">Increase or decrease background stars rendering intensity.</span>
+                        </div>
+                        <input type="range" id="settings-starfield-density" min="15" max="150" value="50" style="width:100%; margin-top:8px; accent-color:var(--cyan);" onchange="updateStarfieldDensity(this.value)" />
+                    </div>
+
+                    <div class="settings-row-item" style="margin-top: 10px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:12px; text-align:center;">
+                        <button type="button" class="action-btn" onclick="resetSettings()" style="background:#ef4444 !important; border-color:#dc2626 !important; width:100%;">RESET BRIDGE CONSOLE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: MORE FUN ZONE -->
+            <div id="tab-morefun" class="tab-content hidden">
+                <div class="tab-header-banner" style="border-color: var(--purple);">
+                    <h4>👾 STELLAR CHALLENGES & LOGS</h4>
+                    <p>Mini-games and logs about the Deep Universe</p>
+                </div>
+                <div id="more-fun-content" class="more-fun-flex-grid"></div>
+            </div>
+
+        </div>
+
+        <!-- Persisting Navigation Controllers -->
+        <div class="bottom-nav">
+            <button type="button" class="nav-item active" onclick="switchTab('home', event)">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Home</span>
+            </button>
+            <button type="button" class="nav-item" onclick="switchTab('leaderboard', event)">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-text">Rankings</span>
+            </button>
+            <button type="button" class="nav-item" onclick="switchTab('profile', event)">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Profile</span>
+            </button>
+            <button type="button" class="nav-item" onclick="switchTab('morefun', event)">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-text">Extras</span>
+            </button>
+            <button type="button" class="nav-item" onclick="switchTab('settings', event)">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. MAIN GAME SCREEN -->
+    <div class="game-wrapper game-hidden">
+
+        <div class="game-layout-container">
+
+            <div class="turn-indicator-banner" id="turn-indicator">
+                YELLOW PULSAR TURN
+            </div>
+
+            <div class="player-zone player-zone-0" id="player-zone-0">
+                <div class="panel green-panel" id="panel-0">
+                    <div class="panel-header-row">
+                        <span class="player-character" id="player-char-0" title="GREEN NEBULA">🌿</span>
+                        <div class="player-name-block">
+                            <div class="name-and-wr">
+                                <span class="panel-name">PILOT GREEN</span>
+                                <span class="player-win-rating" id="player-wr-0">25%</span>
+                            </div>
+                            <div class="held-powerups" id="held-powerups-0"></div>
+                        </div>
+                        <div class="dice-housing-box">
+                            <div class="player-dice-container" id="player-dice-container-0" onclick="rollPlayerDice(0)">
+                                <div class="player-dice" id="player-dice-0"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-actions-row">
+                        <button type="button" class="action-btn alien-btn" id="alien-0-combined" onclick="activateSingleAlienDeployment(0)">
+                            <span class="btn-full-text">👾 ALIEN DEPLOY</span>
+                            <span class="btn-short-text">👾</span>
+                        </button>
+                        <button type="button" class="action-btn warp-btn" id="warp-0" onclick="activateWarpDrive(0)">
+                            <span class="btn-full-text">⚡ WARP</span>
+                            <span class="btn-short-text">⚡</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-zone player-zone-1" id="player-zone-1">
+                <div class="panel yellow-panel" id="panel-1">
+                    <div class="panel-header-row">
+                        <span class="player-character" id="player-char-1" title="YELLOW PULSAR">✨</span>
+                        <div class="player-name-block">
+                            <div class="name-and-wr">
+                                <span class="panel-name">PILOT YELLOW</span>
+                                <span class="player-win-rating" id="player-wr-1">25%</span>
+                            </div>
+                            <div class="held-powerups" id="held-powerups-1"></div>
+                        </div>
+                        <div class="dice-housing-box">
+                            <div class="player-dice-container" id="player-dice-container-1" onclick="rollPlayerDice(1)">
+                                <div class="player-dice" id="player-dice-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-actions-row">
+                        <button type="button" class="action-btn alien-btn" id="alien-1-combined" onclick="activateSingleAlienDeployment(1)">
+                            <span class="btn-full-text">👾 ALIEN DEPLOY</span>
+                            <span class="btn-short-text">👾</span>
+                        </button>
+                        <button type="button" class="action-btn warp-btn" id="warp-1" onclick="activateWarpDrive(1)">
+                            <span class="btn-full-text">⚡ WARP</span>
+                            <span class="btn-short-text">⚡</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board-container">
+                <div class="board-hint" id="board-instruction-overlay">
+                    TAP A CELL TO LAUNCH ALIEN
+                </div>
+                <div class="board" id="game-board"></div>
+                <div id="board-dice-floater" class="board-dice-floater" aria-hidden="true"></div>
+            </div>
+
+            <div class="player-zone player-zone-2" id="player-zone-2">
+                <div class="panel red-panel" id="panel-2">
+                    <div class="panel-header-row">
+                        <span class="player-character" id="player-char-2" title="RED SUPERNOVA">💥</span>
+                        <div class="player-name-block">
+                            <div class="name-and-wr">
+                                <span class="panel-name">PILOT RED</span>
+                                <span class="player-win-rating" id="player-wr-2">25%</span>
+                            </div>
+                            <div class="held-powerups" id="held-powerups-2"></div>
+                        </div>
+                        <div class="dice-housing-box">
+                            <div class="player-dice-container" id="player-dice-container-2" onclick="rollPlayerDice(2)">
+                                <div class="player-dice" id="player-dice-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-actions-row">
+                        <button type="button" class="action-btn alien-btn" id="alien-2-combined" onclick="activateSingleAlienDeployment(2)">
+                            <span class="btn-full-text">👾 ALIEN DEPLOY</span>
+                            <span class="btn-short-text">👾</span>
+                        </button>
+                        <button type="button" class="action-btn warp-btn" id="warp-2" onclick="activateWarpDrive(2)">
+                            <span class="btn-full-text">⚡ WARP</span>
+                            <span class="btn-short-text">⚡</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-zone player-zone-3" id="player-zone-3">
+                <div class="panel blue-panel" id="panel-3">
+                    <div class="panel-header-row">
+                        <span class="player-character" id="player-char-3" title="BLUE QUASAR">💠</span>
+                        <div class="player-name-block">
+                            <div class="name-and-wr">
+                                <span class="panel-name">PILOT BLUE</span>
+                                <span class="player-win-rating" id="player-wr-3">25%</span>
+                            </div>
+                            <div class="held-powerups" id="held-powerups-3"></div>
+                        </div>
+                        <div class="dice-housing-box">
+                            <div class="player-dice-container" id="player-dice-container-3" onclick="rollPlayerDice(3)">
+                                <div class="player-dice" id="player-dice-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-actions-row">
+                        <button type="button" class="action-btn alien-btn" id="alien-3-combined" onclick="activateSingleAlienDeployment(3)">
+                            <span class="btn-full-text">👾 ALIEN DEPLOY</span>
+                            <span class="btn-short-text">👾</span>
+                        </button>
+                        <button type="button" class="action-btn warp-btn" id="warp-3" onclick="activateWarpDrive(3)">
+                            <span class="btn-full-text">⚡ WARP</span>
+                            <span class="btn-short-text">⚡</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-controls">
+            <button type="button" class="icon-btn" onclick="navigateTo('setup-screen')" title="Setup menu">⚙</button>
+            <button type="button" class="icon-btn" id="ff-toggle" onclick="toggleFastForward()" title="Fast-Forward Bots" style="opacity: 0.5;">🤖</button>
+            <button type="button" class="icon-btn" id="audio-toggle" onclick="toggleAudio()" title="Sound Controller">🔊</button>
+        </div>
+
+    </div>
+
+    <!-- 4. CONFIGURATION CONSOLE (MISSION BRIEFING / SETUP SCREEN) -->
+    <div class="modal" id="setup-modal">
+        <div class="modal-content setup-content" style="border-color: var(--cyan); box-shadow: 0 0 35px rgba(0, 229, 255, 0.45);">
+            <h2 class="modal-title">MISSION BRIEFING</h2>
+            <p class="setup-subtitle">Configure your orbital crew before launch</p>
+
+            <div class="setup-section" onclick="cycleCrewSize(event)">
+                <span class="setup-label">Crew size</span>
+                <div class="setup-option-row" id="player-count-options">
+                    <button type="button" class="setup-chip" data-count="2" onclick="setLobbyPlayerCount(2, event)">2 Pilots</button>
+                    <button type="button" class="setup-chip" data-count="3" onclick="setLobbyPlayerCount(3, event)">3 Pilots</button>
+                    <button type="button" class="setup-chip selected" data-count="4" onclick="setLobbyPlayerCount(4, event)">4 Pilots</button>
+                </div>
+            </div>
+
+            <!-- Change 1: UFO SQUAD SIZE Section (HIDDEN - CONCEPT REMOVED) -->
+            <div class="setup-section" id="ufo-squad-size-section" style="display: none !important;">
+                <span class="setup-label">UFO SQUAD SIZE</span>
+                <div class="ufo-dots-container" id="ufo-dots-selector" style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;"></div>
+                <div class="ufo-count-label" id="ufo-count-display">4 UFOs per pilot</div>
+            </div>
+
+            <div class="setup-section">
+                <span class="setup-label">Pilot assignments</span>
+                <div id="player-slot-config" class="player-slot-config"></div>
+            </div>
+
+            <!-- Change 2: CHOOSE YOUR COLOR Picker Segment -->
+            <div class="setup-section" id="choose-color-section" style="display: none;">
+                <span class="setup-label">CHOOSE YOUR COLOR</span>
+                <div class="color-swatches-grid" id="color-swatches-grid"></div>
+            </div>
+
+            <div class="setup-section" id="bot-difficulty-section" onclick="cycleBotIntelligence(event)">
+                <span class="setup-label">Bot intelligence</span>
+                <div class="setup-option-row" id="bot-difficulty-options">
+                    <button type="button" class="setup-chip" data-diff="easy" onclick="setLobbyBotDifficulty('easy', event)">Easy</button>
+                    <button type="button" class="setup-chip selected" data-diff="medium" onclick="setLobbyBotDifficulty('medium', event)">Medium</button>
+                    <button type="button" class="setup-chip" data-diff="hard" onclick="setLobbyBotDifficulty('hard', event)">Hard</button>
+                </div>
+            </div>
+
+            <div class="setup-actions">
+                <button type="button" id="setup-resume-btn" class="action-btn resume-btn" onclick="resumeActiveGame()" style="display: none;">↩ BACK TO GAME</button>
+                <button type="button" id="setup-resume-previous-btn" class="action-btn resume-btn" onclick="resumeSavedGame()" style="display: none; background: linear-gradient(135deg, #059669, #047857) !important; border-color: #34d399 !important;">☄ RESUME PREVIOUS GAME</button>
+                <button type="button" class="action-btn roll-btn setup-launch-btn" onclick="startGameFromSetup();">🚀 LAUNCH MISSION</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; margin-top: 5px; width: 100%;">
+                <button type="button" class="action-btn" onclick="navigateBack()" style="background: rgba(13,27,62,0.85); border-color: rgba(255,255,255,0.25); font-size: 0.72rem; padding: 10px;">◀ BACK / RETURN TO HUB</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SL SETUP MODAL -->
+    <!-- 6. SETUP MODALS FOR SL -->
+    <div class="modal" id="sl-setup-modal">
+        <div class="modal-content setup-content" style="border-color: var(--cyan); box-shadow: 0 0 35px rgba(0, 229, 255, 0.45);">
+            <h2 class="modal-title">ROCKETS & WORMHOLES</h2>
+            <p class="setup-subtitle">Ride the rockets. Dodge the wormholes.</p>
+            <div style="margin-bottom: 20px; font-style: italic; color: #7dd3fc; border-left: 4px solid #7c3aed; padding-left: 10px; font-size: 0.8rem; line-height: 1.4;">
+                Launch your UFO across a 10x10 cosmic grid. Land on a rocket and blast forward to a higher orbit. Fall into a wormhole and get pulled back through the space-time continuum. First UFO to reach tile 100 wins!
+            </div>
+            
+            <div class="setup-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span class="setup-label" style="margin-bottom:0;">Sector Select</span>
+                    <span id="sl-board-difficulty" style="font-size:0.6rem; font-weight:900; padding:2px 6px; border-radius:4px; background:rgba(0,0,0,0.5);"></span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.3); border:1px solid rgba(0, 229, 255, 0.4); border-radius:12px; padding:10px;">
+                    <button type="button" class="setup-chip" onclick="cycleSLBoard(-1)" style="min-width:36px; padding:4px; background:rgba(0,0,0,0.4); border-color:rgba(124,58,237,0.5);">◀</button>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                        <span id="sl-board-name" style="color:#7dd3fc; font-weight:900; font-size:0.8rem; text-align:center;">Level 1</span>
+                        <div id="sl-board-preview-container" style="position:relative; width:100px; height:100px; border-radius:8px; border:1px solid rgba(124,58,237,0.5); overflow:hidden;">
+                            <!-- Preview canvas appended via JS -->
+                        </div>
+                    </div>
+                    <button type="button" class="setup-chip" onclick="cycleSLBoard(1)" style="min-width:36px; padding:4px; background:rgba(0,0,0,0.4); border-color:rgba(124,58,237,0.5);">▶</button>
+                </div>
+            </div>
+            
+            <div class="setup-section" onclick="cycleSLCrewSize(event)">
+                <span class="setup-label">Crew size</span>
+                <div class="setup-option-row" id="sl-player-count-options">
+                    <button type="button" class="setup-chip" data-count="2" onclick="setSLLobbyPlayerCount(2, event)">2 Pilots</button>
+                    <button type="button" class="setup-chip" data-count="3" onclick="setSLLobbyPlayerCount(3, event)">3 Pilots</button>
+                    <button type="button" class="setup-chip selected" data-count="4" onclick="setSLLobbyPlayerCount(4, event)">4 Pilots</button>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <span class="setup-label">Pilot assignments</span>
+                <div id="sl-player-slot-config" class="player-slot-config"></div>
+            </div>
+            
+            <div class="setup-actions">
+                <button type="button" class="action-btn roll-btn setup-launch-btn" onclick="startSLGameFromSetup();">🚀 LAUNCH MISSION</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; margin-top: 5px; width: 100%;">
+                <button type="button" class="action-btn" onclick="document.getElementById('sl-setup-modal').classList.remove('active')" style="background: rgba(13,27,62,0.85); border-color: rgba(255,255,255,0.25); font-size: 0.72rem; padding: 10px;">◀ BACK / RETURN TO HUB</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SNAKES & LADDERS GAME VIEW -->
+    <div id="snakes-ladders-view" class="view hidden" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #0B0E1B 0%, #030409 100%); overflow: hidden; z-index: 50; box-sizing: border-box;">
+        <style>
+            #snakes-ladders-view .sl-fs-back {
+                position: fixed; top: 10px; left: 10px; z-index: 60; background: rgba(11,14,27,0.7);
+                border: 1px solid #4c1d95; color: #c084fc; padding: 8px 12px; border-radius: 8px;
+                font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.7rem;
+                letter-spacing: 0.5px; transition: all 0.2s;
+            }
+            #snakes-ladders-view .sl-fs-body {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                width: 100%; height: 100%; padding: 60px 10px 20px 10px; box-sizing: border-box;
+            }
+            #snakes-ladders-view .sl-board-wrapper {
+                position: relative; flex: 1; width: 100%; max-width: min(100%, calc(100vh - 160px));
+                aspect-ratio: 1; background-image: url('images/rockets_and_wormholes_board.png');
+                background-size: cover; background-position: center; border: 2px solid #581c87;
+                border-radius: 12px; box-shadow: 0 0 40px rgba(124, 58, 237, 0.4); margin: 0 auto;
+                overflow: hidden;
+            }
+            #snakes-ladders-view .sl-controls {
+                width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center;
+                gap: 10px; padding-top: 15px; margin-top: auto;
+            }
+            #sl-dice-btn {
+                background: linear-gradient(135deg, #7c3aed, #c084fc); border: 2px solid #a855f7;
+                color: white; font-weight: bold; padding: 15px 30px; font-size: 1.2rem;
+                border-radius: 25px; cursor: pointer; min-width: 150px; text-align: center;
+            }
+            #sl-turn-indicator {
+                color: white; font-weight: bold; font-family: 'Space Grotesk', sans-serif;
+                font-size: 1.1rem; padding: 5px 15px; border-radius: 15px; background: rgba(0,0,0,0.5);
+            }
+        </style>
+        
+        <button type="button" class="sl-fs-back" onclick="navigateTo('home-screen')">◀ BACK TO HUB</button>
+        
+        <div class="sl-fs-body">
+            <div id="sl-turn-indicator">Player 1's Turn</div>
+            
+            <div class="sl-board-wrapper" id="sl-board-container">
+                <!-- Pawns will be injected here -->
+            </div>
+            
+            <div class="sl-controls">
+                <button type="button" id="sl-dice-btn" onclick="rollSLDice()">ROLL DICE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SL WIN MODAL -->
+    <div class="modal" id="sl-win-modal">
+        <div class="modal-content" style="border-color: #facc15; box-shadow: 0 0 50px rgba(250,204,21,0.5); text-align: center;">
+            <h2 class="modal-title" style="color: #fef08a;">VICTORY</h2>
+            <div id="sl-win-announcement" style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: white;"></div>
+            
+            <div id="sl-stats-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom: 20px;">
+                <!-- Stats go here -->
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="action-btn roll-btn" onclick="openSnakesAndLadders()" style="flex:1;">PLAY AGAIN</button>
+                <button type="button" class="action-btn" onclick="navigateTo('home-screen'); document.getElementById('sl-win-modal').classList.remove('active');" style="flex:1;">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. STARSHIP LASER SHOOTER MINI-GAME — FULLSCREEN -->
+    <div id="starship-shooter-view" class="view hidden" style="display:none; position:fixed; inset:0; width:100vw; height:100vh; background:#020010; overflow:hidden; z-index:50;">
+        <style>
+            #starship-shooter-view .shooter-canvas-wrap {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+            }
+            #starship-shooter-view canvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            #starship-shooter-view .shooter-fs-back {
+                position: absolute;
+                bottom: 24px;
+                left: 12px;
+                z-index: 200;
+                background: rgba(2,0,16,0.82);
+                border: 1px solid rgba(0,229,255,0.3);
+                color: rgba(255,255,255,0.7);
+                padding: 6px 13px;
+                border-radius: 20px;
+                font-size: 0.62rem;
+                font-family: 'Nunito', sans-serif;
+                font-weight: 700;
+                cursor: pointer;
+                backdrop-filter: blur(6px);
+                transition: all 0.2s;
+                pointer-events: auto;
+            }
+            #starship-shooter-view .shooter-fs-back:active { color: #00e5ff; border-color: #00e5ff; }
+        </style>
+
+        <div class="shooter-canvas-wrap">
+            <canvas id="shooter-canvas"></canvas>
+
+            <!-- Start / Game Over overlay -->
+            <div id="shooter-overlay" style="position:absolute;inset:0;background:rgba(2,0,16,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;z-index:150;font-family:'Nunito',sans-serif;">
+                <div style="font-size:3.5rem;animation:floatingUfo 3s ease-in-out infinite;">🚀</div>
+                <h4 id="shooter-overlay-title" style="color:#00e5ff;text-transform:uppercase;margin:0;letter-spacing:2px;font-size:1.3rem;text-shadow:0 0 20px rgba(0,229,255,0.6);">STARSHIP ASSAULT</h4>
+                <div id="shooter-overlay-body" style="color:#a5f3fc;font-size:0.82rem;max-width:280px;line-height:1.6;">Slide left/right to move your ship.<br>Your laser fires automatically!</div>
+                <button class="action-btn roll-btn" id="shooter-overlay-cta" onclick="startShooterGame()" style="padding:12px 36px;font-size:0.9rem;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#7c3aed)!important;border-color:#38bdf8!important;">ENGAGE THRUSTERS</button>
+            </div>
+        </div>
+
+        <button type="button" class="shooter-fs-back" onclick="stopShooterGame(); navigateTo('home-screen'); switchTab('morefun');">◀ HUB</button>
+    </div>
+
+    <!-- 5. MISSION RESULTS SCREEN -->
+    <div id="results-screen" class="view hidden" style="display: none;">
+        <div class="results-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; text-align: center; padding: 24px; background: rgba(30, 10, 68, 0.55); border: 1px solid rgba(255, 109, 58, 0.25); border-radius: 24px; box-shadow: 0 0 35px rgba(255, 109, 58, 0.2); backdrop-filter: blur(8px); max-width: 380px; width: 85%; max-height: 90vh; overflow-y: auto;">
+            <div id="results-winner-badge" style="font-size: 3.5rem; filter: drop-shadow(0 0 12px rgba(255, 109, 58, 0.35)); animation: floatingUfo 3s ease-in-out infinite;"></div>
+            <h2 class="win-title" id="results-winner-name" style="font-family: 'Nunito', sans-serif; font-weight: 900; margin: 4px 0;">GALAXY CONQUERED</h2>
+            <div class="win-sub" id="results-winner-sub" style="font-family: 'Nunito', sans-serif; font-size: 0.72rem; color: #f5f0ff; margin-bottom: 12px;">The mothership has declared cosmic supremacy!</div>
+            
+            <div id="results-pilot-stats" style="display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; font-family: 'Nunito', sans-serif; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px dashed rgba(255, 109, 58, 0.3);"></div>
+            
+            <div class="win-actions" style="display: flex; width: 100%; gap: 10px; margin-top: 15px;">
+                <button type="button" class="action-btn roll-btn" onclick="restartGame(); navigateTo('game-screen');" style="flex: 1; padding:12px; font-size:0.8rem;">PLAY AGAIN</button>
+                <button type="button" class="action-btn setup-rules-btn" onclick="returnToSetup(); navigateTo('setup-screen');" style="flex: 1; padding:12px; font-size:0.8rem;">NEW MISSION</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; width: 100%; margin-top: 8px;">
+                <button type="button" class="action-btn" onclick="navigateTo('home-screen')" style="background: rgba(13, 27, 62, 0.85); border-color: rgba(255, 255, 255, 0.2); font-size: 0.72rem; padding: 10px;">🛸 RETURN TO HUB</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. NEBULA FLIGHT RUN CREATIVE MINIGAME — FULLSCREEN -->
+    <div id="cosmic-dodger-view" class="view hidden" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: #07030e; overflow: hidden; z-index: 50;">
+        <style>
+            /* ── Fullscreen Nebula Flight Run layout ── */
+            #cosmic-dodger-view .dodger-fs-canvas-wrap {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+            }
+            #cosmic-dodger-view canvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            #cosmic-dodger-view .dodger-hud {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 8px 16px;
+                background: rgba(7,3,14,0.78);
+                backdrop-filter: blur(4px);
+                border-bottom: 1px solid rgba(224,64,251,0.2);
+                font-family: 'Nunito', sans-serif;
+                pointer-events: none;
+            
+                flex-wrap: wrap;
+            }
+            #cosmic-dodger-view .dodger-hud-score {
+                font-size: 0.75rem;
+                font-weight: 900;
+                color: #e2e8f0;
+                display: flex;
+                flex-direction: column;
+                gap: 1px;
+            }
+            #cosmic-dodger-view .dodger-hud-score span { color: #00e5ff; font-size: 1rem; }
+            #cosmic-dodger-view .dodger-hud-hi span { color: #fbbf24; font-size: 1rem; }
+            #cosmic-dodger-view .dodger-hud-title {
+                font-size: 0.7rem;
+                font-weight: 900;
+                color: #c4b5fd;
+                text-align: center;
+                letter-spacing: 1px;
+            
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 40%;
+            }
+            #cosmic-dodger-view .dodger-fs-back {
+                position: absolute;
+                bottom: 24px;
+                left: 12px;
+                z-index: 200;
+                background: rgba(7,3,14,0.80);
+                border: 1px solid rgba(224,64,251,0.3);
+                color: rgba(255,255,255,0.7);
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.62rem;
+                font-family: 'Nunito', sans-serif;
+                font-weight: 700;
+                cursor: pointer;
+                backdrop-filter: blur(6px);
+                letter-spacing: 0.4px;
+                transition: all 0.2s;
+                pointer-events: auto;
+            }
+            #cosmic-dodger-view .dodger-fs-back:active { color: #fff; border-color: #e040fb; }
+        </style>
+
+        <!-- Floating HUD — no touch interference -->
+        <div class="dodger-hud">
+            <div class="dodger-hud-score">SCORE<br><span id="dodger-score">0</span></div>
+            <div class="dodger-hud-title">🛰 NEBULA FLIGHT RUN</div>
+            <div class="dodger-hud-score dodger-hud-hi">BEST<br><span id="dodger-high">0</span></div>
+        </div>
+
+        <!-- Canvas fills full view -->
+        <div class="dodger-fs-canvas-wrap">
+            <canvas id="dodger-canvas"></canvas>
+
+            <!-- Start / Game Over overlay -->
+            <div id="dodger-overlay" style="position:absolute;inset:0;background:rgba(7,3,14,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;z-index:50;">
+                <div id="dodger-overlay-icon" style="font-size:3.5rem;animation:floatingUfo 3s ease-in-out infinite;">🛸</div>
+                <h4 id="dodger-overlay-title" style="color:#ffffff;text-transform:uppercase;margin:0;letter-spacing:1px;font-size:1.25rem;font-family:'Nunito',sans-serif;">READY PILOT?</h4>
+                <p id="dodger-overlay-text" style="color:#94a3b8;font-size:0.78rem;margin:0;max-width:280px;font-family:'Nunito',sans-serif;">Slide finger left/right anywhere on screen to dodge meteors and collect golden anomaly stars.</p>
+                <button class="action-btn roll-btn" onclick="startDodgerGame()" style="padding:12px 32px;font-size:0.9rem;border-radius:10px;">LAUNCH THRUSTERS</button>
+            </div>
+        </div>
+
+        <!-- Floating back button — clear of canvas touch area -->
+        <button type="button" class="dodger-fs-back" onclick="stopDodgerGame(); navigateTo('home-screen'); switchTab('morefun');">◀ HUB</button>
+    </div>
+
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="scripts/game-config.js"></script>
+    <script src="scripts/state.js"></script>
+    <script src="scripts/player-ui.js"></script>
+    <script src="scripts/setup.js"></script>
+    <script src="scripts/navigation.js"></script>
+    <script src="scripts/bots.js"></script>
+    <script src="scripts/powerups.js"></script>
+    <script src="scripts/audio.js"></script>
+    <script src="scripts/effects.js"></script>
+    <script src="scripts/board.js"></script>
+    <script src="scripts/dice.js"></script>
+    <script src="scripts/movement.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/dodger.js"></script>
+    <script src="scripts/shooter.js"></script>
+    <script type="module" src="scripts/multiplayer.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            generateStars();
+            runShootingStars();
+            // launchAutomaticAliensRoamingLoop();
+            init3DDiceInteractiveLogic();
+            initNavigation();
+        });
+    </script>
+
+    <!-- DAILY REWARD CLAIM OVERLAY -->
+    <div id="daily-reward-overlay" class="hidden" style="display: none; position: fixed; inset: 0; background: rgba(10, 5, 20, 0.9); z-index: 20000; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif; pointer-events: auto;">
+        <div style="background: linear-gradient(135deg, #1e0a44 0%, #0c0420 100%); border: 2px solid var(--gold, #ffd600); box-shadow: 0 0 30px rgba(250, 204, 21, 0.4); padding: 30px; border-radius: 16px; text-align: center; max-width: 350px; width: 90%;">
+            <div style="font-size: 4rem; animation: floatingUfo 3s ease-in-out infinite; margin-bottom: 15px;">🌌</div>
+            <h3 style="color: #ffffff; font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 1px; margin-top: 0;">DAILY ALLOWANCE</h3>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 24px;">Greetings, Pilot! The mothership has transferred your daily orbital allowance of <strong>100 Stars</strong> to your deck.</p>
+            <button class="action-btn roll-btn" onclick="claimDailyReward()" style="width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 8px; background: linear-gradient(135deg, var(--gold) 0%, #ca8a04 100%); border-color: var(--gold); box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3);">ENGAGE RECEIVERS</button>
+        </div>
+    </div>
+
+    <script src="scripts/snakes_ladders.js"></script>
+</body>
+</html>
+

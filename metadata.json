@@ -1,0 +1,6 @@
+{
+  "name": "Space Ludo",
+  "description": "A dark sci-fi Space Ludo board game featuring cascading nebulas, interactive 3D domes, automatic roaming aliens, and authentic Web Audio cosmic synth pads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

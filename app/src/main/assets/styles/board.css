@@ -1,0 +1,1596 @@
+/* Game Layout */
+.game-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* PERFECTLY CENTER THE GAME SCREEN */
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    gap: 4px;
+    box-sizing: border-box;
+    z-index: 100;
+    --panel-height: 72px;
+    --panel-max-pct: 18vh;
+    --board-size: min(100vw, calc(100vh - 200px));
+    --cell-size: calc(var(--board-size) / 15);
+}
+
+
+/* Full-width turn indicator banner */
+.turn-indicator-banner {
+    display: block !important;
+    text-align: center;
+    font-size: clamp(8px, 1.5vw, 12px) !important;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    padding: 8px 12px;
+    background: rgba(30, 10, 68, 0.85);
+    border: 1px solid rgba(255, 109, 58, 0.25);
+    border-radius: 0;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 109, 58, 0.2);
+    margin-bottom: 0 !important;
+    box-sizing: border-box;
+    width: 100vw !important;
+}
+
+/* Symmetrical CSS Grid Container */
+.game-layout-container {
+    display: grid !important;
+    grid-template-columns: calc(50% - 6px) calc(50% - 6px) !important;
+    grid-template-rows: auto auto auto auto !important;
+    row-gap: 8px !important;
+    column-gap: 12px !important;
+    width: 100vw !important;
+    height: auto !important;
+    position: relative;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    align-items: center !important;
+    padding: 0 6px !important;
+}
+
+/* Symmetrical Grid Allocations */
+#turn-indicator {
+    display: block !important;
+    grid-column: 1 / span 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    justify-self: center !important;
+}
+
+#player-zone-0, #panel-0 {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+}
+
+#player-zone-1, #panel-1 {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+}
+
+.board-container {
+    grid-column: 1 / span 2 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    justify-self: center !important;
+}
+
+#player-zone-2, #panel-2 {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+}
+
+#player-zone-3, #panel-3 {
+    grid-column: 2 !important;
+    grid-row: 4 !important;
+}
+
+.player-zone {
+    display: flex;
+    flex-direction: column !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.center-column {
+    display: contents !important;
+}
+
+.side-column {
+    display: none !important;
+}
+
+/* Board Container */
+.board-container {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: var(--board-size) !important;
+    background-color: #ffffff;
+    border: none;
+    border-top: 2px solid var(--cyan);
+    border-bottom: 2px solid var(--cyan);
+    border-radius: 0;
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.35);
+    position: relative;
+    padding: 4px;
+    overflow: visible;
+    box-sizing: border-box !important;
+}
+
+.board {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(15, minmax(0, 1fr));
+    grid-template-rows: repeat(15, minmax(0, 1fr));
+    gap: 2px;
+    background-color: #cbd5e1;
+    border-radius: 12px;
+    padding: 2px;
+}
+
+/* Board Cell Styling */
+.cell {
+    background-color: #f5f0ff;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 0.7rem;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Colored Home Column Cells */
+.cell.green-path { background-color: rgba(0, 230, 118, 0.25); }
+.cell.yellow-path { background-color: rgba(255, 214, 0, 0.25); }
+.cell.red-path { background-color: rgba(255, 64, 129, 0.25); }
+.cell.blue-path { background-color: rgba(68, 138, 255, 0.25); }
+
+/* Safe Cell Styling with Stars */
+.cell.safe {
+    background: #fffde7 !important;
+    border: 1px solid #ffd600 !important;
+    position: relative;
+}
+.cell.safe::after {
+    content: "★";
+    color: #ffd600 !important;
+    font-size: clamp(10px, calc(var(--cell-size) * 0.55), 24px) !important;
+    position: absolute;
+    opacity: 1;
+    z-index: 2;
+    -webkit-text-stroke: 1.5px #000000;
+    text-shadow: 0 0 8px rgba(255, 214, 0, 0.95), 0 0 15px rgba(255, 214, 0, 0.6);
+    font-weight: bold;
+    animation: starPulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes starPulseGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 1px rgba(255, 214, 0, 0.3)); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 0 4px rgba(255, 214, 0, 0.8)); }
+}
+
+/* Entry arrows */
+.entry-arrow {
+    position: absolute;
+    font-size: 0.8rem;
+    font-weight: 900;
+    opacity: 0.9;
+}
+
+/* Home Bases Corner styling */
+.home-base {
+    grid-area: span 6 / span 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 22px 4px 4px 4px;
+    border-radius: 24px;
+    border: 3px solid;
+    position: relative;
+    background: #1e0a44;
+    overflow: hidden;
+}
+
+.home-base::before {
+    content: attr(data-player);
+    position: absolute;
+    font-size: 0.52rem;
+    font-weight: 950;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    letter-spacing: 0.8px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.85);
+    color: #ffffff;
+    white-space: nowrap;
+    z-index: 15;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.home-base-inactive {
+    opacity: 0.22;
+    filter: grayscale(0.85) saturate(0.25);
+    pointer-events: none;
+}
+
+.home-base.green-base { background: radial-gradient(circle at center, #1b4d3e 0%, #0a241c 100%); border-color: var(--green); box-shadow: inset 0 0 12px rgba(0,230,118,0.3); }
+.home-base.yellow-base { background: radial-gradient(circle at center, #665000 0%, #2b2200 100%); border-color: var(--yellow); box-shadow: inset 0 0 12px rgba(255,214,0,0.3); }
+.home-base.red-base { background: radial-gradient(circle at center, #5c1844 0%, #2d051f 100%); border-color: var(--red); box-shadow: inset 0 0 12px rgba(255,64,129,0.3); }
+.home-base.blue-base { background: radial-gradient(circle at center, #153c7c 0%, #081d42 100%); border-color: var(--blue); box-shadow: inset 0 0 12px rgba(68,138,255,0.3); }
+
+.base-slots-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px 4px !important;
+}
+
+/* Base slot overrides per count */
+.base-slots-grid.count-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 16px !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+.base-slots-grid.count-2 .base-slot {
+    width: calc(var(--cell-size) * 1.6) !important;
+    height: calc(var(--cell-size) * 1.6) !important;
+    flex: 0 0 calc(var(--cell-size) * 1.6) !important;
+    margin: 0 !important;
+}
+
+.base-slots-grid.count-3 {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(2, auto) !important;
+    gap: 8px !important;
+    justify-content: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+.base-slots-grid.count-3 .base-slot {
+    width: calc(var(--cell-size) * 1.35) !important;
+    height: calc(var(--cell-size) * 1.35) !important;
+    grid-column: span 2 !important;
+    margin: 0 !important;
+    flex: none !important;
+}
+.base-slots-grid.count-3 .base-slot:nth-child(3) {
+    grid-column: 2 / span 2 !important;
+}
+
+.base-slots-grid.count-4 {
+    display: grid !important;
+    grid-template-columns: repeat(2, auto) !important;
+    grid-template-rows: repeat(2, auto) !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+.base-slots-grid.count-4 .base-slot {
+    width: calc(var(--cell-size) * 1.35) !important;
+    height: calc(var(--cell-size) * 1.35) !important;
+    flex: none !important;
+    margin: 0 !important;
+}
+
+.base-slots-grid.count-5 {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-template-rows: repeat(2, auto) !important;
+    gap: 6px !important;
+    justify-content: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+.base-slots-grid.count-5 .base-slot {
+    width: calc(var(--cell-size) * 1.1) !important;
+    height: calc(var(--cell-size) * 1.1) !important;
+    grid-column: span 2 !important;
+    margin: 0 !important;
+    flex: none !important;
+}
+.base-slots-grid.count-5 .base-slot:nth-child(4) {
+    grid-column: 2 / span 2 !important;
+}
+.base-slots-grid.count-5 .base-slot:nth-child(5) {
+    grid-column: 4 / span 2 !important;
+}
+
+.base-slot {
+    border: 2px dashed rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--cell-size) * 1.25);
+    height: calc(var(--cell-size) * 1.25);
+    margin: auto;
+    position: relative;
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
+}
+
+.green-base .base-slot { border-color: rgba(0, 230, 118, 0.55); }
+.yellow-base .base-slot { border-color: rgba(255, 214, 0, 0.55); }
+.red-base .base-slot { border-color: rgba(255, 64, 129, 0.55); }
+.blue-base .base-slot { border-color: rgba(68, 138, 255, 0.55); }
+
+/* Cell visual pawn stacking base rules */
+.cell .pawn {
+    position: absolute !important;
+    margin: 0 !important;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Compact base slot pawn scaling */
+.home-base .base-slot .pawn {
+    width: 82% !important;
+    height: 82% !important;
+    font-size: calc(var(--cell-size) * 0.72) !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.5) !important;
+}
+
+/* Center Triangle Area */
+.center-finish {
+    grid-area: 7 / 7 / 10 / 10;
+    display: grid;
+    grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
+    border: 2px solid var(--cyan);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background-color: #ffffff;
+}
+
+.finish-triangle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.finish-triangle.green-t {
+    border-width: 40px 0 40px 40px;
+    border-color: transparent transparent transparent rgba(0, 188, 70, 0.25);
+    top: 0; bottom: 0; left: 0; margin: auto;
+}
+.finish-triangle.yellow-t {
+    border-width: 40px 40px 0 40px;
+    border-color: rgba(220, 163, 0, 0.25) transparent transparent transparent;
+    top: 0; left: 0; right: 0; margin: auto;
+}
+.finish-triangle.blue-t {
+    border-width: 40px 40px 40px 0;
+    border-color: transparent rgba(0, 119, 230, 0.25) transparent transparent;
+    top: 0; bottom: 0; right: 0; margin: auto;
+}
+.finish-triangle.red-t {
+    border-width: 0 40px 40px 40px;
+    border-color: transparent transparent rgba(204, 0, 51, 0.25) transparent;
+    bottom: 0; left: 0; right: 0; margin: auto;
+}
+
+.center-trophy {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    z-index: 5;
+    text-shadow: 0 0 10px #ffffff;
+}
+
+/* Pawn Design */
+.pawn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pawn.green-p { background: radial-gradient(circle at 35% 35%, #9fffbe 0%, #00bc46 60%, #005a22 100%); border: 1px solid var(--green); }
+.pawn.yellow-p { background: radial-gradient(circle at 35% 35%, #fff6bf 0%, #dca300 60%, #7d5c00 100%); border: 1px solid var(--yellow); }
+.pawn.red-p { background: radial-gradient(circle at 35% 35%, #ffb6c7 0%, #cc0033 60%, #6f001b 100%); border: 1px solid var(--red); }
+.pawn.blue-p { background: radial-gradient(circle at 35% 35%, #bce0ff 0%, #0077e6 60%, #003e7c 100%); border: 1px solid var(--blue); }
+
+/* Aliens system */
+.alien {
+    font-size: 0.95rem;
+    position: absolute;
+    z-index: 12;
+    text-shadow: 0 0 8px var(--purple);
+    animation: float 2s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+/* High-tech scoreboard */
+.scoreboard-row {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: var(--board-size) !important;
+    margin-top: 0 !important;
+}
+
+.score-card {
+    background: rgba(13, 27, 62, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.score-card.active {
+    background: rgba(13, 27, 62, 0.85);
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.score-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+}
+.score-card.score-green .score-dot { background-color: var(--green); box-shadow: 0 0 6px var(--green); }
+.score-card.score-yellow .score-dot { background-color: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.score-card.score-red .score-dot { background-color: var(--red); box-shadow: 0 0 6px var(--red); }
+.score-card.score-blue .score-dot { background-color: var(--blue); box-shadow: 0 0 6px var(--blue); }
+
+.score-name {
+    font-size: clamp(7px, 1.2vw, 10px) !important;
+    font-weight: 900;
+    color: #9ca3af;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+.score-value {
+    font-size: clamp(9px, 1.6vw, 13px) !important;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Redesigned Compact Player Card Panels with Bright Vivid Colors */
+.players-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+}
+
+.panel {
+    border-radius: 10px !important;
+    padding: 5px 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.15) !important;
+    opacity: 0.95 !important;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    gap: 4px !important;
+    min-height: var(--panel-height) !important;
+    max-height: var(--panel-max-pct) !important;
+    overflow: visible !important;
+    position: relative;
+}
+
+.panel-header-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+}
+
+.player-character {
+    font-size: 1.15rem !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    width: 22px !important;
+    text-align: center !important;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.45));
+}
+
+.player-name-block {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+}
+
+.held-powerups {
+    display: flex !important;
+    gap: 3px !important;
+    min-height: 0 !important;
+    flex-wrap: wrap !important;
+}
+
+.held-powerup-chip {
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+    border-radius: 5px !important;
+    font-size: 0.7rem !important;
+    line-height: 1 !important;
+    padding: 1px 3px !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+}
+
+.held-powerup-chip.held-powerup-locked {
+    opacity: 0.45 !important;
+    cursor: default !important;
+}
+
+.panel-actions-row {
+    display: flex !important;
+    gap: 4px !important;
+    width: 100% !important;
+}
+
+.panel-actions-row .action-btn {
+    flex: 1 !important;
+    height: 22px !important;
+    font-size: 0.52rem !important;
+    padding: 2px 4px !important;
+}
+
+/* Gradients and bright glowing borders matched perfectly to highly saturated path colors */
+.panel.green-panel {
+    background: radial-gradient(circle at center, rgba(0, 230, 118, 0.95) 0%, rgba(0, 120, 60, 0.98) 100%) !important;
+    border: 2.5px solid rgba(0, 230, 118, 0.6) !important;
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.4) !important;
+}
+.panel.yellow-panel {
+    background: radial-gradient(circle at center, rgba(255, 214, 0, 0.95) 0%, rgba(180, 130, 0, 0.98) 100%) !important;
+    border: 2.5px solid rgba(255, 214, 0, 0.6) !important;
+    box-shadow: 0 0 12px rgba(255, 214, 0, 0.4) !important;
+}
+.panel.red-panel {
+    background: radial-gradient(circle at center, rgba(255, 64, 129, 0.95) 0%, rgba(180, 20, 80, 0.98) 100%) !important;
+    border: 2.5px solid rgba(255, 64, 129, 0.6) !important;
+    box-shadow: 0 0 12px rgba(255, 64, 129, 0.4) !important;
+}
+.panel.blue-panel {
+    background: radial-gradient(circle at center, rgba(68, 138, 255, 0.95) 0%, rgba(20, 80, 200, 0.98) 100%) !important;
+    border: 2.5px solid rgba(68, 138, 255, 0.6) !important;
+    box-shadow: 0 0 12px rgba(68, 138, 255, 0.4) !important;
+}
+
+/* Make all texts inside player cards bold and extremely high contrast with rich drop-shadows */
+.panel, .panel * {
+    font-weight: 900 !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.95), -1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95) !important;
+}
+
+/* Touch Targets Expander Pseudo-Elements for all interactions */
+.action-btn, .player-dice-container, .powerup-slot {
+    position: relative !important;
+}
+.action-btn::before, .player-dice-container::before, .powerup-slot::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    transform: translate(-50%, -50%) !important;
+    pointer-events: auto !important;
+    z-index: 100 !important;
+}
+
+/* Active Glow Effects for Turn Holders with Pulsing Borders */
+.panel.active {
+    opacity: 1 !important;
+    filter: saturate(1.2) !important;
+    border-width: 3px !important;
+    z-index: 15000 !important;
+}
+.panel.active.green-panel {
+    border-color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(0, 230, 118, 0.9), inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+    animation: activePanelGlowGreen 1.2s infinite ease-in-out !important;
+}
+.panel.active.yellow-panel {
+    border-color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 214, 0, 0.9), inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+    animation: activePanelGlowYellow 1.2s infinite ease-in-out !important;
+}
+.panel.active.red-panel {
+    border-color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 64, 129, 0.9), inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+    animation: activePanelGlowRed 1.2s infinite ease-in-out !important;
+}
+.panel.active.blue-panel {
+    border-color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(68, 138, 255, 0.9), inset 0 0 12px rgba(255, 255, 255, 0.5) !important;
+    animation: activePanelGlowBlue 1.2s infinite ease-in-out !important;
+}
+
+@keyframes activePanelGlowGreen {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 230, 118, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.3) !important; }
+    50% { box-shadow: 0 0 30px rgba(0, 230, 118, 1), inset 0 0 15px rgba(255, 255, 255, 0.8) !important; }
+}
+@keyframes activePanelGlowYellow {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 214, 0, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.3) !important; }
+    50% { box-shadow: 0 0 30px rgba(255, 214, 0, 1), inset 0 0 15px rgba(255, 255, 255, 0.8) !important; }
+}
+@keyframes activePanelGlowRed {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 64, 129, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.3) !important; }
+    50% { box-shadow: 0 0 30px rgba(255, 64, 129, 1), inset 0 0 15px rgba(255, 255, 255, 0.8) !important; }
+}
+@keyframes activePanelGlowBlue {
+    0%, 100% { box-shadow: 0 0 15px rgba(68, 138, 255, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.3) !important; }
+    50% { box-shadow: 0 0 30px rgba(68, 138, 255, 1), inset 0 0 15px rgba(255, 255, 255, 0.8) !important; }
+}
+
+.player-text-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+
+.name-and-wr {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.panel-name {
+    font-size: clamp(8px, 1.8vw, 10px) !important;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    margin-bottom: 0 !important;
+    color: #ffffff !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default !important;
+}
+
+.player-win-rating {
+    font-size: clamp(7px, 1.4vw, 9px) !important;
+    color: #ffd700;
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1.5px solid rgba(255, 215, 0, 0.6);
+    white-space: nowrap;
+}
+
+.player-interactive-section {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 8px !important;
+}
+
+.player-interactive-section .panel-actions {
+    display: flex !important;
+    flex-direction: column !important; /* Vertical column matches high panels perfectly */
+    gap: 4px !important;
+    flex: 1 !important;
+}
+
+.player-interactive-section .action-btn {
+    height: 32px !important;
+    font-size: 0.68rem !important; /* Larger Typography */
+    padding: 4px 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    width: 100% !important;
+    letter-spacing: 0.4px !important;
+}
+
+/* Individual Players Themed Dice Layout */
+.panel-right-deck {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    justify-content: flex-end !important;
+    flex-shrink: 0 !important;
+}
+
+.powerup-deck-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    width: auto !important;
+    flex: 1 !important;
+    height: 40px !important;
+    align-items: flex-end !important;
+    justify-content: flex-end !important;
+    overflow: hidden !important;
+}
+
+
+
+
+.dice-housing-box {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.62) 0%, rgba(10, 15, 25, 0.95) 100%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+}
+
+/* Neon themed borders for inactive/active player box containment */
+.green-panel .dice-housing-box { border-color: rgba(0, 230, 118, 0.18) !important; }
+.yellow-panel .dice-housing-box { border-color: rgba(255, 214, 0, 0.18) !important; }
+.red-panel .dice-housing-box { border-color: rgba(255, 64, 129, 0.18) !important; }
+.blue-panel .dice-housing-box { border-color: rgba(68, 138, 255, 0.18) !important; }
+
+.panel.active .dice-housing-box {
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.12), 0 0 10px rgba(255, 255, 255, 0.15) !important;
+}
+
+.green-panel.active .dice-housing-box {
+    border-color: rgba(0, 230, 118, 0.6) !important;
+    box-shadow: inset 0 0 12px rgba(0, 230, 118, 0.2), 0 0 12px rgba(0, 230, 118, 0.3) !important;
+}
+.yellow-panel.active .dice-housing-box {
+    border-color: rgba(255, 214, 0, 0.6) !important;
+    box-shadow: inset 0 0 12px rgba(255, 214, 0, 0.2), 0 0 12px rgba(255, 214, 0, 0.3) !important;
+}
+.red-panel.active .dice-housing-box {
+    border-color: rgba(255, 64, 129, 0.6) !important;
+    box-shadow: inset 0 0 12px rgba(255, 64, 129, 0.2), 0 0 12px rgba(255, 64, 129, 0.3) !important;
+}
+.blue-panel.active .dice-housing-box {
+    border-color: rgba(68, 138, 255, 0.6) !important;
+    box-shadow: inset 0 0 12px rgba(68, 138, 255, 0.2), 0 0 12px rgba(68, 138, 255, 0.3) !important;
+}
+
+.player-dice-container {
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.player-dice {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 6px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+    gap: 2px !important;
+    justify-items: center !important;
+    align-items: center !important;
+    transition: all 0.25s ease-in-out !important;
+    position: relative !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dice-dot-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.dice-dot {
+    width: 4px !important;
+    height: 4px !important;
+    border-radius: 50% !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.95), 0 0 1px rgba(255, 255, 255, 0.4) !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+/* Neon Glow styling per player path */
+.green-panel .player-dice {
+    background: radial-gradient(circle at 35% 35%, #052611 0%, #00bc46 72%, #005a22 100%) !important;
+    border: 2.5px solid var(--green) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 12px rgba(0, 230, 118, 0.6), inset 0 0 6px rgba(0, 230, 118, 0.5) !important;
+}
+
+.yellow-panel .player-dice {
+    background: radial-gradient(circle at 35% 35%, #261f05 0%, #dca300 72%, #7d5c00 100%) !important;
+    border: 2.5px solid var(--yellow) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 12px rgba(255, 214, 0, 0.6), inset 0 0 6px rgba(255, 214, 0, 0.5) !important;
+}
+
+.red-panel .player-dice {
+    background: radial-gradient(circle at 35% 35%, #26050e 0%, #cc0033 72%, #6f001b 100%) !important;
+    border: 2.5px solid var(--red) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 12px rgba(255, 64, 129, 0.6), inset 0 0 6px rgba(255, 64, 129, 0.5) !important;
+}
+
+.blue-panel .player-dice {
+    background: radial-gradient(circle at 35% 35%, #051426 0%, #0077e6 72%, #003e7c 100%) !important;
+    border: 2.5px solid var(--blue) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 12px rgba(68, 138, 255, 0.6), inset 0 0 6px rgba(68, 138, 255, 0.5) !important;
+}
+
+/* Dim Inactive Player Dice completely & block point clicks */
+/* Keep dice visible but dim when the panel is not active. */
+.panel:not(.active) .player-dice-container {
+    opacity: 0.65 !important;
+    filter: saturate(0.2) grayscale(0.2) !important;
+    cursor: not-allowed !important;
+    transform: scale(0.88) !important;
+    pointer-events: none !important;
+}
+
+/* If any parent constraints accidentally clip the dice, force visibility. */
+.panel .player-dice-container {
+    overflow: visible !important;
+    visibility: visible !important;
+}
+
+
+
+/* Only Active glow/pulse on roll indicator */
+.panel.active .player-dice-container.active-roll-glowing .player-dice {
+    animation: activeDicePulse 1.1s infinite ease-in-out !important;
+    cursor: pointer !important;
+}
+
+@keyframes activeDicePulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 8px currentColor, inset 0 0 6px currentColor !important;
+    }
+    50% {
+        transform: scale(1.12);
+        box-shadow: 0 0 18px currentColor, inset 0 0 10px currentColor !important;
+        border-color: #ffffff !important;
+    }
+}
+
+/* High-speed spin animations */
+@keyframes diceSpinCycle {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(0.85); filter: brightness(1.3); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Compact action button theme colors */
+.green-panel .action-btn { border-color: rgba(0, 230, 118, 0.35); background: rgba(0, 30, 10, 0.45); }
+.yellow-panel .action-btn { border-color: rgba(255, 214, 0, 0.35); background: rgba(40, 30, 0, 0.45); }
+.red-panel .action-btn { border-color: rgba(255, 64, 129, 0.35); background: rgba(40, 0, 10, 0.45); }
+.blue-panel .action-btn { border-color: rgba(68, 138, 255, 0.35); background: rgba(0, 20, 40, 0.45); }
+
+.green-panel .action-btn:hover:not(:disabled) { background: rgba(0, 230, 118, 0.2) !important; border-color: var(--green) !important; }
+.yellow-panel .action-btn:hover:not(:disabled) { background: rgba(255, 214, 0, 0.2) !important; border-color: var(--yellow) !important; }
+.red-panel .action-btn:hover:not(:disabled) { background: rgba(255, 64, 129, 0.2) !important; border-color: var(--red) !important; }
+.blue-panel .action-btn:hover:not(:disabled) { background: rgba(68, 138, 255, 0.2) !important; border-color: var(--blue) !important; }
+
+.btn-short-text {
+    display: inline-block !important;
+}
+
+/* Dice Face Layout */
+.dice-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.dice {
+    width: 40px;
+    height: 40px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 3px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.15s;
+    margin: 4px auto;
+}
+
+.dice:active {
+    transform: scale(0.9);
+}
+
+.dot {
+    background-color: #111111;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.dot.active {
+    opacity: 1;
+}
+
+/* Action Buttons */
+.action-btn {
+    background: rgba(30, 10, 68, 0.85);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 900;
+    padding: 6px 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.action-btn:hover:not(:disabled) {
+    background: rgba(255, 109, 58, 0.15);
+    border-color: var(--cyan);
+}
+
+.action-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.roll-btn {
+    background: linear-gradient(135deg, #5a2ab0 0%, #1e0a44 100%);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 5px rgba(255, 109, 58, 0.2);
+    font-size: 0.7rem;
+}
+
+.alien-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 1px solid var(--purple);
+    box-shadow: inset 0 0 4px rgba(191,85,236,0.15);
+}
+
+.warp-btn {
+    border: 1px solid var(--gold);
+}
+
+/* Dynamic deployment hint overlay */
+.board-hint {
+    position: absolute;
+    background: rgba(191,85,236,0.15);
+    border: 2px dashed var(--purple);
+    border-radius: 8px;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-align: center;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px black;
+}
+
+.board-hint.active {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   PREMIUM 3D PHYSICAL INTERACTIVE DICE & QUIET HUD STYLE MODULE
+   ========================================================================== */
+
+.board-3d-dice-container {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 60px !important;
+    height: 60px !important;
+    margin-left: -30px !important;
+    margin-top: -30px !important;
+    transform-style: preserve-3d !important;
+    perspective: 600px !important;
+    z-index: 1000 !important;
+    cursor: grab !important;
+    touch-action: none !important;
+    pointer-events: auto !important;
+    transition: transform 0.05s linear !important;
+}
+
+.board-3d-dice-container:active {
+    cursor: grabbing !important;
+}
+
+/* Color-coded glowing shadows based on active player turn selection */
+.board-3d-dice-container.active-green {
+    filter: drop-shadow(0 0 16px rgba(0, 230, 118, 0.95)) !important;
+}
+.board-3d-dice-container.active-yellow {
+    filter: drop-shadow(0 0 16px rgba(255, 214, 0, 0.95)) !important;
+}
+.board-3d-dice-container.active-red {
+    filter: drop-shadow(0 0 16px rgba(255, 64, 129, 0.95)) !important;
+}
+.board-3d-dice-container.active-blue {
+    filter: drop-shadow(0 0 16px rgba(68, 138, 255, 0.95)) !important;
+}
+
+.dice-3d {
+    width: 100% !important;
+    height: 100% !important;
+    position: relative !important;
+    transform-style: preserve-3d !important;
+    transform: rotateX(24deg) rotateY(45deg);
+    transition: none !important; /* manual RAF tick anim */
+}
+
+.dice-3d .face {
+    position: absolute !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 12px !important;
+    border: 3px solid #1e293b !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+    padding: 6px !important;
+    gap: 3px !important;
+    backface-visibility: hidden !important;
+    user-select: none !important;
+}
+
+/* Theme gradients for faces mapping */
+.board-3d-dice-container.active-green .face {
+    background: radial-gradient(circle at 30% 30%, #aeffd3 0%, #00bc46 70%, #005a22 100%) !important;
+    border-color: #032e14 !important;
+}
+.board-3d-dice-container.active-yellow .face {
+    background: radial-gradient(circle at 30% 30%, #fff6bf 0%, #dca300 70%, #7d5c00 100%) !important;
+    border-color: #352600 !important;
+}
+.board-3d-dice-container.active-red .face {
+    background: radial-gradient(circle at 30% 30%, #ffcbd7 0%, #cc0033 70%, #6f001b 100%) !important;
+    border-color: #3a0008 !important;
+}
+.board-3d-dice-container.active-blue .face {
+    background: radial-gradient(circle at 30% 30%, #bce0ff 0%, #0077e6 70%, #003e7c 100%) !important;
+    border-color: #00122e !important;
+}
+
+/* Exact translate depths on Z axis to render cube perfectly */
+.dice-3d .front-face  { transform: translateZ(30px) !important; }
+.dice-3d .back-face   { transform: rotateY(180deg) translateZ(30px) !important; }
+.dice-3d .right-face  { transform: rotateY(90deg) translateZ(30px) !important; }
+.dice-3d .left-face   { transform: rotateY(-90deg) translateZ(30px) !important; }
+.dice-3d .top-face    { transform: rotateX(90deg) translateZ(30px) !important; }
+.dice-3d .bottom-face { transform: rotateX(-90deg) translateZ(30px) !important; }
+
+/* 3D Dice Dot specifications */
+.dice-3d .dot-cell {
+    background: transparent !important;
+}
+.dice-3d .dot {
+    background-color: #1a1a1a !important;
+    border-radius: 50% !important;
+    margin: auto !important;
+    width: 10px !important;
+    height: 10px !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4) !important;
+    display: block !important;
+}
+
+/* Accent contrast color for dots */
+.board-3d-dice-container.active-red .dot,
+.board-3d-dice-container.active-blue .dot {
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(255,255,255,0.4) !important;
+}
+.board-3d-dice-container.active-green .dot,
+.board-3d-dice-container.active-yellow .dot {
+    background-color: #000000 !important;
+}
+
+/* Pulsating scale for inviting interaction */
+@keyframes dicePulseInteract {
+    0% { transform: translate3d(-50%, -50%, 0) scale(1); }
+    50% { transform: translate3d(-50%, -50%, 0) scale(1.08); filter: brightness(1.15); }
+    100% { transform: translate3d(-50%, -50%, 0) scale(1); }
+}
+.dice-highlight-glowing {
+    animation: dicePulseInteract 1.4s infinite ease-in-out !important;
+}
+
+/* SILENT FLAT HUD TAPE REPLACING POPUP TOASTS */
+.toast-overlay {
+    position: absolute !important;
+    top: auto !important;
+    bottom: 8px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 24px) !important;
+    max-width: 95% !important;
+    z-index: 1100 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    pointer-events: none !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 4px !important;
+}
+
+.toast {
+    background: rgba(5, 10, 26, 0.88) !important;
+    border: 1px dashed var(--cyan) !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: clamp(8px, 1.6vw, 10px) !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.6px !important;
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.2) !important;
+    width: 100% !important;
+    justify-content: center !important;
+    color: #cbd5e1 !important;
+    text-shadow: 0 0 4px rgba(0, 229, 255, 0.3) !important;
+    transition: opacity 0.35s ease !important;
+    animation: slideInHUD 0.35s cubic-bezier(0.16, 1, 0.3, 1), fadeOutHUD 0.35s ease 5.8s forwards !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    text-transform: uppercase !important;
+}
+
+@keyframes slideInHUD {
+    0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fadeOutHUD {
+    0% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ==========================================================================
+   POWER-UP DECK DECORATIVE AND FUNCTIONAL SYSTEM STYLING
+   ========================================================================== */
+
+.powerup-deck-container {
+    display: flex !important;
+    gap: 6px !important;
+    width: 140px !important;
+    height: 32px !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-shrink: 0 !important;
+}
+
+.powerup-slot {
+    height: 100% !important;
+    flex: 1 !important;
+    border-radius: 6px !important;
+    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    background: rgba(3, 8, 30, 0.45) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 0 4px !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed !important;
+    user-select: none !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    font-weight: bold !important;
+}
+
+.powerup-slot-empty {
+    font-size: 7px !important;
+    letter-spacing: 0.5px !important;
+    opacity: 0.45 !important;
+}
+
+.powerup-slot-active {
+    cursor: pointer !important;
+    border-style: solid !important;
+    color: #ffffff !important;
+}
+
+.powerup-slot-active:hover {
+    transform: translateY(-2px) scale(1.05) !important;
+    filter: brightness(1.25) !important;
+}
+
+.powerup-slot-locked {
+    opacity: 0.65 !important;
+}
+
+.powerup-slot-icon {
+    font-size: 11px !important;
+    text-shadow: 0 0 4px currentColor !important;
+}
+
+.powerup-slot-text {
+    font-size: 7px !important;
+    white-space: nowrap !important;
+    text-overflow: overflow !important;
+    overflow: hidden !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+}
+
+/* GLOWING RE-ROUTE BOARD POWER POWER CELLS (PORTALS) */
+@keyframes portalOrbGlow {
+    0% { box-shadow: 0 0 6px #d946ef, inset 0 0 4px #d946ef; filter: brightness(1); }
+    50% { box-shadow: 0 0 16px #d946ef, inset 0 0 8px #a21caf; filter: brightness(1.25); }
+    100% { box-shadow: 0 0 6px #d946ef, inset 0 0 4px #d946ef; filter: brightness(1); }
+}
+
+.power-cell-glow {
+    animation: portalOrbGlow 1.2s infinite ease-in-out !important;
+    background: radial-gradient(circle, rgba(217, 70, 239, 0.35) 0%, rgba(3, 8, 30, 0.8) 80%) !important;
+    border: 2px solid #d946ef !important;
+}
+
+.path-powerup-emoji {
+    position: absolute !important;
+    font-size: clamp(14px, calc(var(--cell-size) * 0.65), 24px) !important;
+    z-index: 10 !important;
+    line-height: 1 !important;
+    pointer-events: none !important;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85));
+    animation: pathPowerupBob 1.4s infinite ease-in-out;
+}
+
+@keyframes pathPowerupBob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-2px) scale(1.08); }
+}
+
+/* Floating dice animation on the board */
+.board-dice-floater {
+    position: absolute;
+    z-index: 200;
+    pointer-events: none;
+    display: none;
+    width: 44px;
+    height: 44px;
+}
+
+.board-dice-floater.visible {
+    display: block;
+}
+
+.board-dice-floater .board-dice-face {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 8px !important;
+    padding: 5px !important;
+    gap: 2px !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55) !important;
+}
+
+.board-dice-floater.green-floater .board-dice-face {
+    background: radial-gradient(circle at 35% 35%, #052611 0%, #00bc46 72%, #005a22 100%) !important;
+    border: 2px solid var(--green) !important;
+}
+.board-dice-floater.yellow-floater .board-dice-face {
+    background: radial-gradient(circle at 35% 35%, #261f05 0%, #dca300 72%, #7d5c00 100%) !important;
+    border: 2px solid var(--yellow) !important;
+}
+.board-dice-floater.red-floater .board-dice-face {
+    background: radial-gradient(circle at 35% 35%, #26050e 0%, #cc0033 72%, #6f001b 100%) !important;
+    border: 2px solid var(--red) !important;
+}
+.board-dice-floater.blue-floater .board-dice-face {
+    background: radial-gradient(circle at 35% 35%, #051426 0%, #0077e6 72%, #003e7c 100%) !important;
+    border: 2px solid var(--blue) !important;
+}
+
+/* NEON SHIELD BARRIERS SURROUNDING UFO SHIPS */
+@keyframes shieldPulse {
+    0% { box-shadow: 0 0 2px #38bdf8, 0 0 6px #38bdf8; }
+    50% { box-shadow: 0 0 6px #38bdf8, 0 0 12px #38bdf8; }
+    100% { box-shadow: 0 0 2px #38bdf8, 0 0 6px #38bdf8; }
+}
+
+.shielded-pawn::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -4px !important;
+    left: -4px !important;
+    right: -4px !important;
+    bottom: -4px !important;
+    border-radius: 50% !important;
+    border: 1.5px solid #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    animation: shieldPulse 1s infinite ease-in-out !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+}
+
+/* ICE CRYSTAL FROZEN TIMEOUT INTERFACES */
+.frozen-panel {
+    filter: saturate(0.25) contrast(1.15) !important;
+    border: 1.5px solid #3cc6ff !important;
+    box-shadow: 0 0 14px rgba(60, 198, 255, 0.4) !important;
+    background: linear-gradient(135deg, rgba(3, 8, 30, 0.9) 0%, rgba(13, 148, 136, 0.3) 100%) !important;
+    pointer-events: none !important;
+    position: relative !important;
+}
+
+.frozen-panel::after {
+    content: "❄️ FROZEN CONVERGENCE ❄️" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) rotate(-4deg) !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    color: #3cc6ff !important;
+    letter-spacing: 2px !important;
+    background: rgba(3, 6, 20, 0.85) !important;
+    padding: 3px 10px !important;
+    border: 1px solid #3cc6ff !important;
+    border-radius: 4px !important;
+    text-shadow: 0 0 5px #3cc6ff !important;
+    box-shadow: 0 0 8px rgba(60, 198, 255, 0.3) !important;
+    pointer-events: none !important;
+    z-index: 200 !important;
+}
+
+/* TEMPORARY SAFE ZONE CELLS PROCESSED VIA ROCKET GENERATORS */
+@keyframes gravityShieldPulseZone {
+    0% { border-color: #eab308; box-shadow: 0 0 4px #eab308; }
+    50% { border-color: #ffffff; box-shadow: 0 0 14px #eab308; }
+    100% { border-color: #eab308; box-shadow: 0 0 4px #eab308; }
+}
+
+.temp-safe-zone {
+    border: 1.5px dashed #eab308 !important;
+    background: radial-gradient(circle, rgba(234, 179, 8, 0.22) 0%, transparent 80%) !important;
+    animation: gravityShieldPulseZone 1.5s infinite ease-in-out !important;
+}
+
+/* Center finish sector overlay layouts and finished pawn circles specs */
+.finish-sector {
+    position: absolute !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-content: center !important;
+    justify-content: center !important;
+    z-index: 10 !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
+}
+
+.green-sector {
+    left: 0 !important;
+    top: 5px !important;
+    width: 32px !important;
+    height: 70px !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    padding-left: 3px !important;
+}
+
+.yellow-sector {
+    left: 5px !important;
+    top: 0 !important;
+    width: 70px !important;
+    height: 32px !important;
+    flex-direction: row !important;
+    gap: 3px !important;
+    padding-top: 3px !important;
+}
+
+.red-sector {
+    left: 5px !important;
+    bottom: 0 !important;
+    width: 70px !important;
+    height: 32px !important;
+    flex-direction: row !important;
+    gap: 3px !important;
+    padding-bottom: 3px !important;
+}
+
+.blue-sector {
+    right: 0 !important;
+    top: 5px !important;
+    width: 32px !important;
+    height: 70px !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    padding-right: 3px !important;
+}
+
+/* Single finish count badge — a clean static number showing how many UFOs finished */
+.finish-count-badge {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    border: 2px solid currentColor !important;
+    background: rgba(0, 0, 0, 0.60) !important;
+    box-shadow: 0 0 8px currentColor !important;
+    pointer-events: none !important;
+    line-height: 1 !important;
+    /* No animation — stays static and clean */
+}
+
+.finish-badge-ufo {
+    display: none !important; /* Hidden — numbers only */
+}
+
+.finish-badge-num {
+    font-family: 'Orbitron', 'Nunito', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: 18px !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 6px currentColor, 1px 1px 0 rgba(0,0,0,0.9) !important;
+    line-height: 1 !important;
+}
+
+/* Size + color per sector direction — fills most of the triangle area */
+.green-sector  .finish-count-badge { width: 24px !important; height: 52px !important; color: var(--green) !important; }
+.yellow-sector .finish-count-badge { width: 52px !important; height: 24px !important; flex-direction: row !important; color: var(--yellow) !important; }
+.red-sector    .finish-count-badge { width: 52px !important; height: 24px !important; flex-direction: row !important; color: var(--red) !important; }
+.blue-sector   .finish-count-badge { width: 24px !important; height: 52px !important; color: var(--blue) !important; }
+
+/* Expanded lock overlays for power-up slots */
+.powerup-slot-lock-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.72) !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 5px !important;
+    z-index: 5 !important;
+    pointer-events: none !important;
+}
+
+@keyframes powerupGlowPop {
+    25% { transform: scale(1.18); box-shadow: 0 0 16px #00e5ff, 0 0 25px currentColor; filter: brightness(1.6); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 229, 255, 0); filter: brightness(1); }
+}
+
+.powerup-slot-glowing-pop {
+    animation: powerupGlowPop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+    z-index: 10 !important;
+}
+
+/* BURNING PAWN, PORTAL SPIN AND ROCKET TRAIL PARTICLES AND STYLINGS */
+@keyframes burningPulse {
+    0% { box-shadow: 0 0 4px #ff3b30, 0 0 10px #ff9500; filter: saturate(1.5) brightness(1.2); }
+    50% { box-shadow: 0 0 12px #ff3b30, 0 0 25px #ffcc00; filter: saturate(2) brightness(1.5); }
+    100% { box-shadow: 0 0 4px #ff3b30, 0 0 10px #ff9500; filter: saturate(1.5) brightness(1.2); }
+}
+.burning-pawn {
+    animation: burningPulse 0.5s infinite alternate ease-in-out !important;
+}
+.burning-pawn::after {
+    content: "🔥" !important;
+    position: absolute !important;
+    font-size: 11px !important;
+    bottom: -5px !important;
+    right: -5px !important;
+    z-index: 12 !important;
+    text-shadow: 0 0 4px #ff3b30;
+}
+
+@keyframes portalSpin {
+    0% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg) brightness(1); }
+    50% { transform: scale(0.2) rotate(360deg); filter: hue-rotate(180deg) brightness(2); }
+    100% { transform: scale(1) rotate(720deg); filter: hue-rotate(360deg) brightness(1); }
+}
+.portal-animating {
+    animation: portalSpin 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+
+@keyframes rocketBoostAnim {
+    0% { transform: scale(1) translateY(0); filter: saturate(1); }
+    30% { transform: scale(1.3) translateY(-10px); filter: saturate(2) brightness(1.5); }
+    100% { transform: scale(1) translateY(0); filter: saturate(1); }
+}
+.rocket-animating {
+    animation: rocketBoostAnim 0.7s ease-in-out !important;
+}
+.rocket-animating::after {
+    content: "💨🚀" !important;
+    position: absolute !important;
+    font-size: 14px !important;
+    bottom: -15px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    animation: twinkle 0.1s infinite alternate !important;
+    z-index: 100 !important;
+}
+
+
