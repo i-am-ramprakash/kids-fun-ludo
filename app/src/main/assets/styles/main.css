@@ -58,15 +58,45 @@ body {
 /* Only splash screen should be centered — it has a single logo */
 #splash-screen {
     justify-content: center !important;
+    background: url('../images/Splash Screen.webp') center/cover no-repeat;
 }
 
-/* Results screen also needs centering */
-#results-screen {
-    justify-content: center !important;
+/* Login Screen Background */
+#login-screen {
+    background: url('../images/Login Screen.webp') center/cover no-repeat;
 }
 
+#login-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+}
+
+#login-screen > div,
+#login-screen .login-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Home Screen Background */
 #home-screen {
     justify-content: flex-start;
+    background: url('../images/Home page-Hub.webp') center/cover no-repeat;
+}
+
+#home-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.home-content-container {
+    position: relative;
+    z-index: 2;
 }
 
 .home-content-container {
@@ -95,7 +125,120 @@ body {
     height: 100vh;
     z-index: -2;
     overflow: hidden;
-    background: radial-gradient(circle at center, #FFE8CC 0%, #FFF9E6 100%);
+    background: url('../images/App Logo.webp') center/cover no-repeat, radial-gradient(circle at center, #FFE8CC 0%, #FFF9E6 100%);
+}
+
+/* Game Screen Background */
+.game-wrapper {
+    background: url('../images/Main game screen board.webp') center/cover no-repeat;
+    position: relative;
+}
+
+.game-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 1;
+}
+
+.game-wrapper > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Setup Screen Background */
+#setup-modal .modal-content {
+    background: url('../images/Setup Screen.webp') center/cover no-repeat;
+}
+
+/* Multiplayer Lobby Background */
+#multiplayer-lobby-screen {
+    background: url('../images/Multiplayer Lobby.webp') center/cover no-repeat;
+}
+
+#multiplayer-lobby-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 1;
+}
+
+#multiplayer-lobby-screen > div,
+#multiplayer-lobby-screen > div > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Snakes & Ladders Background */
+#snakes-ladders-view {
+    background: url('../images/Rocket and Wormholes board.webp') center/cover no-repeat;
+}
+
+#snakes-ladders-view .sl-fs-body {
+    position: relative;
+    z-index: 2;
+}
+
+#snakes-ladders-view .sl-board-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+/* Starship Shooter Background */
+#starship-shooter-view {
+    background: url('../images/Starship Shooter minigame.webp') center/cover no-repeat;
+}
+
+#starship-shooter-view::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1;
+}
+
+/* Cosmic Dodger Background */
+#cosmic-dodger-view {
+    background: url('../images/Nebula flight run minigame.webp') center/cover no-repeat;
+}
+
+#cosmic-dodger-view::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+}
+
+/* Results Screen Background */
+#results-screen {
+    justify-content: center !important;
+    background: url('../images/Result Screen.webp') center/cover no-repeat;
+}
+
+#results-screen .results-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Daily Reward Overlay Background */
+#daily-reward-overlay {
+    background: url('../images/Daily reward Overlay.webp') center/cover no-repeat;
+}
+
+#daily-reward-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+#daily-reward-overlay > div {
+    position: relative;
+    z-index: 2;
 }
 
 .star {
@@ -179,7 +322,6 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(18, 5, 38, 0.95);
     z-index: 2000;
     display: none !important;
     align-items: center;

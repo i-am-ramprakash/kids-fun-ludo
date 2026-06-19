@@ -38,9 +38,9 @@
 
     <div class="toast-overlay" id="toast-container"></div>
 
-    <!-- MULTIPLAYER LOBBY SCREEN -->
-    <div id="multiplayer-lobby-screen" class="view hidden" style="display: none; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: #09122c; border: 2px solid var(--cyan); padding: 30px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%;">
+<!-- MULTIPLAYER LOBBY SCREEN -->
+     <div id="multiplayer-lobby-screen" class="view hidden">
+         <div class="multiplayer-content-wrapper" style="background: rgba(9, 18, 44, 0.92); border: 2px solid var(--cyan); padding: 30px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%;">
             <h2 style="color: var(--cyan); margin-bottom: 20px;"> MULTIPLAYER PILOTS</h2>
             
             <div id="mp-auth-status" style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 20px;">Initializing secure connection...</div>
@@ -166,10 +166,9 @@
         </div>
     </div>
 
-    <!-- 2. PILOT PORTAL HUB (HOME SCREEN) -->
-    <div id="home-screen" class="view hidden" style="display: none;">
-        <div class="flying-ludo-board-bg"></div>
-        <div class="home-header">
+<!-- 2. PILOT PORTAL HUB (HOME SCREEN) -->
+     <div id="home-screen" class="view hidden">
+         <div class="home-header">
             <div class="home-title-box">
                 <span class="home-logo-glow">🌌</span>
                 <span class="home-main-title">SPACE LUDO</span>
@@ -633,8 +632,8 @@
         </div>
     </div>
 
-    <!-- SNAKES & LADDERS GAME VIEW -->
-    <div id="snakes-ladders-view" class="view hidden" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #0B0E1B 0%, #030409 100%); overflow: hidden; z-index: 50; box-sizing: border-box;">
+<!-- SNAKES & LADDERS GAME VIEW -->
+     <div id="snakes-ladders-view" class="view hidden">
         <style>
             #snakes-ladders-view .sl-fs-back {
                 position: fixed; top: 10px; left: 10px; z-index: 60; background: rgba(11,14,27,0.7);
@@ -700,8 +699,8 @@
         </div>
     </div>
 
-    <!-- 7. STARSHIP LASER SHOOTER MINI-GAME — FULLSCREEN -->
-    <div id="starship-shooter-view" class="view hidden" style="display:none; position:fixed; inset:0; width:100vw; height:100vh; background:#020010; overflow:hidden; z-index:50;">
+<!-- 7. STARSHIP LASER SHOOTER MINI-GAME — FULLSCREEN -->
+     <div id="starship-shooter-view" class="view hidden">
         <style>
             #starship-shooter-view .shooter-canvas-wrap {
                 position: absolute;
@@ -751,8 +750,8 @@
         <button type="button" class="shooter-fs-back" onclick="stopShooterGame(); navigateTo('home-screen'); switchTab('morefun');">◀ HUB</button>
     </div>
 
-    <!-- 5. MISSION RESULTS SCREEN -->
-    <div id="results-screen" class="view hidden" style="display: none;">
+<!-- 5. MISSION RESULTS SCREEN -->
+     <div id="results-screen" class="view hidden">
         <div class="results-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; text-align: center; padding: 24px; background: rgba(30, 10, 68, 0.55); border: 1px solid rgba(255, 109, 58, 0.25); border-radius: 24px; box-shadow: 0 0 35px rgba(255, 109, 58, 0.2); backdrop-filter: blur(8px); max-width: 380px; width: 85%; max-height: 90vh; overflow-y: auto;">
             <div id="results-winner-badge" style="font-size: 3.5rem; filter: drop-shadow(0 0 12px rgba(255, 109, 58, 0.35)); animation: floatingUfo 3s ease-in-out infinite;"></div>
             <h2 class="win-title" id="results-winner-name" style="font-family: 'Nunito', sans-serif; font-weight: 900; margin: 4px 0;">GALAXY CONQUERED</h2>
@@ -771,8 +770,8 @@
         </div>
     </div>
 
-    <!-- 6. NEBULA FLIGHT RUN CREATIVE MINIGAME — FULLSCREEN -->
-    <div id="cosmic-dodger-view" class="view hidden" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: #07030e; overflow: hidden; z-index: 50;">
+<!-- 6. NEBULA FLIGHT RUN CREATIVE MINIGAME — FULLSCREEN -->
+     <div id="cosmic-dodger-view" class="view hidden">
         <style>
             /* ── Fullscreen Nebula Flight Run layout ── */
             #cosmic-dodger-view .dodger-fs-canvas-wrap {
@@ -902,9 +901,9 @@
         });
     </script>
 
-    <!-- DAILY REWARD CLAIM OVERLAY -->
-    <div id="daily-reward-overlay" class="hidden" style="display: none; position: fixed; inset: 0; background: rgba(10, 5, 20, 0.9); z-index: 20000; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif; pointer-events: auto;">
-        <div style="background: linear-gradient(135deg, #1e0a44 0%, #0c0420 100%); border: 2px solid var(--gold, #ffd600); box-shadow: 0 0 30px rgba(250, 204, 21, 0.4); padding: 30px; border-radius: 16px; text-align: center; max-width: 350px; width: 90%;">
+<!-- DAILY REWARD CLAIM OVERLAY -->
+     <div id="daily-reward-overlay" class="hidden" style="display: none; position: fixed; inset: 0; z-index: 20000; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif; pointer-events: auto;">
+         <div style="background: rgba(30, 10, 68, 0.92); border: 2px solid var(--gold, #ffd600); box-shadow: 0 0 30px rgba(250, 204, 21, 0.4); padding: 30px; border-radius: 16px; text-align: center; max-width: 350px; width: 90%; position: relative; z-index: 2;">
             <div style="font-size: 4rem; animation: floatingUfo 3s ease-in-out infinite; margin-bottom: 15px;">🌌</div>
             <h3 style="color: #ffffff; font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 1px; margin-top: 0;">DAILY ALLOWANCE</h3>
             <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 24px;">Greetings, Pilot! The mothership has transferred your daily orbital allowance of <strong>100 Stars</strong> to your deck.</p>
