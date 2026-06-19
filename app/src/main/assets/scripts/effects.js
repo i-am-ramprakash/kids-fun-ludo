@@ -8,9 +8,13 @@ function generateStars() {
     // Clear existing stars first to prevent accumulation/doubling on density resets
     field.innerHTML = '';
     
+    // Retrieve density configuration and scale star counts down for performance (prevent heating)
+    const densityVal = parseInt(localStorage.getItem('cosmic_star_density') || '50', 10);
+    const starCount = Math.floor(densityVal * 0.7) + 15; 
+    
     const colors = ['#ffffff', '#ffffff', '#ffffff', '#ffb300', '#ffb300', '#ff6d3a', '#e040fb'];
     
-    for (let i = 0; i < 130; i++) {
+    for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         const size = Math.random() * 2 + 0.5;
@@ -26,7 +30,10 @@ function generateStars() {
 
 // Randomly spawning shooting stars loop
 function runShootingStars() {
-    setInterval(() => {
+    const persistentSetInterval = window.__originalSetInterval || setInterval;
+    const persistentSetTimeout = window.__originalSetTimeout || setTimeout;
+    
+    persistentSetInterval(() => {
         if (document.hidden) return;
         const parent = document.getElementById('starfield');
         if (!parent) return;
@@ -36,7 +43,7 @@ function runShootingStars() {
         line.style.left = Math.random() * 60 + 40 + 'vw';
         line.style.animation = `shoot ${Math.random() * 1.5 + 1.2}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
         parent.appendChild(line);
-        setTimeout(() => line.remove(), 3000);
+        persistentSetTimeout(() => line.remove(), 3000);
     }, 6000);
 }
 
@@ -92,9 +99,7 @@ class CanvasParticleEngine {
         this.activeCanvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.resizeCanvas();
-        if (!this.animationId) {
-            this.loop();
-        }
+        // Loop will start dynamically when particles are added
     }
     
     resizeCanvas() {
@@ -123,12 +128,24 @@ class CanvasParticleEngine {
             spin: (Math.random() - 0.5) * 0.2,
             angle: Math.random() * Math.PI * 2
         });
+
+        if (!this.animationId) {
+            this.loop();
+        }
     }
     
     loop() {
         this.update();
         this.draw();
-        this.animationId = requestAnimationFrame(() => this.loop());
+        if (this.particles.length > 0) {
+            this.animationId = requestAnimationFrame(() => this.loop());
+        } else {
+            // Clean/clear canvas one final time and stop loop to save CPU/GPU cycles
+            if (this.ctx && this.activeCanvas) {
+                this.ctx.clearRect(0, 0, this.activeCanvas.width, this.activeCanvas.height);
+            }
+            this.animationId = null;
+        }
     }
     
     update() {

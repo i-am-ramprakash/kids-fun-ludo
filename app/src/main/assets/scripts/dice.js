@@ -276,6 +276,16 @@ function rollPlayerDice(playerIdx) {
                 // Display resolved dot face on panel backup
                 displayDiceDots(playerIdx, roll);
                 
+                // Show number notation helper overlay in center
+                const notation = document.getElementById('dice-number-notation');
+                if (notation) {
+                    const pObj = (typeof players !== 'undefined') ? players[playerIdx] : null;
+                    const pColorName = pObj ? pObj.color : 'cyan';
+                    notation.style.color = `var(--${pColorName})`;
+                    notation.innerText = roll;
+                    notation.classList.add('show');
+                }
+
                 // Haptic feedback double vibration
                 if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
                     navigator.vibrate([45, 30, 45]);
@@ -284,6 +294,9 @@ function rollPlayerDice(playerIdx) {
                 setTimeout(() => {
                     if (board3DContainer) {
                         board3DContainer.style.display = 'none';
+                    }
+                    if (notation) {
+                        notation.classList.remove('show');
                     }
                     completeRollLifecycle(roll, playerIdx);
                 }, 800);
@@ -348,6 +361,16 @@ function rollPlayerDice(playerIdx) {
                 playSynthSound(350, 440, 0.25, 'triangle');
                 triggerBoardShake('light');
                 
+                // Show number notation helper overlay in center
+                const notation = document.getElementById('dice-number-notation');
+                if (notation) {
+                    const pObj = (typeof players !== 'undefined') ? players[playerIdx] : null;
+                    const pColorName = pObj ? pObj.color : 'cyan';
+                    notation.style.color = `var(--${pColorName})`;
+                    notation.innerText = roll;
+                    notation.classList.add('show');
+                }
+                
                 if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
                     navigator.vibrate([40, 30, 40]);
                 }
@@ -357,6 +380,9 @@ function rollPlayerDice(playerIdx) {
                         rotationAngle += 720;
                         diceElem.style.transition = 'transform 0.85s cubic-bezier(0.19, 1, 0.22, 1)';
                         diceElem.style.transform = `translate(0, 0) scale(1) rotate(${rotationAngle}deg)`;
+                    }
+                    if (notation) {
+                        notation.classList.remove('show');
                     }
                     setTimeout(() => {
                         if (diceElem) {

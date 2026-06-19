@@ -117,6 +117,11 @@ const __originalSetInterval = window.setInterval;
 const __originalClearTimeout = window.clearTimeout;
 const __originalClearInterval = window.clearInterval;
 
+window.__originalSetTimeout = __originalSetTimeout;
+window.__originalSetInterval = __originalSetInterval;
+window.__originalClearTimeout = __originalClearTimeout;
+window.__originalClearInterval = __originalClearInterval;
+
 const __registeredTimeouts = new Set();
 const __registeredIntervals = new Set();
 

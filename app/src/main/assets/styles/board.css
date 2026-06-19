@@ -1184,6 +1184,27 @@
     animation: dicePulseInteract 1.4s infinite ease-in-out !important;
 }
 
+/* Dice achieved number notation popup in center */
+.dice-number-notation {
+    position: absolute !important;
+    top: calc(50% - 65px) !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0.5) !important;
+    font-size: 3.5rem !important;
+    font-family: 'Fredoka One', 'Nunito', sans-serif !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 20px currentColor, 0 0 10px rgba(0,0,0,0.8) !important;
+    z-index: 1005 !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease !important;
+}
+.dice-number-notation.show {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1.2) !important;
+}
+
 /* SILENT FLAT HUD TAPE REPLACING POPUP TOASTS */
 .toast-overlay {
     position: absolute !important;

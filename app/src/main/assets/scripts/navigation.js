@@ -815,6 +815,7 @@ function navigateBack() {
     navigateTo(prevScreen, false);
     return true;
 }
+window.navigateBack = navigateBack;
 
 // Exit App Confirmation Dialog (shown when pressing back on home screen)
 function showExitConfirmation() {

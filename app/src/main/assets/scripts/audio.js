@@ -531,7 +531,8 @@ function startSpaceAmbientDrone() {
     });
 
     // 4-second Sawtooth Deep Bass Pulse loop saving reference to pulseInterval
-    pulseInterval = setInterval(() => {
+    const persistentSetInterval = window.__originalSetInterval || setInterval;
+    pulseInterval = persistentSetInterval(() => {
         if (ambientSynth && audioCtx && audioCtx.state !== 'suspended') {
             try {
                 const pulseOsc = audioCtx.createOscillator();
@@ -552,7 +553,7 @@ function startSpaceAmbientDrone() {
     // Triangle arpeggios cycling scale using rArpeggioInterval reference
     const majorScale = [220, 246.94, 277.18, 293.66, 329.63, 369.99, 392.00, 440.00, 493.88, 554.37, 587.33, 659.25, 739.99, 783.99];
     let noteIdx = 0;
-    rArpeggioInterval = setInterval(() => {
+    rArpeggioInterval = persistentSetInterval(() => {
         if (ambientSynth && audioCtx && audioCtx.state !== 'suspended' && Math.random() > 0.15) {
             try {
                 const noteFreq = majorScale[noteIdx];
@@ -584,13 +585,14 @@ function stopAllDroneAndLoops() {
         droneOscillators = [];
     }
     
+    const persistentClearInterval = window.__originalClearInterval || clearInterval;
     if (rArpeggioInterval) {
-        clearInterval(rArpeggioInterval);
+        persistentClearInterval(rArpeggioInterval);
         rArpeggioInterval = null;
     }
     
     if (pulseInterval) {
-        clearInterval(pulseInterval);
+        persistentClearInterval(pulseInterval);
         pulseInterval = null;
     }
     
@@ -930,5 +932,16 @@ if (typeof window !== 'undefined') {
             }
         }
     });
+
+    // One-time global user gesture interaction listeners to unlock Web Audio API context
+    const unlockAudio = () => {
+        startAudioContext();
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+        window.removeEventListener('pointerdown', unlockAudio);
+    };
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+    window.addEventListener('pointerdown', unlockAudio);
 }
 
