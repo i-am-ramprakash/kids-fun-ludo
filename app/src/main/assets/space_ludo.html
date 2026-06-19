@@ -289,24 +289,48 @@
             <!-- TAB 3: MY PROFILE -->
             <div id="tab-profile" class="tab-content hidden">
                 <div class="tab-header-banner" style="border-color: var(--gold);">
-                    <h4>👤 My Profile</h4>
-                    <p>Change your name, pick a character, and see your badges!</p>
+                    <h4>👤 Pilot Command Center</h4>
+                    <p>Upgrade your clearance, customize your UFO tokens, and review navigation records.</p>
                 </div>
 
-                <div class="profile-editor-card">
-                    <div class="profile-input-row">
-                        <label class="setup-label">🏷️ Your Name</label>
-                        <input type="text" id="profile-commander-name" class="setup-slot-input" maxLength="14"
-                            oninput="updateCommanderName(this.value); document.getElementById('header-commander-name').innerText=this.value.trim()||'Space Kid';"
-                            placeholder="Type your name..." />
+                <!-- Futuristic Pilot ID Card -->
+                <div class="pilot-id-card">
+                    <div class="pilot-card-badge-glow"></div>
+                    <div class="pilot-card-header">
+                        <div class="pilot-rank-box">
+                            <span class="pilot-label">SECURITY PROTOCOL</span>
+                            <span class="pilot-rank-title" id="pilot-rank-name">CADET</span>
+                        </div>
+                        <div class="pilot-level-badge">
+                            <span class="level-lbl">LEVEL</span>
+                            <span class="level-num" id="pilot-level-number">1</span>
+                        </div>
                     </div>
 
-                    <div class="profile-input-row" style="margin-top: 10px;">
-                        <label class="setup-label">🎭 Pick Your Character</label>
-                        <select id="profile-species-select" class="setup-slot-input"
-                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; border-radius:12px; color:#fff !important;"
-                            onchange="updateCommanderSpecies(this.value)">
-                        </select>
+                    <div class="pilot-card-identity">
+                        <div class="pilot-avatar-glow" id="pilot-avatar-display">🧑‍🚀</div>
+                        <div class="pilot-details">
+                            <input type="text" id="profile-commander-name" class="pilot-name-input" maxLength="14"
+                                oninput="updateCommanderName(this.value); document.getElementById('header-commander-name').innerText=this.value.trim()||'Space Kid';"
+                                placeholder="PILOT CALLSIGN" />
+                            <div class="pilot-species-row">
+                                <label for="profile-species-select" class="species-lbl">SPECIES:</label>
+                                <select id="profile-species-select" class="pilot-species-select"
+                                    onchange="updateCommanderSpecies(this.value)">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- XP Progress Bar -->
+                    <div class="pilot-xp-section">
+                        <div class="xp-labels">
+                            <span id="pilot-xp-current">0 / 1000 XP</span>
+                            <span id="pilot-xp-pct">0%</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-fill" id="pilot-xp-progress" style="width: 0%;"></div>
+                        </div>
                     </div>
 
                     <div class="profile-stats-grid" style="display:flex; gap:10px; margin-top:16px;">
@@ -329,7 +353,29 @@
                                 style="font-size:1.5rem; font-weight:900; color:#ffd600; font-family:'Fredoka One','Nunito',sans-serif;">1,000</span>
                         </div>
                     </div>
-                    <button type="button" class="action-btn profile-logout-btn" onclick="logoutPilot()">🚪 Sign Out</button>
+
+                    <!-- Security Clearance Details -->
+                    <div class="pilot-clearance-details" style="margin-top:14px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.08); font-size:0.7rem; text-align:left; color:#94a3b8;">
+                        <div class="clearance-row" style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span>Clearance ID:</span>
+                            <span id="pilot-clearance-email" style="font-family:monospace; color:#fff;">ANONYMOUS CLEARANCE</span>
+                        </div>
+                        <div class="clearance-row" style="display:flex; justify-content:space-between;">
+                            <span>Registry Sync:</span>
+                            <span id="pilot-registry-status" style="font-family:monospace; color:#ffd600; font-weight:bold;">LOCAL TELEMETRY 🟡</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="action-btn profile-logout-btn" onclick="logoutPilot()" style="margin-top:14px; background:rgba(239,68,68,0.2) !important; border-color:rgba(239,68,68,0.3) !important;">🚪 De-authorize Pilot</button>
+                </div>
+
+                <!-- Customization UFO Shop -->
+                <div class="tab-sub-header" style="color: var(--cyan); border-bottom: 1px dashed rgba(0,229,255,0.2); padding-bottom: 6px; margin-top: 24px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>🛸 COSMIC CUSTOMIZATION SHOP</span>
+                    <span style="font-size: 0.6rem; color: var(--cyan); font-weight: normal; text-transform: uppercase; background: rgba(0,229,255,0.08); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,229,255,0.2);">UFO PAWNS</span>
+                </div>
+                <div id="profile-skins-shop-grid" class="skins-shop-grid">
+                    <!-- Loaded dynamically via renderSkinsShop() -->
                 </div>
 
                 <!-- Simulated Cosmic Star Store -->
@@ -374,49 +420,126 @@
 
             <!-- TAB 4: SETTINGS -->
             <div id="tab-settings" class="tab-content hidden">
-                <div class="tab-header-banner">
-                    <h4>⚙️ Settings</h4>
-                    <p>Customize how the game looks and sounds for you!</p>
+                <div class="tab-header-banner" style="border-color: var(--cyan);">
+                    <h4>⚙️ Advanced System Console</h4>
+                    <p>Configure device telemetry, holographic displays, and synthesizer node weights.</p>
                 </div>
 
                 <div class="settings-rows-sheet">
+                    <!-- Volume Controls -->
                     <div class="settings-row-item">
                         <div class="settings-col">
-                            <span class="settings-title">🎵 Music &amp; Sounds</span>
-                            <span class="settings-desc">Turn the game music and sound effects on or off.</span>
+                            <span class="settings-title">🎵 AMBIENT MUSIC VOLUME</span>
+                            <span class="settings-desc">Adjust the volume of the space synth background nodes.</span>
                         </div>
-                        <button type="button" class="action-btn toggle-btn-glow" onclick="toggleAudio()"
-                            style="margin-top:4px;">🔉 Toggle Sound</button>
+                        <div style="display:flex; align-items:center; gap:10px; width:100%; margin-top:8px;">
+                            <input type="range" id="settings-music-volume" min="0" max="1" step="0.05" value="0.5"
+                                style="flex:1; accent-color:var(--cyan);"
+                                oninput="updateAmbientVolume(this.value)" />
+                            <span id="music-volume-display" style="width:40px; text-align:right; font-size:0.8rem; font-family:monospace; color:var(--cyan);">50%</span>
+                        </div>
                     </div>
 
-                    <div class="settings-row-item" style="margin-top: 5px;">
+                    <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">🤖 Robot Speed</span>
-                            <span class="settings-desc">How fast should the robot players think and move?</span>
+                            <span class="settings-title">🔊 SOUND FX VOLUME</span>
+                            <span class="settings-desc">Adjust the volume of dice rolling and button telemetry sounds.</span>
                         </div>
-                        <select id="settings-flight-speed" class="setup-slot-input"
-                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(255,107,157,0.5) !important; border-bottom:2px solid rgba(255,107,157,0.7) !important; height:46px; margin-top:4px; color:#fff !important; border-radius:12px;"
-                            onchange="updateFlightSpeed(this.value)">
-                            <option value="easy">🐢 Slow Robots</option>
-                            <option value="medium" selected>🚶 Normal Robots</option>
-                            <option value="hard">⚡ Fast Robots</option>
+                        <div style="display:flex; align-items:center; gap:10px; width:100%; margin-top:8px;">
+                            <input type="range" id="settings-sfx-volume" min="0" max="1" step="0.05" value="0.6"
+                                style="flex:1; accent-color:var(--kid-pink);"
+                                oninput="updateSFXVolume(this.value)" />
+                            <span id="sfx-volume-display" style="width:40px; text-align:right; font-size:0.8rem; font-family:monospace; color:var(--kid-pink);">60%</span>
+                        </div>
+                    </div>
+
+                    <!-- Dice Display Selector -->
+                    <div class="settings-row-item" style="margin-top: 10px;">
+                        <div class="settings-col">
+                            <span class="settings-title">🎲 DICE TELEMETRY MODE</span>
+                            <span class="settings-desc">Switch between 3D holographic projection and 2D classic dice.</span>
+                        </div>
+                        <select id="settings-dice-mode" class="setup-slot-input"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
+                            onchange="updateDiceMode(this.value)">
+                            <option value="3d" selected>🛸 3D Holographic Cube</option>
+                            <option value="2d">🛰️ 2D Classic Flat Dice</option>
                         </select>
                     </div>
 
-                    <div class="settings-row-item" style="margin-top: 5px;">
+                    <!-- Particle Density Throttle -->
+                    <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">⭐ Background Stars</span>
-                            <span class="settings-desc">More or fewer stars in the background sky.</span>
+                            <span class="settings-title">✨ PARTICLE FX LEVEL</span>
+                            <span class="settings-desc">Control particle rendering counts to prevent device heating.</span>
+                        </div>
+                        <select id="settings-particle-level" class="setup-slot-input"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(255,107,157,0.5) !important; border-bottom:2px solid rgba(255,107,157,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
+                            onchange="updateParticleLevel(this.value)">
+                            <option value="high" selected>🔥 High (Vibrant FX)</option>
+                            <option value="medium">⚡ Medium (Balanced)</option>
+                            <option value="low">❄️ Low (Energy Saver)</option>
+                        </select>
+                    </div>
+
+                    <!-- Wake Lock Option -->
+                    <div class="settings-row-item" style="margin-top: 10px;">
+                        <div class="settings-col">
+                            <span class="settings-title">📱 WAKE LOCK TELEMETRY</span>
+                            <span class="settings-desc">Prevent your device screen from sleeping during navigation.</span>
+                        </div>
+                        <select id="settings-wake-lock" class="setup-slot-input"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
+                            onchange="updateWakeLock(this.value)">
+                            <option value="enabled" selected>🔆 Screen Always On</option>
+                            <option value="disabled">💤 Default OS Behavior</option>
+                        </select>
+                    </div>
+
+                    <!-- Interface Language Selector -->
+                    <div class="settings-row-item" style="margin-top: 10px;">
+                        <div class="settings-col">
+                            <span class="settings-title">🌐 CONSOLE INTERFACE LANGUAGE</span>
+                            <span class="settings-desc">Configure cockpit console text translation protocols.</span>
+                        </div>
+                        <select id="settings-language" class="setup-slot-input"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(255,107,157,0.5) !important; border-bottom:2px solid rgba(255,107,157,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
+                            onchange="updateLanguage(this.value)">
+                            <option value="en" selected>🇺🇸 English (US)</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="fr">🇫🇷 Français</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-row-item" style="margin-top: 10px;">
+                        <div class="settings-col">
+                            <span class="settings-title">🤖 Robot Thinking Speed</span>
+                            <span class="settings-desc">Configure local robot flight telemetry computing time.</span>
+                        </div>
+                        <select id="settings-flight-speed" class="setup-slot-input"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
+                            onchange="updateFlightSpeed(this.value)">
+                            <option value="easy">🐢 Slow (0.8s Telemetry)</option>
+                            <option value="medium" selected>🚶 Balanced (0.4s Telemetry)</option>
+                            <option value="hard">⚡ Instant (0.1s Telemetry)</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-row-item" style="margin-top: 10px;">
+                        <div class="settings-col">
+                            <span class="settings-title">⭐ Cosmic Dust Density</span>
+                            <span class="settings-desc">Specify star count in background sky.</span>
                         </div>
                         <input type="range" id="settings-starfield-density" min="15" max="150" value="50"
-                            style="width:100%; margin-top:10px; accent-color:var(--kid-pink);"
+                            style="width:100%; margin-top:10px; accent-color:var(--cyan);"
                             onchange="updateStarfieldDensity(this.value)" />
                     </div>
 
                     <div class="settings-row-item"
-                        style="margin-top: 10px; border-top:1px dashed rgba(255,255,255,0.08); padding-top:12px; text-align:center;">
+                        style="margin-top: 15px; border-top:1px dashed rgba(255,255,255,0.08); padding-top:12px; text-align:center;">
                         <button type="button" class="action-btn" onclick="resetSettings()"
-                            style="background:linear-gradient(135deg,#ef4444,#dc2626) !important; border-color:#dc2626 !important; width:100%;">🔄 Reset Settings</button>
+                            style="background:linear-gradient(135deg,#ef4444,#dc2626) !important; border-color:#dc2626 !important; width:100%;">🔄 Reset Console defaults</button>
                     </div>
                 </div>
             </div>

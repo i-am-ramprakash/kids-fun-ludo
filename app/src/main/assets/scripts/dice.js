@@ -100,6 +100,20 @@ function init3DDiceInteractiveLogic() {
             }
         });
     }
+
+    // Bind sidebar dice containers to trigger rolls
+    for (let i = 0; i < 4; i++) {
+        const sideDice = document.getElementById(`player-dice-container-${i}`);
+        if (sideDice) {
+            sideDice.style.cursor = 'pointer';
+            sideDice.addEventListener('click', () => {
+                const activePlayer = (typeof state !== 'undefined') ? state.activePlayer : null;
+                if (activePlayer === i && !state.hasRolled && !state.isAnimating && !isBot(activePlayer)) {
+                    rollPlayerDice(activePlayer);
+                }
+            });
+        }
+    }
 }
 
 function rollPlayerDice(playerIdx) {
@@ -208,7 +222,7 @@ function rollPlayerDice(playerIdx) {
     const diceElem = document.getElementById(`player-dice-${playerIdx}`);
     const diceContainer = document.getElementById(`player-dice-container-${playerIdx}`);
     
-    if (board3DContainer && cube3D) {
+    if (board3DContainer && cube3D && localStorage.getItem('cosmic_dice_mode') !== '2d') {
         // Show 3D Dice center panel
         board3DContainer.style.display = 'block';
         board3DContainer.classList.remove('active-green', 'active-yellow', 'active-red', 'active-blue', 'dice-highlight-glowing');

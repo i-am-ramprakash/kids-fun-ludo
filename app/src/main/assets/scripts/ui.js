@@ -234,8 +234,39 @@ function renderPawns() {
             pawnDOM.id = `pawn-${playerIdx}-${pawnIdx}`;
             pawnDOM.setAttribute('data-player', playerIdx);
             pawnDOM.setAttribute('data-pawn', pawnIdx);
-            const themeEmojis = getThemePawnEmojis ? getThemePawnEmojis() : null;
-            const pawnEmoji = (themeEmojis && themeEmojis[playerIdx]) ? themeEmojis[playerIdx] : '🛸';
+            let pawnEmoji = '🛸';
+            const getSkinEmoji = (skinId) => {
+                const skins = {
+                    classic: "🛸",
+                    cruiser: "🚀",
+                    vortex: "🔮",
+                    quantum: "🛰️",
+                    phoenix: "☄️",
+                    hyperdrive: "⚡",
+                    nebula: "🪐"
+                };
+                return skins[skinId] || "🛸";
+            };
+
+            if (state.isMultiplayer && window.Multiplayer && window.onlinePlayersMap) {
+                const uid = window.onlinePlayersMap[playerIdx];
+                if (uid === window.Multiplayer.userId) {
+                    pawnEmoji = getSkinEmoji((typeof commanderProfile !== 'undefined') ? commanderProfile.equippedSkin : 'classic');
+                } else if (uid) {
+                    const profile = window.onlinePlayersProfiles && window.onlinePlayersProfiles[uid];
+                    pawnEmoji = getSkinEmoji((profile && profile.equippedSkin) || 'classic');
+                } else {
+                    const themeEmojis = typeof getThemePawnEmojis === 'function' ? getThemePawnEmojis() : null;
+                    pawnEmoji = (themeEmojis && themeEmojis[playerIdx]) ? themeEmojis[playerIdx] : '🛸';
+                }
+            } else {
+                if (typeof isBot === 'function' && !isBot(playerIdx)) {
+                    pawnEmoji = getSkinEmoji((typeof commanderProfile !== 'undefined') ? commanderProfile.equippedSkin : 'classic');
+                } else {
+                    const themeEmojis = typeof getThemePawnEmojis === 'function' ? getThemePawnEmojis() : null;
+                    pawnEmoji = (themeEmojis && themeEmojis[playerIdx]) ? themeEmojis[playerIdx] : '🛸';
+                }
+            }
             pawnDOM.innerHTML = `${pawnEmoji}<div class="engine-flame"></div>`;
 
             // Determine targeting container

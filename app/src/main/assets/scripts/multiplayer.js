@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot, getDoc, updateDoc, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, getDoc, updateDoc, collection, query, where, getDocs, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -78,6 +78,25 @@ window.Multiplayer = {
         const userRef = doc(db, "users", uid);
         const snap = await getDoc(userRef);
         return snap.exists() ? snap.data() : null;
+    },
+
+    getTopPlayers: async function(limitCount = 10) {
+        try {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, orderBy("stars", "desc"), limit(limitCount));
+            const querySnapshot = await getDocs(q);
+            const players = [];
+            querySnapshot.forEach((doc) => {
+                players.push({
+                    uid: doc.id,
+                    ...doc.data()
+                });
+            });
+            return players;
+        } catch (err) {
+            console.error("Error fetching top players:", err);
+            return [];
+        }
     },
 
     generateRoomId: function() {

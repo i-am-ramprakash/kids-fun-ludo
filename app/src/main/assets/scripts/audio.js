@@ -6,8 +6,8 @@ let rArpeggioInterval = null;
 let pulseInterval = null;
 let ambientMasterGain = null;
 
-let sfxVolume = 0.5;
-let ambientVolume = 0.35;
+let sfxVolume = parseFloat(localStorage.getItem('cosmic_sfx_volume') || '0.6');
+let ambientVolume = parseFloat(localStorage.getItem('cosmic_music_volume') || '0.5');
 
 // Audio Cache and Mappings for MP3 Playback
 const EMOJI_SFX_MAP = {
@@ -689,23 +689,64 @@ function hideVolumePanel() {
 
 window.updateSFXVolume = function(val) {
     sfxVolume = parseFloat(val) / 100;
+    localStorage.setItem('cosmic_sfx_volume', sfxVolume.toString());
     const label = document.getElementById('sfx-vol-val');
     if (label) {
         label.textContent = `${val}%`;
     }
+    const advancedSlider = document.getElementById('settings-sfx-volume');
+    if (advancedSlider) advancedSlider.value = sfxVolume;
+    const advancedDisplay = document.getElementById('sfx-volume-display');
+    if (advancedDisplay) advancedDisplay.innerText = `${val}%`;
     playSynthSound(600, 600, 0.05, 'sine');
 };
 
 window.updateAmbientVolume = function(val) {
     ambientVolume = parseFloat(val) / 100;
+    localStorage.setItem('cosmic_music_volume', ambientVolume.toString());
     const label = document.getElementById('ambient-vol-val');
     if (label) {
         label.textContent = `${val}%`;
+    }
+    const advancedSlider = document.getElementById('settings-music-volume');
+    if (advancedSlider) advancedSlider.value = ambientVolume;
+    const advancedDisplay = document.getElementById('music-volume-display');
+    if (advancedDisplay) advancedDisplay.innerText = `${val}%`;
+    if (audioCtx && ambientMasterGain) {
+        try {
+            ambientMasterGain.gain.linearRampToValueAtTime(0.14 * ambientVolume, audioCtx.currentTime + 0.1);
+        } catch(e) {}
+    }
+};
+
+window.setAmbientVolume = function(vol) {
+    ambientVolume = parseFloat(vol);
+    localStorage.setItem('cosmic_music_volume', ambientVolume.toString());
+    const label = document.getElementById('ambient-vol-val');
+    if (label) {
+        label.textContent = `${Math.round(ambientVolume * 100)}%`;
+    }
+    const slider = document.getElementById('ambient-volume-slider');
+    if (slider) {
+        slider.value = Math.round(ambientVolume * 100);
     }
     if (audioCtx && ambientMasterGain) {
         try {
             ambientMasterGain.gain.linearRampToValueAtTime(0.14 * ambientVolume, audioCtx.currentTime + 0.1);
         } catch(e) {}
+    }
+};
+
+window.setSFXVolume = function(vol) {
+    sfxVolume = parseFloat(vol);
+    localStorage.setItem('cosmic_sfx_volume', sfxVolume.toString());
+    const label = document.getElementById('sfx-vol-val');
+    if (label) {
+        label.textContent = `${Math.round(sfxVolume * 100)}%`;
+    }
+    const slider = document.getElementById('sfx-volume-slider');
+    if (slider) {
+        slider.value = Math.round(sfxVolume * 100);
     }
 };
 

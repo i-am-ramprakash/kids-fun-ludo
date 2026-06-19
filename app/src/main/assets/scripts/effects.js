@@ -110,6 +110,13 @@ class CanvasParticleEngine {
     }
     
     addParticle(x, y, color, sizeRange = [3, 8], speedRange = [1, 4], angle = null, decay = 0.02, type = 'star', shape = 'circle') {
+        const particleLevel = localStorage.getItem('cosmic_particle_level') || 'high';
+        if (particleLevel === 'low') {
+            if (Math.random() > 0.3) return;
+        } else if (particleLevel === 'medium') {
+            if (Math.random() > 0.6) return;
+        }
+
         const rad = angle !== null ? angle : Math.random() * Math.PI * 2;
         const speed = Math.random() * (speedRange[1] - speedRange[0]) + speedRange[0];
         

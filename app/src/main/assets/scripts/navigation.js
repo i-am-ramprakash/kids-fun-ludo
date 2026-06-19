@@ -36,9 +36,22 @@ const DEFAULT_PROFILE = {
     totalWins: 0,
     unlockedBadges: ["First Flight"],
     isRegistered: false,
-    stars: 0,
-    lastDailyLogin: 0
+    stars: 1000,
+    lastDailyLogin: 0,
+    unlockedSkins: ["classic"],
+    equippedSkin: "classic"
 };
+
+// Available custom UFO token skins
+const UFO_SKINS = [
+    { id: "classic", name: "Classic Saucer", emoji: "🛸", cost: 0, desc: "Standard pilot issue saucer token." },
+    { id: "cruiser", name: "Star Cruiser", emoji: "🚀", cost: 150, desc: "High-velocity cruiser built for tactical maneuvers." },
+    { id: "vortex", name: "Vortex Sphere", emoji: "🔮", cost: 300, desc: "Anomalous portal projector pulling cosmic gravity." },
+    { id: "quantum", name: "Quantum Probe", emoji: "🛰️", cost: 500, desc: "Equipped with hyper-sensitive sensors for deep space paths." },
+    { id: "phoenix", name: "Phoenix Rocket", emoji: "☄️", cost: 800, desc: "Harnessing the heat of passing solar flares." },
+    { id: "hyperdrive", name: "Hyperdrive Saucer", emoji: "⚡", cost: 1200, desc: "Prototype electro-charged saucer sparking cosmic electricity." },
+    { id: "nebula", name: "Nebula Eclipse", emoji: "🪐", cost: 2000, desc: "Prestige token carved from dense ring system asteroids." }
+];
 
 // Profile data initialized from default
 let commanderProfile = { ...DEFAULT_PROFILE };
@@ -549,6 +562,69 @@ function syncHeaderAndPilotData() {
     const winsEl = document.getElementById('profile-total-wins');
     if (winsEl) winsEl.innerText = commanderProfile.totalWins;
 
+    // Calculate dynamic pilot level and XP progress
+    const games = commanderProfile.gamesPlayed || 0;
+    const wins = commanderProfile.totalWins || 0;
+    const totalXp = (games * 100) + (wins * 300);
+    const xpPerLevel = 1000;
+    const level = Math.floor(totalXp / xpPerLevel) + 1;
+    const xpCurrentMin = (level - 1) * xpPerLevel;
+    const xpProgress = totalXp - xpCurrentMin;
+    const xpNeeded = xpPerLevel;
+    const xpPercent = Math.max(0, Math.min(100, Math.round((xpProgress / xpNeeded) * 100)));
+
+    let pilotRank = "CADET";
+    if (level >= 11) pilotRank = "GRAND ADMIRAL 👑";
+    else if (level >= 8) pilotRank = "COMMANDER 🛸";
+    else if (level >= 5) pilotRank = "CAPTAIN 🎖️";
+    else if (level >= 3) pilotRank = "LIEUTENANT 👨‍✈️";
+    else pilotRank = "CADET 🧑‍🚀";
+
+    // Set Pilot Rank & Level details
+    const rankEl = document.getElementById('pilot-rank-name');
+    if (rankEl) rankEl.innerHTML = pilotRank;
+
+    const levelEl = document.getElementById('pilot-level-number');
+    if (levelEl) levelEl.innerText = level;
+
+    const xpCurrentEl = document.getElementById('pilot-xp-current');
+    if (xpCurrentEl) xpCurrentEl.innerText = `${xpProgress} / ${xpNeeded} XP`;
+
+    const xpPctEl = document.getElementById('pilot-xp-pct');
+    if (xpPctEl) xpPctEl.innerText = `${xpPercent}%`;
+
+    const xpProgressFill = document.getElementById('pilot-xp-progress');
+    if (xpProgressFill) xpProgressFill.style.width = `${xpPercent}%`;
+
+    const avatarDisplay = document.getElementById('pilot-avatar-display');
+    if (avatarDisplay) avatarDisplay.innerText = SPECIES_EMOJIS[species] || "🧑‍🚀";
+
+    // Update Security Clearance Details
+    const clearanceEmailEl = document.getElementById('pilot-clearance-email');
+    const registryStatusEl = document.getElementById('pilot-registry-status');
+
+    if (window.Multiplayer && window.Multiplayer.auth && window.Multiplayer.auth.currentUser) {
+        const user = window.Multiplayer.auth.currentUser;
+        if (clearanceEmailEl) {
+            clearanceEmailEl.innerText = user.email ? user.email.toUpperCase() : "ANONYMOUS CLEARANCE";
+        }
+        if (registryStatusEl) {
+            if (user.isAnonymous) {
+                registryStatusEl.innerHTML = "GUEST CACHE 🟡";
+                registryStatusEl.style.color = "#ffd600";
+            } else {
+                registryStatusEl.innerHTML = "CLOUD SYNC SECURED 🟢";
+                registryStatusEl.style.color = "#10b981";
+            }
+        }
+    } else {
+        if (clearanceEmailEl) clearanceEmailEl.innerText = "OFFLINE ANONYMOUS";
+        if (registryStatusEl) {
+            registryStatusEl.innerHTML = "LOCAL TELEMETRY 🔴";
+            registryStatusEl.style.color = "#ef4444";
+        }
+    }
+
     if (typeof syncPlayerSlotsWithSelectedColor === 'function') {
         syncPlayerSlotsWithSelectedColor();
     }
@@ -563,7 +639,39 @@ const PATH_ACHIEVEMENTS = [
     { id: "Clash Master", desc: "Survive and win a UFO Clash special match", icon: "☄️", unlocked: false }
 ];
 
+let wakeLock = null;
+async function requestWakeLock() {
+    if (localStorage.getItem('cosmic_wake_lock') === 'disabled') return;
+    if ('wakeLock' in navigator) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            console.log("Wake Lock acquired successfully");
+        } catch (err) {
+            console.warn("Wake lock failed:", err);
+        }
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock) {
+        wakeLock.release().then(() => {
+            wakeLock = null;
+            console.log("Wake Lock released successfully");
+        }).catch(err => {
+            console.warn("Release wake lock error:", err);
+        });
+    }
+}
+
 function initNavigation() {
+    // Initialize default local settings if not present
+    if (!localStorage.getItem('cosmic_music_volume')) localStorage.setItem('cosmic_music_volume', '0.5');
+    if (!localStorage.getItem('cosmic_sfx_volume')) localStorage.setItem('cosmic_sfx_volume', '0.6');
+    if (!localStorage.getItem('cosmic_dice_mode')) localStorage.setItem('cosmic_dice_mode', '3d');
+    if (!localStorage.getItem('cosmic_particle_level')) localStorage.setItem('cosmic_particle_level', 'high');
+    if (!localStorage.getItem('cosmic_wake_lock')) localStorage.setItem('cosmic_wake_lock', 'enabled');
+    if (!localStorage.getItem('cosmic_language')) localStorage.setItem('cosmic_language', 'en');
+
     // Load local storage states if available
     loadProfileAndLeaderboard();
 
@@ -640,6 +748,13 @@ let navigationHistory = [];
 
 function navigateTo(screenId, pushToHistory = true) {
     if (!screenId) return;
+
+    // Control Wake Lock
+    if (screenId === 'game-screen' || screenId === 'snakes-ladders-view') {
+        requestWakeLock();
+    } else {
+        releaseWakeLock();
+    }
 
     // Check if target is already current
     if (currentScreen === screenId) return;
@@ -1227,12 +1342,73 @@ function selectMoreFun() {
     switchTab('morefun');
 }
 
-// Leaderboard implementation using in-memory leaderboardRecords
-function renderLeaderboard() {
+// Leaderboard implementation using Firestore if online, otherwise fallback
+async function renderLeaderboard() {
     const listContainer = document.getElementById('leaderboard-record-list');
     if (!listContainer) return;
 
-    let records = leaderboardRecords;
+    // Show glowing loading state first
+    listContainer.innerHTML = `
+        <div class="leaderboard-loading-scanner">
+            <div class="scanner-bar"></div>
+            <span>TRANSMITTING TELEMETRY SYNC FROM CLOUD SECTOR...</span>
+        </div>
+    `;
+
+    let records = [];
+    let isFetchedFromCloud = false;
+
+    if (window.Multiplayer && window.Multiplayer.auth.currentUser) {
+        try {
+            // Fetch top 10 players from Firebase
+            const cloudPlayers = await window.Multiplayer.getTopPlayers(10);
+            if (cloudPlayers && cloudPlayers.length > 0) {
+                records = cloudPlayers.map((cp, index) => {
+                    const games = cp.gamesPlayed || 0;
+                    const wins = cp.totalWins || 0;
+                    const winRateVal = games > 0 ? Math.round((wins / games) * 100) : 0;
+                    return {
+                        rank: index + 1,
+                        name: cp.name || "UNKNOWN VOYAGER",
+                        winRate: `${winRateVal}%`,
+                        rankPoints: cp.stars || 0,
+                        species: cp.species || "Terran (Human)",
+                        gamesPlayed: games,
+                        totalWins: wins
+                    };
+                });
+                isFetchedFromCloud = true;
+            }
+        } catch (e) {
+            console.error("Leaderboard cloud sync failed, using offline telemetry", e);
+        }
+    }
+
+    if (!isFetchedFromCloud) {
+        // Fallback to local ranking
+        let localRecords = [...leaderboardRecords];
+        const commanderExists = localRecords.some(r => r.name === commanderProfile.commanderName);
+        if (!commanderExists && commanderProfile.commanderName) {
+            const games = commanderProfile.gamesPlayed || 0;
+            const wins = commanderProfile.totalWins || 0;
+            const winRateVal = games > 0 ? Math.round((wins / games) * 100) : 0;
+            localRecords.push({
+                name: commanderProfile.commanderName,
+                species: commanderProfile.species,
+                rankPoints: commanderProfile.stars || 0,
+                winRate: `${winRateVal}%`,
+                gamesPlayed: games,
+                totalWins: wins
+            });
+        }
+        localRecords.sort((a, b) => b.rankPoints - a.rankPoints);
+        records = localRecords.slice(0, 10);
+    }
+
+    if (records.length === 0) {
+        listContainer.innerHTML = `<div class="leaderboard-empty">Telemetry core empty.</div>`;
+        return;
+    }
 
     listContainer.innerHTML = records.map((r, i) => {
         let goldMedal = "";
@@ -1242,15 +1418,18 @@ function renderLeaderboard() {
         
         const specEmoji = SPECIES_EMOJIS[r.species] || "👽";
         
+        const isSelf = r.name === commanderProfile.commanderName;
+        const rowClass = isSelf ? 'leaderboard-row-self' : '';
+        
         return `
-            <div class="leaderboard-row">
+            <div class="leaderboard-row ${rowClass}">
                 <div class="lead-rank">${goldMedal || (i + 1)}</div>
                 <div class="lead-name-box">
                     <span class="lead-name">${specEmoji} ${escapeHTML(r.name)}</span>
                     <span class="lead-species">${r.species}</span>
                 </div>
-                <div class="lead-pts">${r.rankPoints} CR</div>
-                <div class="lead-rate">${r.winRate}</div>
+                <div class="lead-pts">${r.rankPoints} ⭐️</div>
+                <div class="lead-rate">${r.winRate} WR</div>
             </div>
         `;
     }).join('');
@@ -1279,7 +1458,102 @@ function renderProfileView() {
     if (starsEl) starsEl.innerText = Number(commanderProfile.stars || 0).toLocaleString();
 
     renderProfileBadges();
+    renderSkinsShop();
 }
+
+function renderSkinsShop() {
+    const grid = document.getElementById('profile-skins-shop-grid');
+    if (!grid) return;
+
+    const unlocked = commanderProfile.unlockedSkins || ["classic"];
+    const equipped = commanderProfile.equippedSkin || "classic";
+
+    grid.innerHTML = UFO_SKINS.map(skin => {
+        const isUnlocked = unlocked.includes(skin.id);
+        const isEquipped = equipped === skin.id;
+
+        let btnClass = "";
+        let btnText = "";
+        let btnClick = "";
+
+        if (isEquipped) {
+            btnClass = "skin-btn-equipped";
+            btnText = "EQUIPPED";
+            btnClick = `disabled`;
+        } else if (isUnlocked) {
+            btnClass = "skin-btn-equip";
+            btnText = "EQUIP";
+            btnClick = `onclick="window.buyOrEquipSkin('${skin.id}')"`;
+        } else {
+            btnClass = "skin-btn-buy";
+            btnText = `⭐ ${skin.cost}`;
+            btnClick = `onclick="window.buyOrEquipSkin('${skin.id}')"`;
+        }
+
+        const equippedCardClass = isEquipped ? "equipped" : "";
+
+        return `
+            <div class="skin-item-card ${equippedCardClass}">
+                <div class="skin-item-emoji">${skin.emoji}</div>
+                <div class="skin-item-title">${skin.name}</div>
+                <div class="skin-item-desc">${skin.desc}</div>
+                <button type="button" class="skin-item-btn ${btnClass}" ${btnClick}>${btnText}</button>
+            </div>
+        `;
+    }).join('');
+}
+
+window.buyOrEquipSkin = async function(skinId) {
+    const skin = UFO_SKINS.find(s => s.id === skinId);
+    if (!skin) return;
+
+    if (!commanderProfile.unlockedSkins) {
+        commanderProfile.unlockedSkins = ["classic"];
+    }
+
+    const isUnlocked = commanderProfile.unlockedSkins.includes(skinId);
+
+    if (isUnlocked) {
+        commanderProfile.equippedSkin = skinId;
+        saveProfile();
+        syncHeaderAndPilotData();
+        renderSkinsShop();
+        
+        if (typeof playSynthSound === 'function') {
+            playSynthSound(600, 100, 0.15, 'sine');
+        }
+        raiseToast(`${skin.name} equipped as your main UFO token!`, "🛸");
+    } else {
+        const stars = commanderProfile.stars || 0;
+        if (stars >= skin.cost) {
+            commanderProfile.stars -= skin.cost;
+            commanderProfile.unlockedSkins.push(skinId);
+            commanderProfile.equippedSkin = skinId;
+            saveProfile();
+            syncHeaderAndPilotData();
+            renderSkinsShop();
+
+            if (typeof playSynthSound === 'function') {
+                playSynthSound(523.25, 120, 0.1, 'sine');
+                setTimeout(() => {
+                    playSynthSound(659.25, 120, 0.1, 'sine');
+                    setTimeout(() => {
+                        playSynthSound(783.99, 120, 0.1, 'sine');
+                        setTimeout(() => {
+                            playSynthSound(1046.50, 300, 0.25, 'sine');
+                        }, 120);
+                    }, 120);
+                }, 120);
+            }
+            raiseToast(`Successfully unlocked and equipped ${skin.name}! -${skin.cost} Stars!`, "✨🚀");
+        } else {
+            if (typeof playSynthSound === 'function') {
+                playSynthSound(180, 400, 0.45, 'sawtooth');
+            }
+            raiseToast(`Insufficient stars! You need ${skin.cost - stars} more stars to unlock ${skin.name}.`, "⚠️");
+        }
+    }
+};
 
 function renderProfileBadges() {
     const container = document.getElementById('profile-badges-list');
@@ -1335,10 +1609,12 @@ window.syncProfileToFirebase = async function() {
                 totalWins: commanderProfile.totalWins,
                 stars: commanderProfile.stars,
                 lastDailyLogin: commanderProfile.lastDailyLogin,
-                unlockedBadges: commanderProfile.unlockedBadges
+                unlockedBadges: commanderProfile.unlockedBadges,
+                unlockedSkins: commanderProfile.unlockedSkins || ["classic"],
+                equippedSkin: commanderProfile.equippedSkin || "classic"
             });
         } catch (e) {
-            console.error("Failed to sync profile to Firestore:", e);
+            console.error("Failed to sync profile to Firebase:", e);
         }
     }
 };
@@ -1413,7 +1689,7 @@ function loadProfileAndLeaderboard() {
     const profString = localStorage.getItem('cosmic_profile');
     if (profString) {
         try {
-            commanderProfile = JSON.parse(profString);
+            commanderProfile = { ...DEFAULT_PROFILE, ...JSON.parse(profString) };
         } catch(e) { console.error(e); }
     }
     const leadString = localStorage.getItem('cosmic_leaderboard');
@@ -1615,7 +1891,81 @@ function renderSettingsView() {
     if (densitySlider) {
         densitySlider.value = localStorage.getItem('cosmic_star_density') || '50';
     }
+
+    // Advanced Volume Controls
+    const musicVol = localStorage.getItem('cosmic_music_volume') || '0.5';
+    const musicSlider = document.getElementById('settings-music-volume');
+    if (musicSlider) musicSlider.value = musicVol;
+    const musicDisplay = document.getElementById('music-volume-display');
+    if (musicDisplay) musicDisplay.innerText = Math.round(musicVol * 100) + '%';
+
+    const sfxVol = localStorage.getItem('cosmic_sfx_volume') || '0.6';
+    const sfxSlider = document.getElementById('settings-sfx-volume');
+    if (sfxSlider) sfxSlider.value = sfxVol;
+    const sfxDisplay = document.getElementById('sfx-volume-display');
+    if (sfxDisplay) sfxDisplay.innerText = Math.round(sfxVol * 100) + '%';
+
+    // Advanced Select Controls
+    const diceMode = localStorage.getItem('cosmic_dice_mode') || '3d';
+    const diceSelect = document.getElementById('settings-dice-mode');
+    if (diceSelect) diceSelect.value = diceMode;
+
+    const particleLevel = localStorage.getItem('cosmic_particle_level') || 'high';
+    const particleSelect = document.getElementById('settings-particle-level');
+    if (particleSelect) particleSelect.value = particleLevel;
+
+    const wakeLockVal = localStorage.getItem('cosmic_wake_lock') || 'enabled';
+    const wakeLockSelect = document.getElementById('settings-wake-lock');
+    if (wakeLockSelect) wakeLockSelect.value = wakeLockVal;
+
+    const langVal = localStorage.getItem('cosmic_language') || 'en';
+    const langSelect = document.getElementById('settings-language');
+    if (langSelect) langSelect.value = langVal;
 }
+
+window.updateAmbientVolume = function(val) {
+    localStorage.setItem('cosmic_music_volume', val);
+    const display = document.getElementById('music-volume-display');
+    if (display) display.innerText = Math.round(val * 100) + '%';
+    if (typeof window.setAmbientVolume === 'function') {
+        window.setAmbientVolume(parseFloat(val));
+    }
+};
+
+window.updateSFXVolume = function(val) {
+    localStorage.setItem('cosmic_sfx_volume', val);
+    const display = document.getElementById('sfx-volume-display');
+    if (display) display.innerText = Math.round(val * 100) + '%';
+    if (typeof window.setSFXVolume === 'function') {
+        window.setSFXVolume(parseFloat(val));
+    }
+};
+
+window.updateDiceMode = function(val) {
+    localStorage.setItem('cosmic_dice_mode', val);
+    raiseToast(`Dice mode updated to ${val === '3d' ? '3D Holographic' : '2D Classic'}!`, "🎲");
+};
+
+window.updateParticleLevel = function(val) {
+    localStorage.setItem('cosmic_particle_level', val);
+    raiseToast(`Particle rendering throttled to ${val.toUpperCase()}!`, "✨");
+};
+
+window.updateWakeLock = function(val) {
+    localStorage.setItem('cosmic_wake_lock', val);
+    if (val === 'enabled') {
+        requestWakeLock();
+        raiseToast("Device screen lock enabled!", "🔆");
+    } else {
+        releaseWakeLock();
+        raiseToast("Screen timeout restored to default OS behavior.", "💤");
+    }
+};
+
+window.updateLanguage = function(val) {
+    localStorage.setItem('cosmic_language', val);
+    raiseToast(`Interface language protocol set to ${val.toUpperCase()}!`, "🌐");
+};
 
 function updateFlightSpeed(val) {
     localStorage.setItem('cosmic_flight_speed', val);
@@ -1624,7 +1974,6 @@ function updateFlightSpeed(val) {
 
 function updateStarfieldDensity(val) {
     localStorage.setItem('cosmic_star_density', val);
-    // Regenerate stars immediately with the new slider value
     if (typeof generateStars === 'function') {
         generateStars();
     }
@@ -1636,6 +1985,22 @@ function resetSettings() {
     leaderboardRecords = [...DEFAULT_LEADERBOARD];
     localStorage.setItem('cosmic_leaderboard', JSON.stringify(DEFAULT_LEADERBOARD));
     saveProfile();
+
+    // Set default local settings
+    localStorage.setItem('cosmic_music_volume', '0.5');
+    localStorage.setItem('cosmic_sfx_volume', '0.6');
+    localStorage.setItem('cosmic_dice_mode', '3d');
+    localStorage.setItem('cosmic_particle_level', 'high');
+    localStorage.setItem('cosmic_wake_lock', 'enabled');
+    localStorage.setItem('cosmic_language', 'en');
+    localStorage.setItem('cosmic_flight_speed', 'medium');
+    localStorage.setItem('cosmic_star_density', '50');
+
+    // Trigger updates
+    if (typeof window.setAmbientVolume === 'function') window.setAmbientVolume(0.5);
+    if (typeof window.setSFXVolume === 'function') window.setSFXVolume(0.6);
+    if (typeof generateStars === 'function') generateStars();
+
     renderLeaderboard();
     renderProfileView();
     renderSettingsView();
@@ -1660,6 +2025,8 @@ window.addEventListener('load', () => {
                             commanderProfile.unlockedBadges = profileData.unlockedBadges || ["First Flight"];
                             commanderProfile.stars = profileData.stars !== undefined ? profileData.stars : 1000;
                             commanderProfile.lastDailyLogin = profileData.lastDailyLogin || 0;
+                            commanderProfile.unlockedSkins = profileData.unlockedSkins || ["classic"];
+                            commanderProfile.equippedSkin = profileData.equippedSkin || "classic";
                             commanderProfile.isRegistered = true;
                             
                             saveProfile();
