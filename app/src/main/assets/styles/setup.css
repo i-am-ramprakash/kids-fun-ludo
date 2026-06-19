@@ -1038,6 +1038,81 @@
     text-align: left;
 }
 
+/* Star Store Styling */
+.star-store-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.store-item-card {
+    background: rgba(5, 2, 20, 0.4);
+    border: 2px solid rgba(250, 204, 21, 0.2);
+    border-radius: 20px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.store-item-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold);
+    box-shadow: 0 8px 24px rgba(250, 204, 21, 0.25);
+    background: rgba(12, 8, 38, 0.6);
+}
+
+.store-item-card:active {
+    transform: scale(0.97);
+}
+
+.store-item-emoji {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    animation: floatingUfo 3s ease-in-out infinite;
+}
+
+.store-item-title {
+    font-family: 'Fredoka One', 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    color: #ffffff;
+    margin: 4px 0;
+}
+
+.store-item-desc {
+    font-size: 0.62rem;
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.store-item-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3) !important;
+    color: #fff !important;
+    padding: 8px 16px !important;
+    font-weight: 900 !important;
+    font-size: 0.82rem !important;
+    border-radius: 10px !important;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.store-item-btn:hover {
+    box-shadow: 0 6px 14px rgba(16, 185, 129, 0.45) !important;
+    filter: brightness(1.1);
+}
+
 .tab-sub-header {
     font-family: 'Fredoka One', 'Nunito', sans-serif;
     font-weight: 400;

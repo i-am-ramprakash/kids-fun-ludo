@@ -181,7 +181,11 @@ function getHumanPlayerIndices(config) {
 }
 
 function createFreshGameState() {
-    const sourceConfig = (typeof lobbyConfig !== 'undefined') ? lobbyConfig : (typeof state !== 'undefined' && state.gameConfig ? state.gameConfig : getDefaultGameConfig());
+    const isMultiplayer = (window.Multiplayer && window.Multiplayer.isOnline) || (typeof state !== 'undefined' && state && state.isMultiplayer);
+    const sourceConfig = (isMultiplayer && typeof state !== 'undefined' && state && state.gameConfig)
+        ? state.gameConfig
+        : ((typeof lobbyConfig !== 'undefined') ? lobbyConfig : getDefaultGameConfig());
+
     const config = {
         mode: sourceConfig.mode || 'passAndPlay',
         playerCount: sourceConfig.playerCount,
@@ -215,6 +219,7 @@ function createFreshGameState() {
     const ufoCount = 4;
 
     return {
+        isMultiplayer: isMultiplayer,
         gameConfig: config,
         activePlayer: firstPlayer,
         hasRolled: false,

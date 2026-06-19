@@ -167,7 +167,7 @@ window.registerPilot = async function() {
             totalWins: 0,
             unlockedBadges: ["First Flight"],
             stars: 1000,
-            lastDailyLogin: Date.now()
+            lastDailyLogin: 0
         };
         await window.Multiplayer.saveProfileToFirestore(user.uid, profileData);
 
@@ -178,7 +178,7 @@ window.registerPilot = async function() {
         commanderProfile.totalWins = 0;
         commanderProfile.unlockedBadges = ["First Flight"];
         commanderProfile.stars = 1000;
-        commanderProfile.lastDailyLogin = Date.now();
+        commanderProfile.lastDailyLogin = 0;
         commanderProfile.isRegistered = true;
         saveProfile();
 
@@ -193,6 +193,9 @@ window.registerPilot = async function() {
 
         raiseToast(`Pilot registered! Welcome aboard, Commander ${name}!`, '🚀');
         navigateTo('home-screen');
+        if (typeof checkDailyLogin === 'function') {
+            checkDailyLogin();
+        }
 
     } catch (error) {
         console.error("Sign up error:", error);
@@ -351,7 +354,7 @@ window.loginAsGuest = function() {
     commanderProfile.commanderName = name;
     commanderProfile.species = spec;
     commanderProfile.stars = 1000;
-    commanderProfile.lastDailyLogin = Date.now();
+    commanderProfile.lastDailyLogin = 0;
     commanderProfile.isRegistered = true;
 
     saveProfile();
@@ -363,6 +366,9 @@ window.loginAsGuest = function() {
 
     raiseToast(`Logged in as Guest! Welcome, Operator ${name}!`, '🛸');
     navigateTo('home-screen');
+    if (typeof checkDailyLogin === 'function') {
+        checkDailyLogin();
+    }
 };
 
 window.logoutPilot = function() {
@@ -418,6 +424,9 @@ window.confirmWelcomeLogin = function() {
     }
     raiseToast(`Welcome back, Commander ${commanderProfile.commanderName}!`, '🧑‍🚀');
     navigateTo('home-screen');
+    if (typeof checkDailyLogin === 'function') {
+        checkDailyLogin();
+    }
 };
 
 window.showRegistrationForm = function() {
@@ -448,12 +457,12 @@ function syncHeaderAndPilotData() {
 
     const headerStars = document.getElementById('header-stars-balance');
     if (headerStars) {
-        headerStars.innerText = stars.toLocaleString() + " STARS";
+        headerStars.innerText = Number(stars).toLocaleString() + " STARS";
     }
 
     const profileStars = document.getElementById('profile-stars-balance');
     if (profileStars) {
-        profileStars.innerText = stars.toLocaleString();
+        profileStars.innerText = Number(stars).toLocaleString();
     }
 
     const profileNameInput = document.getElementById('profile-commander-name');
@@ -1195,6 +1204,9 @@ function renderProfileView() {
     const winsEl = document.getElementById('profile-total-wins');
     if (winsEl) winsEl.innerText = commanderProfile.totalWins;
 
+    const starsEl = document.getElementById('profile-stars-balance');
+    if (starsEl) starsEl.innerText = Number(commanderProfile.stars || 0).toLocaleString();
+
     renderProfileBadges();
 }
 
@@ -1246,6 +1258,8 @@ window.syncProfileToFirebase = async function() {
     if (window.Multiplayer && window.Multiplayer.auth.currentUser) {
         try {
             await window.Multiplayer.saveProfileToFirestore(window.Multiplayer.auth.currentUser.uid, {
+                name: commanderProfile.commanderName,
+                species: commanderProfile.species,
                 gamesPlayed: commanderProfile.gamesPlayed,
                 totalWins: commanderProfile.totalWins,
                 stars: commanderProfile.stars,
@@ -1258,8 +1272,37 @@ window.syncProfileToFirebase = async function() {
     }
 };
 
+window.simulateStarPurchase = function(amount, cost) {
+    if (typeof playSynthSound === 'function') {
+        playSynthSound(500, 100, 0.25, 'sine');
+    }
+    
+    const confirmBuy = confirm(`🌌 COSMIC DECK DISPATCH:\n\nWould you like to simulate purchasing the packet for $${cost} Play Money to summon +${amount} Stars? 🌟`);
+    
+    if (confirmBuy) {
+        commanderProfile.stars = (commanderProfile.stars || 0) + amount;
+        saveProfile();
+        syncHeaderAndPilotData();
+        
+        // Spawn particle confetti burst at the top header balance element
+        const headerStars = document.getElementById('header-stars-balance');
+        if (headerStars && typeof triggerConfettiBurst === 'function') {
+            const rect = headerStars.getBoundingClientRect();
+            triggerConfettiBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+        
+        raiseToast(`Purchase complete! +${amount} Stars credited! 🌌`, '🌌');
+        
+        if (typeof playSynthSound === 'function') {
+            playSynthSound(800, 1400, 0.45, 'sine');
+        }
+        
+        renderProfileView();
+    }
+};
+
 window.checkDailyLogin = function() {
-    if (!commanderProfile || !commanderProfile.isRegistered) return;
+    if (!commanderProfile) return;
     
     const now = Date.now();
     const lastClaim = commanderProfile.lastDailyLogin || 0;
@@ -1313,10 +1356,13 @@ function loadProfileAndLeaderboard() {
 }
 
 // Quick trigger code to register a game outcome to profile / leaderboard
-function registerMatchCompletion(winnerPilotName, winnerIdx) {
+function registerMatchCompletion(winnerPilotName, winnerIdx, isSnakesLadders) {
     commanderProfile.gamesPlayed += 1;
     
-    const isHumanWinner = isHuman(winnerIdx);
+    const isHumanWinner = isSnakesLadders
+        ? (typeof slState !== 'undefined' && slState.playerTypes[winnerIdx] === 'human')
+        : isHuman(winnerIdx);
+        
     if (isHumanWinner) {
         commanderProfile.totalWins += 1;
         // Unlock Solar Core badge

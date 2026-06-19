@@ -438,6 +438,19 @@ function validateLobbyConfig() {
 }
 
 function startGameFromSetup() {
+    if (state && state.isMultiplayer) {
+        closeSetupModal();
+        const wrapper = document.querySelector('.game-wrapper');
+        if (wrapper) wrapper.classList.remove('game-hidden');
+        if (typeof beginMatch === 'function') {
+            beginMatch();
+        }
+        if (typeof navigateTo === 'function') {
+            navigateTo('game-screen');
+        }
+        return;
+    }
+
     if (!validateLobbyConfig()) return;
 
     state.gameConfig = {
@@ -517,6 +530,7 @@ function adjustPlayerColorsAndSlots() {
     const defaultNames = ['PILOT GREEN', 'PILOT YELLOW', 'PILOT RED', 'PILOT BLUE'];
 
     const savedNames = players.map(p => p.name);
+    const isMultiplayerMode = (state && state.isMultiplayer) || (window.Multiplayer && window.Multiplayer.isOnline);
 
     for (let i = 0; i < 4; i++) {
         players[i].color = originalPlayers[i].color;
@@ -524,7 +538,15 @@ function adjustPlayerColorsAndSlots() {
         players[i].homeCells = originalPlayers[i].homeCells;
         players[i].baseCoords = originalPlayers[i].baseCoords;
 
-        if (lobbyConfig.playerTypes[i] === 'bot') {
+        if (isMultiplayerMode && window.onlinePlayersMap && window.onlinePlayersMap[i]) {
+            const uid = window.onlinePlayersMap[i];
+            const profile = window.onlinePlayersProfiles && window.onlinePlayersProfiles[uid];
+            if (profile && profile.name) {
+                players[i].name = profile.name.trim().toUpperCase();
+            } else {
+                players[i].name = uid === window.Multiplayer.userId ? (commanderProfile.commanderName || "COSMIC CADET") : "COSMIC CADET";
+            }
+        } else if (lobbyConfig.playerTypes[i] === 'bot') {
             players[i].name = defaultNames[i];
         } else {
             const saved = savedNames[i] ? savedNames[i].trim() : '';

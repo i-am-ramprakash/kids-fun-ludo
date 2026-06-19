@@ -45,6 +45,15 @@ function isHumanInSession(playerIdx) {
  * Resolves the character avatar emoji for the specified player.
  */
 function getPlayerCharacter(playerIdx) {
+    const isMultiplayer = (typeof state !== 'undefined' && state && state.isMultiplayer) || (window.Multiplayer && window.Multiplayer.isOnline);
+    if (isMultiplayer && window.onlinePlayersMap && window.onlinePlayersMap[playerIdx]) {
+        const uid = window.onlinePlayersMap[playerIdx];
+        const profile = window.onlinePlayersProfiles && window.onlinePlayersProfiles[uid];
+        if (profile && profile.species && typeof SPECIES_EMOJIS !== 'undefined') {
+            return SPECIES_EMOJIS[profile.species] || '🧑‍🚀';
+        }
+    }
+
     if (isHumanInSession(playerIdx)) {
         if (typeof commanderProfile !== 'undefined' && commanderProfile.species && typeof SPECIES_EMOJIS !== 'undefined') {
             return SPECIES_EMOJIS[commanderProfile.species] || '🧑‍🚀';

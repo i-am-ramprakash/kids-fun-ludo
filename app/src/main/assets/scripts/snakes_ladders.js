@@ -435,9 +435,15 @@ function generateSLBoard(container) {
 function initSLGame() {
     slState.players = [];
     for (let i = 0; i < slState.playerCount; i++) {
+        let name = SL_COLORS[i].name;
+        if (slState.playerTypes[i] === 'human') {
+            if (typeof commanderProfile !== 'undefined' && commanderProfile.commanderName) {
+                name = commanderProfile.commanderName.trim().toUpperCase() || name;
+            }
+        }
         slState.players.push({
             id: i,
-            name: SL_COLORS[i].name,
+            name: name,
             color: SL_COLORS[i].color,
             glowColor: SL_COLORS[i].glowColor,
             cssClass: SL_COLORS[i].cssClass,
@@ -1090,6 +1096,10 @@ function showSLWinModal() {
     if (ann && winner) {
         ann.innerText = `Pilot ${winner.name} reached Sector 100!`;
         ann.style.color = winner.color;
+    }
+
+    if (winner && typeof registerMatchCompletion === 'function') {
+        registerMatchCompletion(winner.name, winner.id, true);
     }
 
     const statsContainer = document.getElementById('sl-stats-container');

@@ -174,9 +174,34 @@ window.Multiplayer = {
             // Sync players for UI (e.g., connected indicators)
             if (data.players) {
                 window.onlinePlayersMap = data.players;
-                // Dispatch event so UI can update player names/status
-                const evt = new CustomEvent('multiplayer-players-updated', { detail: data.players });
-                window.dispatchEvent(evt);
+                
+                if (!window.onlinePlayersProfiles) {
+                    window.onlinePlayersProfiles = {};
+                }
+                
+                const uidsToFetch = Object.values(data.players).filter(uid => uid && !window.onlinePlayersProfiles[uid]);
+                
+                if (uidsToFetch.length > 0) {
+                    Promise.all(uidsToFetch.map(async (uid) => {
+                        try {
+                            const profile = await window.Multiplayer.getProfileFromFirestore(uid);
+                            if (profile) {
+                                window.onlinePlayersProfiles[uid] = profile;
+                            } else {
+                                window.onlinePlayersProfiles[uid] = { name: "COSMIC CADET", species: "Terran (Human)" };
+                            }
+                        } catch (err) {
+                            console.error("Failed to fetch player profile:", uid, err);
+                            window.onlinePlayersProfiles[uid] = { name: "COSMIC CADET", species: "Terran (Human)" };
+                        }
+                    })).then(() => {
+                        const evt = new CustomEvent('multiplayer-players-updated', { detail: data.players });
+                        window.dispatchEvent(evt);
+                    });
+                } else {
+                    const evt = new CustomEvent('multiplayer-players-updated', { detail: data.players });
+                    window.dispatchEvent(evt);
+                }
             }
 
             // Handle emotes

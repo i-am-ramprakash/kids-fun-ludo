@@ -1261,7 +1261,13 @@ window.addEventListener('multiplayer-players-updated', (e) => {
         const span = document.getElementById(`mp-p${i+1}-status`);
         if (span) {
             if (players[i]) {
-                span.innerText = players[i] === window.Multiplayer.userId ? "Connected (You)" : "Connected";
+                const uid = players[i];
+                const profile = window.onlinePlayersProfiles && window.onlinePlayersProfiles[uid];
+                const name = profile ? profile.name : "LOADING...";
+                const species = profile ? profile.species : "Terran (Human)";
+                const emoji = SPECIES_EMOJIS[species] || "🧑‍🚀";
+                
+                span.innerText = `${emoji} ${name}${uid === window.Multiplayer.userId ? " (You)" : ""}`;
                 span.style.color = "#10b981";
             } else {
                 span.innerText = "Empty";
@@ -1275,7 +1281,19 @@ function startMultiplayerMatch() {
     if (!window.Multiplayer) return;
     
     // Set game config for multiplayer
-    state.gameConfig = { mode: 'pass-and-play', botDifficulty: 'none' };
+    const activeSlots = [0, 1, 2, 3].filter(i => window.onlinePlayersMap && window.onlinePlayersMap[i]);
+    const pTypes = ['bot', 'bot', 'bot', 'bot'];
+    activeSlots.forEach(i => pTypes[i] = 'human');
+    
+    state.gameConfig = {
+        mode: 'passAndPlay',
+        playerCount: activeSlots.length,
+        playerTypes: pTypes,
+        botDifficulty: 'none',
+        humanColorIndex: window.Multiplayer.mySlotIdx,
+        ufoCount: 4,
+        gameStarted: true
+    };
     state.isMultiplayer = true;
     
     // Tell clients to start

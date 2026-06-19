@@ -328,6 +328,42 @@
                     <button type="button" class="action-btn profile-logout-btn" onclick="logoutPilot()">🚪 Sign Out</button>
                 </div>
 
+                <!-- Simulated Cosmic Star Store -->
+                <div class="tab-sub-header" style="color: var(--gold); border-bottom: 1px dashed rgba(255,214,0,0.2); padding-bottom: 6px; margin-top: 18px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>🌌 COSMIC STAR STORE</span>
+                    <span style="font-size: 0.6rem; color: #94a3b8; font-weight: normal; text-transform: uppercase; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">PLAY COINS</span>
+                </div>
+                
+                <div class="star-store-grid">
+                    <div class="store-item-card" onclick="simulateStarPurchase(500, 0.99)">
+                        <div class="store-item-emoji">⭐</div>
+                        <div class="store-item-title">500 Stars</div>
+                        <div class="store-item-desc">Nebula Spark</div>
+                        <button type="button" class="store-item-btn">$0.99</button>
+                    </div>
+                    
+                    <div class="store-item-card" onclick="simulateStarPurchase(1500, 1.99)">
+                        <div class="store-item-emoji">✨⭐✨</div>
+                        <div class="store-item-title">1,500 Stars</div>
+                        <div class="store-item-desc">Galaxy Blast</div>
+                        <button type="button" class="store-item-btn">$1.99</button>
+                    </div>
+
+                    <div class="store-item-card" onclick="simulateStarPurchase(5000, 4.99)">
+                        <div class="store-item-emoji">🌌⭐🌌</div>
+                        <div class="store-item-title">5,000 Stars</div>
+                        <div class="store-item-desc">Supernova Vault</div>
+                        <button type="button" class="store-item-btn">$4.99</button>
+                    </div>
+
+                    <div class="store-item-card" onclick="simulateStarPurchase(15000, 9.99)">
+                        <div class="store-item-emoji">👑⭐👑</div>
+                        <div class="store-item-title">15,000 Stars</div>
+                        <div class="store-item-desc">Cosmic Jackpot</div>
+                        <button type="button" class="store-item-btn">$9.99</button>
+                    </div>
+                </div>
+
                 <div class="tab-sub-header">🎖️ My Badges &amp; Trophies</div>
                 <div id="profile-badges-list" class="profile-badges-scroll-row"></div>
             </div>
