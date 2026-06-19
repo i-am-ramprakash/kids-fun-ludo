@@ -65,13 +65,21 @@ function loadLobbyConfigFromStorage() {
 
 function openSetupModal() {
     const modal = document.getElementById('setup-modal');
-    if (modal) modal.classList.add('active');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.pointerEvents = 'auto';
+        modal.style.visibility = 'visible';
+    }
     renderSetupUI();
 }
 
 function closeSetupModal() {
     const modal = document.getElementById('setup-modal');
-    if (modal) modal.classList.remove('active');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.pointerEvents = 'none';
+        modal.style.visibility = 'hidden';
+    }
 }
 
 function setLobbyPlayerCount(count, event) {
@@ -669,6 +677,9 @@ function returnToSetup() {
         localStorage.removeItem('ludo_game_state_save');
     }
 
+    if (typeof navigateTo === 'function') {
+        navigateTo('home-screen');
+    }
     openSetupModal();
 }
 

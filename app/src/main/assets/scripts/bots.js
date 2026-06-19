@@ -68,12 +68,15 @@ function scheduleBotTurn(delay) {
     showBotThinkingIndicator(state.activePlayer);
 
     // Occasional calculating toast to make turn feel alive and simulated
+    // (Disabled to prevent continuous/annoying toast spams)
+    /*
     if (Math.random() < 0.25) {
         const botName = (typeof players !== 'undefined' && players[state.activePlayer]) ? players[state.activePlayer].name : "Pilot AI";
         if (typeof raiseToast === 'function') {
             raiseToast(`${botName} is calculating optimal flight trajectories...`, "🤖");
         }
     }
+    */
 
     const wait = typeof delay === 'number' ? delay : botThinkDelay();
     botTurnTimer = setTimeout(runBotTurn, wait);
@@ -332,6 +335,10 @@ function chooseBotPawn(playerIdx, roll) {
 }
 
 function tryBotWarpIfReady(playerIdx) {
+    const isMini = (state.gameConfig && state.gameConfig.mode === 'miniLudo');
+    const isQuick = (state.gameConfig && state.gameConfig.mode === 'quick');
+    if (isMini || isQuick) return false;
+
     if (
         state.gameConfig?.botDifficulty === 'easy' ||
         !state.warpUnlocked[playerIdx] ||
@@ -355,6 +362,10 @@ function tryBotWarpIfReady(playerIdx) {
  * Easy bots deploy randomly; medium/hard bots aim near enemies.
  */
 function tryBotDeployAlien(playerIdx) {
+    const isMini = (state.gameConfig && state.gameConfig.mode === 'miniLudo');
+    const isQuick = (state.gameConfig && state.gameConfig.mode === 'quick');
+    if (isMini || isQuick) return;
+
     if (!state.canDeployAliens || !state.canDeployAliens[playerIdx]) return;
     if (!state.aliensUsed || !state.aliensUsed[playerIdx]) return;
 

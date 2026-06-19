@@ -49,15 +49,24 @@ const miniSafeCoordinates = [
 
 // Global dynamic helper functions
 window.getFinishPos = function() {
-    const isMini = (window.state && window.state.gameConfig && window.state.gameConfig.mode === 'miniLudo') || (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
+    if (window.state && window.state.gameConfig && window.state.gameConfig.mode) {
+        return window.state.gameConfig.mode === 'miniLudo' ? 39 : 56;
+    }
+    const isMini = (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
     return isMini ? 39 : 56;
 };
 window.getHomeStartPos = function() {
-    const isMini = (window.state && window.state.gameConfig && window.state.gameConfig.mode === 'miniLudo') || (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
+    if (window.state && window.state.gameConfig && window.state.gameConfig.mode) {
+        return window.state.gameConfig.mode === 'miniLudo' ? 35 : 51;
+    }
+    const isMini = (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
     return isMini ? 35 : 51;
 };
 window.getCommonTrackLength = function() {
-    const isMini = (window.state && window.state.gameConfig && window.state.gameConfig.mode === 'miniLudo') || (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
+    if (window.state && window.state.gameConfig && window.state.gameConfig.mode) {
+        return window.state.gameConfig.mode === 'miniLudo' ? 36 : 52;
+    }
+    const isMini = (typeof lobbyConfig !== 'undefined' && lobbyConfig && lobbyConfig.mode === 'miniLudo');
     return isMini ? 36 : 52;
 };
 

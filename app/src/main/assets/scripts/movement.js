@@ -93,7 +93,8 @@ function applyPostRollMovement(playerIdx, roll) {
         if (trackPawns.length === 2) {
             reason = `Roll ${roll} — corridor starship moves (finish lane needs ≤2)`;
         }
-        raiseToast(reason, '🛸');
+        // (Disabled to prevent continuous/annoying toast spams)
+        // raiseToast(reason, '🛸');
 
         // Set auto-move pending flag to block any touch/click on pawns during the delay
         state.autoMovePending = true;
@@ -667,6 +668,10 @@ function handlePawnClick(playerIdx, pawnIdx) {
 
 // Activators warp power
 function activateWarpDrive(playerIdx) {
+    const isMini = (state.gameConfig && state.gameConfig.mode === 'miniLudo');
+    const isQuick = (state.gameConfig && state.gameConfig.mode === 'quick');
+    if (isMini || isQuick) return;
+
     if (state.isAnimating || !isPlayerInGame(playerIdx) || playerIdx !== state.activePlayer || !state.warpUnlocked[playerIdx] || state.warpUsed[playerIdx] || !state.hasRolled) return;
 
     const hasPawnOnPath = state.pawnPositions[playerIdx].some(pos => pos >= 0 && pos < 55);
@@ -722,6 +727,10 @@ function executeWarpTeleport(playerIdx, pawnIdx) {
 
 // Activators alien system
 function activateAlienDeployment(playerIdx, alienIdx) {
+    const isMini = (state.gameConfig && state.gameConfig.mode === 'miniLudo');
+    const isQuick = (state.gameConfig && state.gameConfig.mode === 'quick');
+    if (isMini || isQuick) return;
+
     if (state.isAnimating || playerIdx !== state.activePlayer || state.aliensUsed[playerIdx][alienIdx]) return;
 
     if (state.activeAlienSelect === alienIdx) {

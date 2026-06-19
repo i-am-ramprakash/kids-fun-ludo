@@ -123,9 +123,11 @@ function updateTurnUIVisually() {
         }
 
         const isMini = (state && state.gameConfig && state.gameConfig.mode === 'miniLudo');
+        const isQuick = (state && state.gameConfig && state.gameConfig.mode === 'quick');
+        const hidePowers = isMini || isQuick;
         const actionsRow = panel ? panel.querySelector('.panel-actions-row') : null;
         if (actionsRow) {
-            actionsRow.style.display = isMini ? 'none' : '';
+            actionsRow.style.display = hidePowers ? 'none' : '';
         }
 
         // Warp power sync
@@ -244,11 +246,15 @@ function renderPawns() {
             } else {
                 // Sits on real coord map track
                 const coord = pathMaps[playerIdx][pos];
-                const key = `cell-${coord[0]}-${coord[1]}`;
-                if (!placements[key]) {
-                    placements[key] = [];
+                if (coord) {
+                    const key = `cell-${coord[0]}-${coord[1]}`;
+                    if (!placements[key]) {
+                        placements[key] = [];
+                    }
+                    placements[key].push(pawnDOM);
+                } else {
+                    console.error(`Pawn position out of bounds: player ${playerIdx}, pawn ${pawnIdx}, pos ${pos}`);
                 }
-                placements[key].push(pawnDOM);
             }
         }
 
@@ -269,9 +275,9 @@ function renderPawns() {
                 //   red    = bottom→ rotate   0°  (default upright, faces bottom)
                 //   blue   = right → rotate  90°  (clockwise, faces right)
                 const positions = [
-                    { left: '18%', top: '50%', rotate: '-90deg'  }, // green  (left)
+                    { left: '18%', top: '50%', rotate: '90deg'   }, // green  (left)
                     { left: '50%', top: '18%', rotate: '180deg'  }, // yellow (top)
-                    { left: '50%', top: '82%', rotate:   '0deg'  }, // red    (bottom)
+                    { left: '50%', top: '82%', rotate: '180deg'  }, // red    (bottom)
                     { left: '82%', top: '50%', rotate:  '90deg'  }, // blue   (right)
                 ];
                 const colorVars = ['var(--green)', 'var(--yellow)', 'var(--red)', 'var(--blue)'];
@@ -552,6 +558,13 @@ function triggerWinnerScreen(playerIdx) {
     if (typeof botTurnTimer !== 'undefined' && botTurnTimer) {
         clearTimeout(botTurnTimer);
         botTurnTimer = null;
+    }
+
+    if (typeof state !== 'undefined' && state.gameConfig) {
+        state.gameConfig.gameStarted = false;
+    }
+    if (typeof clearSavedGameState === 'function') {
+        clearSavedGameState();
     }
 
     const firstWinnerIdx = (state.rankings && state.rankings.length > 0) ? state.rankings[0] : playerIdx;
@@ -1071,50 +1084,11 @@ window.toggleMiniScoreboard = function() {
 };
 
 function updateMiniScoreboard() {
-    if (typeof state === 'undefined' || !state.gameConfig || !state.gameConfig.gameStarted) {
-        const sb = document.getElementById('mini-scoreboard-overlay');
-        if (sb) sb.style.display = 'none';
-        return;
+    const sb = document.getElementById('mini-scoreboard-overlay');
+    if (sb) {
+        sb.style.display = 'none';
+        sb.remove();
     }
-
-    const sb = getOrCreateMiniScoreboard();
-    sb.style.display = 'block';
-
-    const content = document.getElementById('mini-scoreboard-content');
-    if (!content) return;
-
-    let html = '';
-    for (let i = 0; i < 4; i++) {
-        if (!isPlayerInGame(i)) continue;
-
-        const p = players[i];
-        const captures = state.captures[i] || 0;
-        const powerups = (state.playerPowerups && state.playerPowerups[i]) ? state.playerPowerups[i].length : 0;
-        
-        let totalPos = 0;
-        state.pawnPositions[i].forEach(pos => {
-            totalPos += Math.max(0, pos);
-        });
-        const progressPct = (totalPos / (state.pawnPositions[i].length * getFinishPos() || 1)) * 100;
-
-        html += `
-            <div class="sb-player-row">
-                <div class="sb-header" style="color: var(--${p.color});">
-                    <span class="sb-name">${escapeHTML(p.name)}</span>
-                    <span>★ ${state.pawnPositions[i].filter(v => v === getFinishPos()).length}/${state.pawnPositions[i].length}</span>
-                </div>
-                <div class="sb-progress-container">
-                    <div class="sb-progress-bar" style="width: ${progressPct}%; background-color: var(--${p.color}); box-shadow: 0 0 6px var(--${p.color});"></div>
-                </div>
-                <div class="sb-stats-row">
-                    <span class="sb-stat-item">🎯 Captures: ${captures}</span>
-                    <span class="sb-stat-item">⚡ Powers: ${powerups}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    content.innerHTML = html;
 }
 
 // High-performance event delegation for pawns click actions to eliminate listener duplication
