@@ -611,7 +611,7 @@ function triggerWinnerScreen(playerIdx) {
                 <div style="border-bottom: 1px dashed rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; color: var(--${playerObj.color}); font-weight: bold; font-size: 0.85rem;">
                         <span>${rankIcons[rIdx] || (rIdx + 1) + 'th Place'}</span>
-                        <span>${playerObj.name} ${isBotPlayer ? '🤖' : '👤'}</span>
+                        <span>${escapeHTML(playerObj.name)} ${isBotPlayer ? '🤖' : '👤'}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #9cb3af; margin-top: 4px; padding-left: 4px;">
                         <span>Warp Core: ${warpUsed}</span>
@@ -1100,7 +1100,7 @@ function updateMiniScoreboard() {
         html += `
             <div class="sb-player-row">
                 <div class="sb-header" style="color: var(--${p.color});">
-                    <span class="sb-name">${p.name}</span>
+                    <span class="sb-name">${escapeHTML(p.name)}</span>
                     <span>★ ${state.pawnPositions[i].filter(v => v === getFinishPos()).length}/${state.pawnPositions[i].length}</span>
                 </div>
                 <div class="sb-progress-container">

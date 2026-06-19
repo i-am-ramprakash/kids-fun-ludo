@@ -471,3 +471,33 @@ h1, h2, h3, h4,
     0%   { transform: translateY(20px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
 }
+
+/* Floating Emote Styling */
+.floating-emote {
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 2.5rem;
+    animation: floatUpAndFade 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+    will-change: transform, opacity;
+}
+
+@keyframes floatUpAndFade {
+    0% {
+        transform: translate(-50%, 0) scale(0.5) rotate(0deg);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -40px) scale(1.2) rotate(10deg);
+        opacity: 1;
+    }
+    40% {
+        transform: translate(calc(-50% + var(--drift-x, 15px)), -100px) scale(1) rotate(-10deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(calc(-50% + var(--drift-x, -25px)), -240px) scale(0.7) rotate(15deg);
+        opacity: 0;
+    }
+}

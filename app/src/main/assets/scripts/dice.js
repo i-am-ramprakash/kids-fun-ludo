@@ -91,7 +91,15 @@ if (!state.consecutiveSixesCount) {
 }
 
 function init3DDiceInteractiveLogic() {
-    // Individual dice are tactile, interactive buttons registered in the HTML panels.
+    const diceContainer = document.getElementById('board-3d-dice-container');
+    if (diceContainer) {
+        diceContainer.addEventListener('click', () => {
+            const activePlayer = (typeof state !== 'undefined') ? state.activePlayer : null;
+            if (activePlayer !== null && !state.hasRolled && !state.isAnimating && !isBot(activePlayer)) {
+                rollPlayerDice(activePlayer);
+            }
+        });
+    }
 }
 
 function rollPlayerDice(playerIdx) {
@@ -194,14 +202,99 @@ function rollPlayerDice(playerIdx) {
     
     state.lastRoll = roll;
     
-    // Animate the player's dedicated dice using kinetic center-leaping and sliding transitions
+    // Animate the dice!
+    const board3DContainer = document.getElementById('board-3d-dice-container');
+    const cube3D = document.getElementById('cube-3d');
     const diceElem = document.getElementById(`player-dice-${playerIdx}`);
     const diceContainer = document.getElementById(`player-dice-container-${playerIdx}`);
-    if (diceContainer && diceElem) {
+    
+    if (board3DContainer && cube3D) {
+        // Show 3D Dice center panel
+        board3DContainer.style.display = 'block';
+        board3DContainer.classList.remove('active-green', 'active-yellow', 'active-red', 'active-blue', 'dice-highlight-glowing');
+        const pObj = (typeof players !== 'undefined') ? players[playerIdx] : null;
+        const pColor = pObj ? pObj.color : 'green';
+        board3DContainer.classList.add(`active-${pColor}`);
+        
+        if (diceContainer) {
+            diceContainer.classList.remove('active-roll-glowing');
+        }
+        
+        let startTime = performance.now();
+        let rotX = 0, rotY = 0, rotZ = 0;
+        let velX = 15 + Math.random() * 15;
+        let velY = 15 + Math.random() * 15;
+        let velZ = 10 + Math.random() * 10;
+        
+        cube3D.style.setProperty('transition', 'none', 'important');
+        
+        let lastClatterTime = 0;
+        
+        function anim3DDice(now) {
+            const elapsed = now - startTime;
+            if (elapsed < 800) {
+                rotX += velX;
+                rotY += velY;
+                rotZ += velZ;
+                velX *= 0.95;
+                velY *= 0.95;
+                velZ *= 0.95;
+                
+                cube3D.style.setProperty('transform', `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`, 'important');
+                
+                // Procedural roll clatter sounds
+                if (now - lastClatterTime > 75) {
+                    if (typeof playRealisticDiceClatter === 'function') {
+                        playRealisticDiceClatter();
+                    }
+                    lastClatterTime = now;
+                }
+                
+                requestAnimationFrame(anim3DDice);
+            } else {
+                // Settle face alignment target
+                const faceRotations = {
+                    1: { x: 0, y: 0 },
+                    2: { x: -90, y: 0 },
+                    3: { x: 0, y: -90 },
+                    4: { x: 0, y: 90 },
+                    5: { x: 90, y: 0 },
+                    6: { x: 180, y: 0 }
+                };
+                const targetRot = faceRotations[roll] || { x: 0, y: 0 };
+                
+                if (typeof playRealisticDiceLanding === 'function') {
+                    playRealisticDiceLanding();
+                }
+                if (typeof triggerBoardShake === 'function') {
+                    triggerBoardShake('light');
+                }
+                
+                cube3D.style.setProperty('transition', 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)', 'important');
+                cube3D.style.setProperty('transform', `rotateX(${targetRot.x}deg) rotateY(${targetRot.y}deg) rotateZ(0deg)`, 'important');
+                
+                // Display resolved dot face on panel backup
+                displayDiceDots(playerIdx, roll);
+                
+                // Haptic feedback double vibration
+                if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+                    navigator.vibrate([45, 30, 45]);
+                }
+                
+                setTimeout(() => {
+                    if (board3DContainer) {
+                        board3DContainer.style.display = 'none';
+                    }
+                    completeRollLifecycle(roll, playerIdx);
+                }, 800);
+            }
+        }
+        requestAnimationFrame(anim3DDice);
+    } else if (diceContainer && diceElem) {
+        // Fallback flat dice animations
         diceContainer.classList.add('rolling-spin');
         diceContainer.classList.remove('active-roll-glowing');
         
-        // Calculate physics center flight offset
         const containerRect = diceContainer.getBoundingClientRect();
         const diceCenterX = containerRect.left + containerRect.width / 2;
         const diceCenterY = containerRect.top + containerRect.height / 2;
@@ -211,21 +304,18 @@ function rollPlayerDice(playerIdx) {
         
         let ticks = 0;
         const maxTicks = 12;
-        const intervalTime = 80; // Tactile bouncing feel
+        const intervalTime = 80;
         let rotationAngle = 0;
         
         diceElem.style.zIndex = '10000';
         
         const ticker = setInterval(() => {
-            // Swap facial visual dots
             const randVal = Math.floor(Math.random() * 6) + 1;
             displayDiceDots(playerIdx, randVal);
             playSynthSound(500 + Math.random() * 250, 600 + Math.random() * 250, 0.04, 'sawtooth');
-            
             ticks++;
             
             if (ticks < maxTicks - 1) {
-                // Bounce around random positions within the board container limits
                 if (boardRect) {
                     const padding = 40;
                     const minX = boardRect.left + padding;
@@ -244,7 +334,6 @@ function rollPlayerDice(playerIdx) {
                     diceElem.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(1.6) rotate(${rotationAngle}deg)`;
                 }
             } else if (ticks === maxTicks - 1) {
-                // Kinetic glide slide to center for final show
                 const centerX = window.innerWidth / 2;
                 const centerY = window.innerHeight / 2;
                 const finalOffsetX = centerX - diceCenterX;
@@ -255,26 +344,20 @@ function rollPlayerDice(playerIdx) {
                 diceElem.style.transform = `translate(${finalOffsetX}px, ${finalOffsetY}px) scale(2.2) rotate(${rotationAngle}deg)`;
             } else {
                 clearInterval(ticker);
-                
-                // Render final resolved roll dots
                 displayDiceDots(playerIdx, roll);
-                
                 playSynthSound(350, 440, 0.25, 'triangle');
                 triggerBoardShake('light');
                 
-                // Haptic feedback double vibration on final roll impact
                 if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
                     navigator.vibrate([40, 30, 40]);
                 }
                 
-                // Display final roll in center for 750ms, then slide back home
                 setTimeout(() => {
                     if (diceElem) {
                         rotationAngle += 720;
                         diceElem.style.transition = 'transform 0.85s cubic-bezier(0.19, 1, 0.22, 1)';
                         diceElem.style.transform = `translate(0, 0) scale(1) rotate(${rotationAngle}deg)`;
                     }
-                    
                     setTimeout(() => {
                         if (diceElem) {
                             diceElem.style.transition = '';

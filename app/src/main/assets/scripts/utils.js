@@ -64,6 +64,26 @@ function powerCellsAdjacent(coord, other) {
     return Math.abs(a[0] - b[0]) <= 1 && Math.abs(a[1] - b[1]) <= 1;
 }
 
+/**
+ * Escapes HTML special characters to prevent XSS injection.
+ */
+function escapeHTML(str) {
+    if (typeof str !== 'string') {
+        if (str === null || str === undefined) return '';
+        str = String(str);
+    }
+    return str.replace(/[&<>"']/g, function(match) {
+        switch (match) {
+            case '&': return '&amp;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '"': return '&quot;';
+            case "'": return '&#39;';
+            default: return match;
+        }
+    });
+}
+
 // Expose utilities to global window object
 if (typeof window !== 'undefined') {
     window.clamp = clamp;
@@ -73,4 +93,5 @@ if (typeof window !== 'undefined') {
     window.powerCellAt = powerCellAt;
     window.powerCellsOverlap = powerCellsOverlap;
     window.powerCellsAdjacent = powerCellsAdjacent;
+    window.escapeHTML = escapeHTML;
 }

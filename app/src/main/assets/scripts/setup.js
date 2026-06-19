@@ -197,7 +197,7 @@ function renderSetupUI() {
             <div class="setup-slot-row ${p.color}-slot" onclick="toggleSlotPilotType(${playerIdx}, event)">
                 <div class="setup-slot-identity">
                     <span class="setup-slot-char" style="font-size:1.3rem; line-height:1;">${slotUFOs[playerIdx]}</span>
-                    <input type="text" class="setup-slot-input" value="${p.name}"
+                    <input type="text" class="setup-slot-input" value="${escapeHTML(p.name)}"
                         oninput="updatePlayerName(${playerIdx}, this.value)"
                         onfocus="event.stopPropagation()"
                         maxLength="14"

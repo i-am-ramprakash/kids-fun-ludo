@@ -300,7 +300,7 @@
                     <div class="profile-input-row" style="margin-top: 10px;">
                         <label class="setup-label">🎭 Pick Your Character</label>
                         <select id="profile-species-select" class="setup-slot-input"
-                            style="background:rgba(0,0,0,0.4); border-color:var(--cyan); height:44px; border-radius:12px; color:#fff;"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; border-radius:12px; color:#fff !important;"
                             onchange="updateCommanderSpecies(this.value)">
                         </select>
                     </div>
@@ -355,7 +355,7 @@
                             <span class="settings-desc">How fast should the robot players think and move?</span>
                         </div>
                         <select id="settings-flight-speed" class="setup-slot-input"
-                            style="background:rgba(0,0,0,0.4); border-color:var(--cyan); height:44px; margin-top:4px; color:#fff; border-radius:10px;"
+                            style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(255,107,157,0.5) !important; border-bottom:2px solid rgba(255,107,157,0.7) !important; height:46px; margin-top:4px; color:#fff !important; border-radius:12px;"
                             onchange="updateFlightSpeed(this.value)">
                             <option value="easy">🐢 Slow Robots</option>
                             <option value="medium" selected>🚶 Normal Robots</option>
@@ -505,6 +505,41 @@
                     TAP A CELL TO LAUNCH ALIEN
                 </div>
                 <div class="board" id="game-board"></div>
+                <canvas id="vfx-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15;"></canvas>
+                <div id="board-3d-dice-container" class="board-3d-dice-container dice-highlight-glowing" style="display: none;">
+                    <div class="dice-3d" id="cube-3d">
+                        <div class="face front-face">
+                            <div class="dot-cell"></div><div class="dot-cell"></div><div class="dot-cell"></div>
+                            <div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div>
+                            <div class="dot-cell"></div><div class="dot-cell"></div><div class="dot-cell"></div>
+                        </div>
+                        <div class="face back-face">
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                        </div>
+                        <div class="face right-face">
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"></div>
+                            <div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div>
+                            <div class="dot-cell"></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                        </div>
+                        <div class="face left-face">
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                            <div class="dot-cell"></div><div class="dot-cell"></div><div class="dot-cell"></div>
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                        </div>
+                        <div class="face top-face">
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                            <div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div>
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                        </div>
+                        <div class="face bottom-face">
+                            <div class="dot-cell"><div class="dot"></div></div><div class="dot-cell"></div><div class="dot-cell"></div>
+                            <div class="dot-cell"></div><div class="dot-cell"></div><div class="dot-cell"></div>
+                            <div class="dot-cell"></div><div class="dot-cell"></div><div class="dot-cell"><div class="dot"></div></div>
+                        </div>
+                    </div>
+                </div>
                 <div id="board-dice-floater" class="board-dice-floater" aria-hidden="true"></div>
             </div>
 
@@ -572,6 +607,15 @@
 
         </div>
 
+        <!-- Holographic Reaction Emotes Bar -->
+        <div class="live-emotes-bar" style="display: flex; gap: 8px; justify-content: center; align-items: center; margin: 4px auto 8px auto; width: fit-content; background: rgba(5, 10, 26, 0.65); border: 1.5px dashed var(--cyan); border-radius: 16px; padding: 4px 8px; pointer-events: auto; z-index: 100;">
+            <button type="button" class="emote-btn" onclick="triggerFloatingEmote('😎')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: transform 0.15s; outline: none; padding: 2px;">😎</button>
+            <button type="button" class="emote-btn" onclick="triggerFloatingEmote('🔥')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: transform 0.15s; outline: none; padding: 2px;">🔥</button>
+            <button type="button" class="emote-btn" onclick="triggerFloatingEmote('😭')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: transform 0.15s; outline: none; padding: 2px;">😭</button>
+            <button type="button" class="emote-btn" onclick="triggerFloatingEmote('🤪')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: transform 0.15s; outline: none; padding: 2px;">🤪</button>
+            <button type="button" class="emote-btn" onclick="triggerFloatingEmote('💥')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; transition: transform 0.15s; outline: none; padding: 2px;">💥</button>
+        </div>
+
         <div class="footer-controls">
             <button type="button" class="icon-btn" onclick="navigateTo('setup-screen')" title="Setup menu">⚙</button>
             <button type="button" class="icon-btn" id="ff-toggle" onclick="toggleFastForward()"
@@ -616,12 +660,12 @@
 
             <!-- Change 2: CHOOSE YOUR COLOR Picker Segment -->
             <div class="setup-section" id="theme-section">
-                <span class="setup-label">THEME</span>
+                <span class="setup-label">🎨 Pick a Theme!</span>
                 <div class="color-swatches-grid" id="theme-swatches-grid"></div>
             </div>
 
             <div class="setup-section" id="choose-color-section" style="display: none;">
-                <span class="setup-label">CHOOSE YOUR COLOR</span>
+                <span class="setup-label">🌈 Your Color</span>
                 <div class="color-swatches-grid" id="color-swatches-grid"></div>
             </div>
 
@@ -657,13 +701,11 @@
     <!-- 6. SETUP MODALS FOR SL -->
     <div class="modal" id="sl-setup-modal">
         <div class="modal-content setup-content"
-            style="border-color: var(--cyan); box-shadow: 0 0 35px rgba(0, 229, 255, 0.45);">
+            style="border-color: var(--cyan); box-shadow: 0 0 35px rgba(0, 229, 255, 0.45); background: linear-gradient(160deg, #0d1f3a 0%, #060e1e 100%) !important;">
             <h2 class="modal-title">🚀 Rocket Race!</h2>
             <p class="setup-subtitle">Ride rockets and dodge wormholes!</p>
-            <div
-                style="margin-bottom: 20px; font-style: italic; color: #7dd3fc; border-left: 4px solid #7c3aed; padding-left: 10px; font-size: 0.8rem; line-height: 1.4;">
-                Launch your UFO across a 10x10 cosmic grid. Land on a rocket and blast forward to a higher orbit. Fall
-                into a wormhole and get pulled back through the space-time continuum. First UFO to reach tile 100 wins!
+            <div style="font-size: 0.72rem; color: rgba(125,211,252,0.9); border-left: 3px solid #7c3aed; padding: 6px 10px; margin-bottom: 4px; line-height: 1.4; background: rgba(0,0,0,0.4); border-radius: 8px;">
+                🚀 Land on a rocket = jump forward! Fall into a wormhole = pulled back! First to tile 100 wins!
             </div>
 
             <div class="setup-section">
@@ -807,6 +849,7 @@
 
             <div class="sl-board-wrapper" id="sl-board-container">
                 <!-- Pawns will be injected here. Background set by main.css -->
+                <canvas id="sl-vfx-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15;"></canvas>
             </div>
 
             <div class="sl-controls">

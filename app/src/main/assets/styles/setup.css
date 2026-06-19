@@ -2,21 +2,27 @@
     display: none !important;
 }
 
-/* ═══════════════════════════════════════════════
-   SETUP MODAL CONTENT
-   ═══════════════════════════════════════════════ */
 .setup-content {
     max-width: 420px;
-    max-height: 92vh;
+    max-height: 95vh;
     overflow-y: auto;
     text-align: left;
-    gap: 14px;
+    gap: 12px;
+}
+
+/* Override: Setup modal gets its OWN solid dark background, not the image */
+#setup-modal .modal-content,
+#sl-setup-modal .modal-content {
+    background: linear-gradient(160deg, #1a0535 0%, #0d0220 100%) !important;
+    border: 3px solid var(--kid-pink) !important;
+    border-radius: 28px !important;
+    box-shadow: 0 0 50px rgba(255,107,157,0.35) !important;
 }
 
 .setup-subtitle {
     margin: 0;
     font-size: 0.9rem;
-    color: #FF6B9D;
+    color: #FFB3CE;
     text-align: center;
     letter-spacing: 0.3px;
     font-weight: 800;
@@ -28,24 +34,22 @@
     flex-direction: column;
     gap: 10px;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.06);
-    border: 2px solid rgba(255, 107, 157, 0.25);
-    border-radius: 20px;
-    padding: 14px;
-    transition: all 0.25s ease-in-out;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.55);   /* solid enough to read */
+    border: 2px solid rgba(255, 107, 157, 0.45);
+    border-radius: 18px;
+    padding: 14px 14px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
 
 .setup-section:hover {
-    background: rgba(255, 107, 157, 0.1);
-    border-color: rgba(255, 107, 157, 0.5);
-    box-shadow: 0 8px 24px rgba(255, 107, 157, 0.2);
-    transform: translateY(-2px);
+    background: rgba(255, 107, 157, 0.12);
+    border-color: rgba(255, 107, 157, 0.7);
+    transform: translateY(-1px);
 }
 
 .setup-section:active, .setup-slot-row:active {
     transform: scale(0.98) !important;
-    filter: brightness(0.96) !important;
 }
 
 .setup-section, .setup-slot-row {
@@ -56,10 +60,11 @@
 
 .setup-label {
     font-family: 'Fredoka One', 'Nunito', sans-serif;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 400;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
 
 .setup-option-row {
@@ -71,24 +76,23 @@
 .setup-chip {
     flex: 1;
     min-width: 0;
-    border: 2px solid rgba(255, 107, 157, 0.4);
-    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(255, 107, 157, 0.6);
+    background: rgba(0, 0, 0, 0.5);   /* readable solid bg */
     color: #ffffff;
     border-radius: 14px;
-    padding: 11px 8px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 800;
+    padding: 13px 8px;  /* bigger tap target */
+    font-family: 'Fredoka One', 'Nunito', sans-serif;
+    font-size: 0.9rem;  /* larger, easier to read */
+    font-weight: 400;
     cursor: pointer;
     transition: all 0.2s ease;
     letter-spacing: 0.3px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    text-align: center;
 }
 
 .setup-chip:hover {
     border-color: var(--kid-pink);
-    background: rgba(255, 107, 157, 0.15);
-    box-shadow: 0 4px 14px rgba(255, 107, 157, 0.25);
+    background: rgba(255, 107, 157, 0.2);
     transform: translateY(-1px);
 }
 
@@ -96,7 +100,7 @@
     border-color: var(--kid-pink);
     background: linear-gradient(135deg, #FF6B9D, #FF4757);
     color: #ffffff;
-    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.45);
+    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.5);
     font-weight: 900;
 }
 
@@ -113,43 +117,44 @@
     gap: 10px;
     padding: 10px 12px;
     border-radius: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.55);   /* solid dark so name text shows */
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
 }
 
-.setup-slot-row.green-slot  { border-color: rgba(46, 213, 115, 0.5); }
-.setup-slot-row.yellow-slot { border-color: rgba(255, 195, 18, 0.5); }
-.setup-slot-row.red-slot    { border-color: rgba(255, 71, 87, 0.5); }
-.setup-slot-row.blue-slot   { border-color: rgba(30, 144, 255, 0.5); }
+.setup-slot-row.green-slot  { border-color: rgba(46, 213, 115, 0.7); }
+.setup-slot-row.yellow-slot { border-color: rgba(255, 195, 18, 0.7); }
+.setup-slot-row.red-slot    { border-color: rgba(255, 71, 87, 0.7); }
+.setup-slot-row.blue-slot   { border-color: rgba(30, 144, 255, 0.7); }
 
 .setup-slot-identity {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
     flex: 1;
 }
 
 .setup-slot-char {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     flex-shrink: 0;
 }
 
+/* ★ THE KEY FIX: Inputs must have dark bg + white text so they're readable */
 .setup-slot-input {
-    font-size: 0.78rem !important;
+    font-size: 0.82rem !important;
     font-weight: 800 !important;
     letter-spacing: 0.3px !important;
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;           /* white text */
+    background: rgba(0, 0, 0, 0.6) !important;  /* dark solid bg */
     border: none !important;
-    border-bottom: 2px dashed rgba(255, 107, 157, 0.5) !important;
-    padding: 4px 6px !important;
+    border-bottom: 2px solid rgba(255, 107, 157, 0.7) !important;
+    padding: 6px 8px !important;
     outline: none !important;
     width: 100% !important;
     box-sizing: border-box !important;
     font-family: 'Nunito', sans-serif !important;
-    border-radius: 6px;
+    border-radius: 8px !important;
 }
 
 .slot-controls {
@@ -423,10 +428,10 @@
 /* Color Picker Section */
 .color-swatches-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(4, 1fr);  /* 4 cols = fits 8 swatches in 2 rows */
+    gap: 8px;
     justify-items: center;
-    margin: 10px 0;
+    margin: 6px 0;
 }
 
 .color-swatch-wrapper {
@@ -441,14 +446,14 @@
 .color-swatch-wrapper:active { transform: scale(0.95); }
 
 .color-swatch {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: #ffffff;
     box-sizing: border-box;
@@ -469,10 +474,12 @@
 }
 
 .color-swatch-label {
-    font-size: 0.68rem;
-    color: #cbd5e1;
+    font-size: 0.6rem;
+    color: #e2e8f0;
     text-align: center;
     font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 /* ═══════════════════════════════════════════════

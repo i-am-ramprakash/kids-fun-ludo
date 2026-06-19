@@ -504,6 +504,13 @@ function executePawnMoveAnimation(playerIdx, pawnIdx, stepsToTake, isNetworkActi
         // Play classic sci-fi pew move sound
         playPewSound();
 
+        // Trigger visual particle trail exhaust
+        if (coord && typeof triggerPawnSmokeTrail === 'function') {
+            const activeP = players[playerIdx];
+            const pColor = activeP ? `var(--${activeP.color})` : 'var(--cyan)';
+            triggerPawnSmokeTrail(coord[0], coord[1], pColor);
+        }
+
         // Toggle engine jet trail class
         const pawnDOM = document.getElementById(`pawn-${playerIdx}-${pawnIdx}`);
         if (pawnDOM) pawnDOM.classList.add('moving');

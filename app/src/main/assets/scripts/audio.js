@@ -324,17 +324,48 @@ function playExplodeSound() {
     if (isAudioMuted()) return;
     if (!audioCtx || audioCtx.state === 'suspended') return;
     try {
-        const osc = audioCtx.createOscillator();
+        const now = audioCtx.currentTime;
+        
+        // Noise buffer crash
+        const bufferSize = audioCtx.sampleRate * 0.5;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1500, now);
+        filter.frequency.exponentialRampToValueAtTime(80, now + 0.5);
+        
         const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(20, audioCtx.currentTime + 0.6);
-        gain.gain.setValueAtTime(0.20 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
-        osc.connect(gain);
+        gain.gain.setValueAtTime(0.25 * sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        
+        // Low sub boom
+        const sub = audioCtx.createOscillator();
+        sub.type = 'triangle';
+        sub.frequency.setValueAtTime(100, now);
+        sub.frequency.linearRampToValueAtTime(25, now + 0.45);
+        
+        const subGain = audioCtx.createGain();
+        subGain.gain.setValueAtTime(0.20 * sfxVolume, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        
+        noise.connect(filter);
+        filter.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.6);
+        
+        sub.connect(subGain);
+        subGain.connect(audioCtx.destination);
+        
+        noise.start(now);
+        noise.stop(now + 0.5);
+        sub.start(now);
+        sub.stop(now + 0.5);
     } catch(e) {}
 }
 
@@ -342,17 +373,41 @@ function playTeleportSound() {
     if (isAudioMuted()) return;
     if (!audioCtx || audioCtx.state === 'suspended') return;
     try {
+        const now = audioCtx.currentTime;
+        
         const osc = audioCtx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(1800, now + 0.7);
+        
+        const lfo = audioCtx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 35; // fast wave sweep modulation
+        
+        const lfoGain = audioCtx.createGain();
+        lfoGain.gain.value = 150;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(500, now);
+        filter.frequency.exponentialRampToValueAtTime(3000, now + 0.7);
+        filter.Q.value = 5.0;
+        
         const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.7);
-        gain.gain.setValueAtTime(0.15 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
-        osc.connect(gain);
+        gain.gain.setValueAtTime(0.18 * sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.7);
+        
+        lfo.start(now);
+        osc.start(now);
+        lfo.stop(now + 0.7);
+        osc.stop(now + 0.7);
     } catch(e) {}
 }
 
@@ -365,17 +420,27 @@ function playPewSound() {
     }
     if (!audioCtx || audioCtx.state === 'suspended') return;
     try {
+        const now = audioCtx.currentTime;
+        
         const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.2 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-        osc.connect(gain);
+        osc.frequency.setValueAtTime(1600, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.14);
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1000;
+        
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.15 * sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.16);
+        
+        osc.start(now);
+        osc.stop(now + 0.15);
     } catch(e) {}
 }
 
@@ -383,17 +448,41 @@ function playAlienSound() {
     if (isAudioMuted()) return;
     if (!audioCtx || audioCtx.state === 'suspended') return;
     try {
+        const now = audioCtx.currentTime;
+        
         const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.4);
-        gain.gain.setValueAtTime(0.14 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-        osc.connect(gain);
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.linearRampToValueAtTime(100, now + 0.45);
+        
+        const lfo = audioCtx.createOscillator();
+        lfo.type = 'triangle';
+        lfo.frequency.value = 18;
+        
+        const lfoGain = audioCtx.createGain();
+        lfoGain.gain.value = 200;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.setValueAtTime(800, now);
+        filter.frequency.linearRampToValueAtTime(200, now + 0.45);
+        filter.Q.value = 6.0;
+        
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.12 * sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.4);
+        
+        lfo.start(now);
+        osc.start(now);
+        lfo.stop(now + 0.46);
+        osc.stop(now + 0.46);
     } catch(e) {}
 }
 

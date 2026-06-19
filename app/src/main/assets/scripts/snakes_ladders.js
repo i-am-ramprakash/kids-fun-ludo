@@ -619,7 +619,7 @@ function buildSLGameLayout() {
                     🛸<div class="engine-flame"></div>
                 </div>
                 <span style="color:${p.color};font-weight:900;font-size:0.6rem;letter-spacing:0.5px;text-align:center;margin-top:4px;">
-                    ${p.name}
+                    ${escapeHTML(p.name)}
                 </span>
                 <span id="sl-pos-${i}" style="
                     color:#aaa;font-size:0.55rem;font-weight:700;
@@ -802,6 +802,30 @@ window.rollSLDice = function() {
     }, 8 * 80 + 80);
 };
 
+function triggerSLCanvasExplosion(cellNum, color) {
+    const container = document.getElementById('sl-board-container');
+    if (!container || !window.particleEngine || !window.particleEngine.activeCanvas) return;
+    const { x, y } = getSLCellPercent(cellNum);
+    const canvasRect = window.particleEngine.activeCanvas.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const localX = containerRect.left + (x / 100 * containerRect.width) - canvasRect.left;
+    const localY = containerRect.top + (y / 100 * containerRect.height) - canvasRect.top;
+    
+    for (let i = 0; i < 30; i++) {
+        window.particleEngine.addParticle(
+            localX,
+            localY,
+            color || '#7c3aed',
+            [3, 8],
+            [1.5, 5],
+            null,
+            0.025,
+            'explosion',
+            Math.random() > 0.4 ? 'circle' : 'square'
+        );
+    }
+}
+
 function handleSLMove(p, roll) {
     // Need 6 to enter the board
     if (!p.onBoard) {
@@ -810,7 +834,15 @@ function handleSLMove(p, roll) {
             p.pos = 1;
             // Show pawn on board
             if (p.el) p.el.style.display = '';
-            // Hide crew sidebar pawn (optional: keep it visible)
+            
+            // Audio feedback
+            if (typeof playSynthSound === 'function') {
+                playSynthSound(440, 880, 0.25, 'sine');
+            }
+            if (typeof triggerEmojiReaction === 'function') {
+                triggerEmojiReaction('roll_six', p.id);
+            }
+            
             placeSLPawn(p, () => {
                 finishSLMove(p, false);
             });
@@ -828,12 +860,38 @@ function handleSLMove(p, roll) {
         const over = target - 100;
         target = 100 - over;
         showSLToast(`${p.name} bounced back to ${target}!`, p.color);
+        if (typeof playSynthSound === 'function') {
+            playSynthSound(300, 150, 0.3, 'sawtooth');
+        }
     }
 
     placeSLPawn(p, () => {
         p.pos = target;
         // Animate to target
         updateSLPawnPosition(p);
+        
+        // standard landing beep
+        if (typeof playSynthSound === 'function') {
+            playSynthSound(350, 440, 0.15, 'triangle');
+        }
+        
+        // Confetti if reached 100
+        if (target === 100) {
+            const container = document.getElementById('sl-board-container');
+            if (container) {
+                const { x, y } = getSLCellPercent(100);
+                const containerRect = container.getBoundingClientRect();
+                const targetX = containerRect.left + (x / 100 * containerRect.width);
+                const targetY = containerRect.top + (y / 100 * containerRect.height);
+                if (typeof triggerConfettiBurst === 'function') {
+                    triggerConfettiBurst(targetX, targetY);
+                }
+            }
+            if (typeof playEmojiSFX === 'function') {
+                playEmojiSFX('win_game');
+            }
+        }
+        
         setTimeout(() => {
             const boardConfig = SL_BOARDS[slState.selectedBoardIndex];
             // Check rocket / wormhole
@@ -841,18 +899,42 @@ function handleSLMove(p, roll) {
                 const dest = boardConfig.rockets[target];
                 showSLToast(`🚀 ROCKET! ${p.name} blasts from ${target} → ${dest}!`, '#4ade80');
                 p.rocketsCaught++;
+                
+                // Explode at entry
+                triggerSLCanvasExplosion(target, '#4ade80');
+                if (typeof playEmojiSFX === 'function') {
+                    playEmojiSFX('rocket_boost');
+                }
+                
                 setTimeout(() => {
                     p.pos = dest;
                     updateSLPawnPosition(p);
+                    // Explode at destination
+                    triggerSLCanvasExplosion(dest, '#4ade80');
+                    if (typeof playSynthSound === 'function') {
+                        playSynthSound(600, 900, 0.25, 'sine');
+                    }
                     setTimeout(() => checkSLWin(p), 450);
                 }, 500);
             } else if (boardConfig.wormholes[target]) {
                 const dest = boardConfig.wormholes[target];
                 showSLToast(`🌀 WORMHOLE! ${p.name} falls from ${target} → ${dest}!`, '#c084fc');
                 p.wormholesHit++;
+                
+                // Explode at entry
+                triggerSLCanvasExplosion(target, '#c084fc');
+                if (typeof playEmojiSFX === 'function') {
+                    playEmojiSFX('teleport_wormhole');
+                }
+                
                 setTimeout(() => {
                     p.pos = dest;
                     updateSLPawnPosition(p);
+                    // Explode at destination
+                    triggerSLCanvasExplosion(dest, '#c084fc');
+                    if (typeof playSynthSound === 'function') {
+                        playSynthSound(250, 150, 0.35, 'sawtooth');
+                    }
                     setTimeout(() => checkSLWin(p), 450);
                 }, 500);
             } else {
@@ -889,6 +971,28 @@ function updateSLPawnPosition(p) {
 
     p.el.style.left = `calc(${x}% + ${off.dx}px)`;
     p.el.style.top  = `calc(${y}% + ${off.dy}px)`;
+
+    // Emit S&L engine trail particles
+    if (window.particleEngine && window.particleEngine.activeCanvas) {
+        const canvasRect = window.particleEngine.activeCanvas.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const localX = containerRect.left + (x / 100 * containerRect.width) + off.dx - canvasRect.left;
+        const localY = containerRect.top + (y / 100 * containerRect.height) + off.dy - canvasRect.top;
+        
+        for (let i = 0; i < 5; i++) {
+            window.particleEngine.addParticle(
+                localX,
+                localY,
+                p.color || '#7c3aed',
+                [2, 5],
+                [0.5, 2],
+                null,
+                0.05,
+                'trail',
+                'circle'
+            );
+        }
+    }
 }
 
 function checkSLWin(p) {
@@ -1002,7 +1106,7 @@ function showSLWinModal() {
                 ${slState.finishedPlayers.map(p => `
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
                         <td style="padding:4px;font-weight:900;">#${p.rank}</td>
-                        <td style="padding:4px;color:${p.color};font-weight:900;">${p.name}</td>
+                        <td style="padding:4px;color:${p.color};font-weight:900;">${escapeHTML(p.name)}</td>
                         <td style="padding:4px;text-align:center;">${p.totalTurns}</td>
                         <td style="padding:4px;text-align:center;color:#4ade80;">${p.rocketsCaught}</td>
                         <td style="padding:4px;text-align:center;color:#c084fc;">${p.wormholesHit}</td>

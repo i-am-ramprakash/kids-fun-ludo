@@ -1,3 +1,5 @@
+// effects.js
+
 // Live Twinkling Stars Creator
 function generateStars() {
     const field = document.getElementById('starfield');
@@ -69,12 +71,146 @@ function raiseToast(message, icon = "📢") {
     }, 6100);
 }
 
+// ==========================================================================
+// HIGH-PERFORMANCE CANVAS PARTICLE SYSTEM ENGINE
+// ==========================================================================
+class CanvasParticleEngine {
+    constructor() {
+        this.particles = [];
+        this.activeCanvas = null;
+        this.ctx = null;
+        this.animationId = null;
+        
+        if (typeof window !== 'undefined') {
+            window.addEventListener('resize', () => this.resizeCanvas());
+        }
+    }
+    
+    setCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        this.activeCanvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.resizeCanvas();
+        if (!this.animationId) {
+            this.loop();
+        }
+    }
+    
+    resizeCanvas() {
+        if (!this.activeCanvas) return;
+        const rect = this.activeCanvas.getBoundingClientRect();
+        this.activeCanvas.width = rect.width;
+        this.activeCanvas.height = rect.height;
+    }
+    
+    addParticle(x, y, color, sizeRange = [3, 8], speedRange = [1, 4], angle = null, decay = 0.02, type = 'star', shape = 'circle') {
+        const rad = angle !== null ? angle : Math.random() * Math.PI * 2;
+        const speed = Math.random() * (speedRange[1] - speedRange[0]) + speedRange[0];
+        
+        this.particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(rad) * speed,
+            vy: Math.sin(rad) * speed,
+            alpha: 1,
+            decay: Math.random() * 0.015 + decay,
+            size: Math.random() * (sizeRange[1] - sizeRange[0]) + sizeRange[0],
+            color: color,
+            type: type, // 'trail', 'explosion', 'confetti', 'star'
+            shape: shape, // 'circle', 'square', 'star'
+            gravity: type === 'confetti' ? 0.15 : (type === 'explosion' ? 0.08 : 0),
+            spin: (Math.random() - 0.5) * 0.2,
+            angle: Math.random() * Math.PI * 2
+        });
+    }
+    
+    loop() {
+        this.update();
+        this.draw();
+        this.animationId = requestAnimationFrame(() => this.loop());
+    }
+    
+    update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.alpha -= p.decay;
+            p.angle += p.spin;
+            if (p.alpha <= 0) {
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+    
+    draw() {
+        if (!this.ctx || !this.activeCanvas) return;
+        const ctx = this.ctx;
+        const canvas = this.activeCanvas;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle);
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = p.type === 'trail' ? 8 : 4;
+            ctx.shadowColor = p.color;
+            
+            if (p.shape === 'circle') {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (p.shape === 'square') {
+                ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+            } else if (p.shape === 'star') {
+                this.drawStar(ctx, 0, 0, 5, p.size, p.size / 2);
+            }
+            ctx.restore();
+        }
+    }
+    
+    drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius;
+            y = cy + Math.sin(rot) * outerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+
+            x = cx + Math.cos(rot) * innerRadius;
+            y = cy + Math.sin(rot) * innerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fill();
+    }
+}
+
+// Global engine instantiator
+if (typeof window !== 'undefined') {
+    window.particleEngine = new CanvasParticleEngine();
+}
+
 // Trigger particle explosion at specific visual coordinate or board cell coordinate
 function triggerParticleExplosion(x, y, color) {
     let targetX = 0;
     let targetY = 0;
 
-    // Check if x and y represent grid coordinates (bounds [0, 14])
+    // Check if x and y represent grid coordinates (bounds [0, 15])
     if (Math.abs(x) <= 15 && Math.abs(y) <= 15) {
         const cell = document.getElementById(`cell-${x}-${y}`) || document.getElementById(`cell-${y}-${x}`);
         if (cell) {
@@ -83,7 +219,7 @@ function triggerParticleExplosion(x, y, color) {
             targetY = rect.top + rect.height / 2;
         } else {
             // Default center of board if element is missing
-            const board = document.getElementById('board');
+            const board = document.getElementById('game-board');
             if (board) {
                 const rect = board.getBoundingClientRect();
                 targetX = rect.left + rect.width / 2;
@@ -99,62 +235,77 @@ function triggerParticleExplosion(x, y, color) {
         targetY = y;
     }
 
-    const container = document.body;
-    const particleCount = 24;
-
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.style.position = 'fixed';
-        particle.style.left = targetX + 'px';
-        particle.style.top = targetY + 'px';
+    if (window.particleEngine && window.particleEngine.activeCanvas) {
+        const canvasRect = window.particleEngine.activeCanvas.getBoundingClientRect();
+        const localX = targetX - canvasRect.left;
+        const localY = targetY - canvasRect.top;
         
-        // Random particle dimensions
-        const size = Math.random() * 6 + 4;
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
-        particle.style.borderRadius = '50%';
-        particle.style.pointerEvents = 'none';
-        particle.style.zIndex = '999999';
-
-        // Apply glow style
         const resolvedColor = color || 'var(--cyan)';
-        particle.style.backgroundColor = resolvedColor;
-        particle.style.boxShadow = `0 0 10px ${resolvedColor}, 0 0 3px ${resolvedColor}`;
+        const particleCount = 28;
 
-        // Math for random motion direction and speed
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 110 + 40; // pixel velocity
-        const vx = Math.cos(angle) * speed;
-        const vy = Math.sin(angle) * speed;
-
-        container.appendChild(particle);
-
-        const startTime = performance.now();
-        const duration = Math.random() * 450 + 350; // milliseconds
-
-        function stepParticle(time) {
-            if (document.hidden) {
-                setTimeout(() => requestAnimationFrame(stepParticle), 250);
-                return;
-            }
-            const elapsed = time - startTime;
-            if (elapsed >= duration) {
-                particle.remove();
-                return;
-            }
-
-            const pct = elapsed / duration;
-            const currentX = targetX + (vx * pct);
-            // Smooth gravitational drag downward
-            const currentY = targetY + (vy * pct) + (35 * pct * pct);
-
-            particle.style.transform = `translate3d(${currentX - targetX}px, ${currentY - targetY}px, 0) scale(${1 - pct * 0.75})`;
-            particle.style.opacity = 1 - pct;
-
-            requestAnimationFrame(stepParticle);
+        for (let i = 0; i < particleCount; i++) {
+            window.particleEngine.addParticle(
+                localX,
+                localY,
+                resolvedColor,
+                [3, 8],     // size range
+                [1.5, 5],   // speed range
+                null,       // random angle
+                0.025,      // decay rate
+                'explosion',// type
+                Math.random() > 0.4 ? 'circle' : 'square' // shape
+            );
         }
+    }
+}
 
-        requestAnimationFrame(stepParticle);
+// Trigger pawn smoke trail emitter on movement cell boundaries
+function triggerPawnSmokeTrail(row, col, color) {
+    const cell = document.getElementById(`cell-${row}-${col}`) || document.getElementById(`cell-${col}-${row}`);
+    if (cell && window.particleEngine && window.particleEngine.activeCanvas) {
+        const rect = cell.getBoundingClientRect();
+        const canvasRect = window.particleEngine.activeCanvas.getBoundingClientRect();
+        const localX = (rect.left + rect.width / 2) - canvasRect.left;
+        const localY = (rect.top + rect.height / 2) - canvasRect.top;
+        
+        for (let i = 0; i < 4; i++) {
+            window.particleEngine.addParticle(
+                localX,
+                localY,
+                color || 'var(--cyan)',
+                [2, 5],     // size
+                [0.5, 2],   // speed
+                null,       // angle
+                0.05,       // decay
+                'trail',    // type
+                'circle'    // shape
+            );
+        }
+    }
+}
+
+// Trigger Confetti Fountain burst celebration on docking/victory
+function triggerConfettiBurst(x, y) {
+    if (window.particleEngine && window.particleEngine.activeCanvas) {
+        const canvasRect = window.particleEngine.activeCanvas.getBoundingClientRect();
+        const localX = x - canvasRect.left;
+        const localY = y - canvasRect.top;
+        const colors = ['#ffd600', '#00e676', '#ff4081', '#448aff', '#e040fb'];
+        
+        for (let i = 0; i < 50; i++) {
+            const pColor = colors[Math.floor(Math.random() * colors.length)];
+            window.particleEngine.addParticle(
+                localX,
+                localY,
+                pColor,
+                [4, 10], // size range
+                [2, 7],  // speed range
+                Math.random() * Math.PI * 2, // angle
+                0.015,   // decay
+                'confetti',
+                Math.random() > 0.5 ? 'square' : 'star'
+            );
+        }
     }
 }
 
@@ -437,12 +588,8 @@ function triggerEmojiReaction(type, playerIdx, xCoord, yCoord) {
     }
 
     if (type === 'reach_home' || type === 'win_game') {
-        const colors = ['#ffd600', '#00e676', '#ff4081', '#448aff', '#e040fb'];
-        colors.forEach((c, idx) => {
-            setTimeout(() => {
-                triggerParticleExplosion(targetX, targetY, c);
-            }, idx * 100);
-        });
+        // Trigger high premium confetti burst celebration
+        triggerConfettiBurst(targetX, targetY);
     }
 
     // Auto clean up
@@ -451,8 +598,64 @@ function triggerEmojiReaction(type, playerIdx, xCoord, yCoord) {
     }, 1200);
 }
 
+// Floating reaction emote triggering
+function triggerFloatingEmote(emoji, senderPlayerIdx = null) {
+    if (senderPlayerIdx === null) {
+        if (typeof window.Multiplayer !== 'undefined' && window.Multiplayer.isOnline) {
+            senderPlayerIdx = window.Multiplayer.mySlotIdx;
+        } else {
+            senderPlayerIdx = (typeof state !== 'undefined') ? state.activePlayer : 0;
+        }
+    }
+    
+    // Send over multiplayer if local action
+    if (typeof window.Multiplayer !== 'undefined' && window.Multiplayer.isOnline && senderPlayerIdx === window.Multiplayer.mySlotIdx) {
+        window.Multiplayer.sendEmote(emoji);
+    }
+    
+    const emoteEl = document.createElement('div');
+    emoteEl.className = 'floating-emote';
+    emoteEl.textContent = emoji;
+    
+    const driftX = (Math.random() * 80 - 40) + 'px';
+    emoteEl.style.setProperty('--drift-x', driftX);
+    
+    let startX = window.innerWidth / 2;
+    let startY = window.innerHeight / 2;
+    
+    if (senderPlayerIdx !== null && senderPlayerIdx >= 0 && senderPlayerIdx < 4) {
+        const panel = document.getElementById('panel-' + senderPlayerIdx);
+        if (panel) {
+            const rect = panel.getBoundingClientRect();
+            startX = rect.left + rect.width / 2;
+            startY = rect.top + rect.height / 2;
+        }
+    }
+    
+    emoteEl.style.left = startX + 'px';
+    emoteEl.style.top = startY + 'px';
+    
+    document.body.appendChild(emoteEl);
+    
+    if (typeof playSynthSound === 'function') {
+        playSynthSound(600 + Math.random() * 200, 1000 + Math.random() * 300, 0.25, 'sine');
+    }
+    
+    setTimeout(() => {
+        emoteEl.remove();
+    }, 2500);
+}
+
+// Map holographic emote callback from network
+window.showHolographicEmote = function(slotIdx, emoji) {
+    triggerFloatingEmote(emoji, slotIdx);
+};
+
 if (typeof window !== 'undefined') {
     window.triggerEmojiReaction = triggerEmojiReaction;
     window.checkNearVictory = checkNearVictory;
+    window.triggerFloatingEmote = triggerFloatingEmote;
+    window.triggerPawnSmokeTrail = triggerPawnSmokeTrail;
+    window.triggerParticleExplosion = triggerParticleExplosion;
+    window.triggerConfettiBurst = triggerConfettiBurst;
 }
-

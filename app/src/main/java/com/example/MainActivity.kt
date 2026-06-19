@@ -14,6 +14,10 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -29,6 +33,12 @@ class MainActivity : ComponentActivity() {
     private var webView: WebView? = null
     private var isActivityDestroyed = false
     private val webViewId = androidx.compose.runtime.mutableStateOf(0)
+
+    private val assetLoader by lazy {
+        WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", AssetsPathHandler(this))
+            .build()
+    }
 
     fun recreateWebView() {
         runOnUiThread {
@@ -115,6 +125,15 @@ class MainActivity : ComponentActivity() {
                     addJavascriptInterface(AndroidBridge(), "AndroidBridge")
 
                     webViewClient = object : WebViewClient() {
+                        override fun shouldInterceptRequest(
+                            view: WebView?,
+                            request: WebResourceRequest?
+                        ): WebResourceResponse? {
+                            return request?.url?.let { uri ->
+                                assetLoader.shouldInterceptRequest(uri)
+                            }
+                        }
+
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
                             // Inject standard navigator.vibrate polyfill mapped to custom device bridge
@@ -196,12 +215,12 @@ class MainActivity : ComponentActivity() {
                         javaScriptEnabled = true
                         domStorageEnabled = true
                         databaseEnabled = true
-                        allowFileAccess = true
-                        allowContentAccess = true
+                        allowFileAccess = false
+                        allowContentAccess = false
                         @Suppress("DEPRECATION")
-                        allowFileAccessFromFileURLs = true
+                        allowFileAccessFromFileURLs = false
                         @Suppress("DEPRECATION")
-                        allowUniversalAccessFromFileURLs = true
+                        allowUniversalAccessFromFileURLs = false
                         loadWithOverviewMode = false
                         useWideViewPort = false
                         builtInZoomControls = false
@@ -212,8 +231,8 @@ class MainActivity : ComponentActivity() {
                         mediaPlaybackRequiresUserGesture = false
                     }
 
-                    // Always load local folder assets fresh to guarantee reliability across application recreation
-                    loadUrl("file:///android_asset/space_ludo.html")
+                    // Always load secure asset domain
+                    loadUrl("https://appassets.androidplatform.net/assets/space_ludo.html")
                     webView = this
                 }
             },

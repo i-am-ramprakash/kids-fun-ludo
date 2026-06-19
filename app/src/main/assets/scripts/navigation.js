@@ -638,6 +638,15 @@ function navigateTo(screenId, pushToHistory = true) {
 
     currentScreen = screenId;
 
+    // Set canvas for particle engine
+    if (window.particleEngine) {
+        if (screenId === 'game-screen') {
+            window.particleEngine.setCanvas('vfx-canvas');
+        } else if (screenId === 'snakes-ladders-view') {
+            window.particleEngine.setCanvas('sl-vfx-canvas');
+        }
+    }
+
     if (screenId === 'game-screen' && typeof isBot === 'function' && isBot(state.activePlayer)) {
         if (typeof scheduleBotTurn === 'function') {
             scheduleBotTurn(800);
@@ -1156,7 +1165,7 @@ function renderLeaderboard() {
             <div class="leaderboard-row">
                 <div class="lead-rank">${goldMedal || (i + 1)}</div>
                 <div class="lead-name-box">
-                    <span class="lead-name">${specEmoji} ${r.name}</span>
+                    <span class="lead-name">${specEmoji} ${escapeHTML(r.name)}</span>
                     <span class="lead-species">${r.species}</span>
                 </div>
                 <div class="lead-pts">${r.rankPoints} CR</div>
