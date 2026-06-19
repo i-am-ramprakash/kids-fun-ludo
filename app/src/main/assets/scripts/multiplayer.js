@@ -1,15 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot, getDoc, updateDoc, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD6KWcd1rZBlXfmdy8QZskUXLiXhUMwc90",
-  authDomain: "space-ludo.firebaseapp.com",
-  projectId: "space-ludo",
-  storageBucket: "space-ludo.firebasestorage.app",
-  messagingSenderId: "164262640583",
-  appId: "1:164262640583:web:e465f0fd820cb73ef0b7e2",
-  measurementId: "G-FJQ4K4TLHT"
+  apiKey: "AIzaSyDRquDpIQ9PhET7ggQtLsIh4BhNcW2ksuI",
+  authDomain: "kidsfunludo.firebaseapp.com",
+  projectId: "kidsfunludo",
+  storageBucket: "kidsfunludo.firebasestorage.app",
+  messagingSenderId: "1002366028340",
+  appId: "1:1002366028340:web:8f385a7015cea66ed99861",
+  measurementId: "G-8V22HKJ9RP"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -56,6 +56,17 @@ window.Multiplayer = {
 
     signIn: async function(email, password) {
         return signInWithEmailAndPassword(auth, email, password);
+    },
+
+    signInWithGoogle: async function() {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+            return await signInWithPopup(auth, provider);
+        } catch (err) {
+            console.warn("Popup blocked or failed, trying redirect...", err);
+            return await signInWithRedirect(auth, provider);
+        }
     },
 
     saveProfileToFirestore: async function(uid, profileData) {

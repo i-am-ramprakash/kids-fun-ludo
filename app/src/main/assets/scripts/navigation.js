@@ -371,6 +371,77 @@ window.loginAsGuest = function() {
     }
 };
 
+window.loginWithGoogle = async function() {
+    if (!window.Multiplayer || !window.Multiplayer.signInWithGoogle) {
+        raiseToast('Network subsystem offline!', '⚠️');
+        return;
+    }
+
+    raiseToast('Connecting to Google accounts...', '📡');
+
+    try {
+        const result = await window.Multiplayer.signInWithGoogle();
+        if (!result || !result.user) {
+            // Might have triggered a redirect which reloads the page
+            return;
+        }
+        const user = result.user;
+
+        // Fetch Firestore profile data
+        let profileData = await window.Multiplayer.getProfileFromFirestore(user.uid);
+        
+        if (!profileData) {
+            // New Google Pilot account creation
+            profileData = {
+                name: (user.displayName || "Google Pilot").toUpperCase(),
+                species: "Terran (Human)",
+                email: user.email,
+                gamesPlayed: 0,
+                totalWins: 0,
+                unlockedBadges: ["First Flight"],
+                stars: 1000,
+                lastDailyLogin: 0
+            };
+            await window.Multiplayer.saveProfileToFirestore(user.uid, profileData);
+        }
+
+        // Load into active game session
+        commanderProfile.commanderName = profileData.name || "COSMIC CADET";
+        commanderProfile.species = profileData.species || "Terran (Human)";
+        commanderProfile.gamesPlayed = profileData.gamesPlayed || 0;
+        commanderProfile.totalWins = profileData.totalWins || 0;
+        commanderProfile.unlockedBadges = profileData.unlockedBadges || ["First Flight"];
+        commanderProfile.stars = profileData.stars !== undefined ? profileData.stars : 1000;
+        commanderProfile.lastDailyLogin = profileData.lastDailyLogin || 0;
+        commanderProfile.isRegistered = true;
+        
+        saveProfile();
+        syncHeaderAndPilotData();
+
+        if (typeof playSynthSound === 'function') {
+            playSynthSound(600, 800, 0.45, 'sine');
+        }
+
+        raiseToast(`Clearance accepted! Welcome, Commander ${commanderProfile.commanderName}!`, '🚀');
+        navigateTo('home-screen');
+        
+        if (typeof checkDailyLogin === 'function') {
+            checkDailyLogin();
+        }
+
+    } catch (error) {
+        console.error("Google Sign-In error:", error);
+        let errMsg = "Google Sign-In failed!";
+        if (error.code === 'auth/popup-closed-by-user') {
+            errMsg = "Sign-In popup closed by user.";
+        } else if (error.code === 'auth/cancelled-popup-request') {
+            errMsg = "Sign-In process cancelled.";
+        }
+        raiseToast(errMsg, '⚠️');
+        if (typeof playSynthSound === 'function') playSynthSound(200, 300, 0.4, 'sawtooth');
+    }
+};
+
 window.logoutPilot = function() {
     if (welcomeBackTimeout) {
         clearTimeout(welcomeBackTimeout);
@@ -1570,3 +1641,45 @@ function resetSettings() {
     renderSettingsView();
     raiseToast("Console system wiped to factory defaults!", "🔄");
 }
+
+// Auth change listener to handle automatic logins / reloads on redirect
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (window.Multiplayer && window.Multiplayer.auth) {
+            window.Multiplayer.auth.onAuthStateChanged(async (user) => {
+                if (user && (!commanderProfile || !commanderProfile.isRegistered)) {
+                    // Authenticated, but local storage doesn't have it (e.g. fresh redirect login)
+                    console.log("Firebase user detected on reload, fetching profile...");
+                    try {
+                        const profileData = await window.Multiplayer.getProfileFromFirestore(user.uid);
+                        if (profileData) {
+                            commanderProfile.commanderName = profileData.name || "COSMIC CADET";
+                            commanderProfile.species = profileData.species || "Terran (Human)";
+                            commanderProfile.gamesPlayed = profileData.gamesPlayed || 0;
+                            commanderProfile.totalWins = profileData.totalWins || 0;
+                            commanderProfile.unlockedBadges = profileData.unlockedBadges || ["First Flight"];
+                            commanderProfile.stars = profileData.stars !== undefined ? profileData.stars : 1000;
+                            commanderProfile.lastDailyLogin = profileData.lastDailyLogin || 0;
+                            commanderProfile.isRegistered = true;
+                            
+                            saveProfile();
+                            syncHeaderAndPilotData();
+                            renderProfileView();
+                            
+                            // Auto-navigate to home if currently on login screen
+                            const currentView = document.querySelector('.view:not(.hidden)');
+                            if (currentView && currentView.id === 'login-screen') {
+                                navigateTo('home-screen');
+                                if (typeof checkDailyLogin === 'function') {
+                                    checkDailyLogin();
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Auth state change profile load error:", e);
+                    }
+                }
+            });
+        }
+    }, 1500);
+});
