@@ -673,8 +673,8 @@ function returnToSetup() {
     if (typeof state !== 'undefined' && state.gameConfig) {
         state.gameConfig.gameStarted = false;
     }
-    if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('ludo_game_state_save');
+    if (typeof clearSavedGameState === 'function') {
+        clearSavedGameState();
     }
 
     if (typeof navigateTo === 'function') {
@@ -837,9 +837,13 @@ window.resumeSavedGame = function() {
     
     updateTurnUIVisually();
     
-    closeSetupModal();
-    const wrapper = document.querySelector('.game-wrapper');
-    if (wrapper) wrapper.classList.remove('game-hidden');
+    if (typeof navigateTo === 'function') {
+        navigateTo('game-screen');
+    } else {
+        closeSetupModal();
+        const wrapper = document.querySelector('.game-wrapper');
+        if (wrapper) wrapper.classList.remove('game-hidden');
+    }
     
     if (typeof raiseToast === 'function') {
         raiseToast("Cosmic flight path resumed!", "🛰️");

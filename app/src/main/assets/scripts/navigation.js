@@ -758,8 +758,8 @@ window.confirmQuitMission = function() {
         state.gameConfig.gameStarted = false;
     }
     // Delete any saved game from storage so it does not offer to resume a quit game
-    if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('ludo_game_state_save');
+    if (typeof clearSavedGameState === 'function') {
+        clearSavedGameState();
     }
     // Navigate home
     navigateTo('home-screen');
