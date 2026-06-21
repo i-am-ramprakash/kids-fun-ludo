@@ -43,7 +43,7 @@ const DEFAULT_PROFILE = {
 };
 
 // Species to custom headshot portrait mappings
-const SPECIES_AVATARS = {
+window.SPECIES_AVATARS = window.SPECIES_AVATARS || {
     "Terran (Human)": "images/generated/avatars/avatar_terran.png",
     "Martian Invader": "images/generated/avatars/avatar_martian.png",
     "Andromedan Android": "images/generated/avatars/avatar_android.png",
