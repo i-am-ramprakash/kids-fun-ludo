@@ -708,6 +708,7 @@
 
     function endGame() {
         gameActive = false;
+        removeShooterListeners();
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
 
         burst(PLAYER.x, PLAYER.y, '#f87171', 25, 5);
@@ -748,12 +749,37 @@
         if (el) el.textContent = highScore.toLocaleString();
     }
 
+    function addShooterListeners() {
+        window.addEventListener('touchmove', handleShooterInput, { passive: false });
+        window.addEventListener('touchstart', handleShooterInput, { passive: false });
+        window.addEventListener('mousemove', handleShooterInput);
+        window.addEventListener('pointermove', handleShooterInput);
+        window.addEventListener('pointerdown', handleShooterInput);
+    }
+
+    function removeShooterListeners() {
+        window.removeEventListener('touchmove', handleShooterInput);
+        window.removeEventListener('touchstart', handleShooterInput);
+        window.removeEventListener('mousemove', handleShooterInput);
+        window.removeEventListener('pointermove', handleShooterInput);
+        window.removeEventListener('pointerdown', handleShooterInput);
+    }
+
     // ── Input handling ───────────────────────────────────────
     function handleShooterInput(e) {
         if (!gameActive) return;
-        e.preventDefault();
+        
+        let clientX;
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            if (e.cancelable) e.preventDefault();
+        } else if (e.clientX !== undefined) {
+            clientX = e.clientX;
+        } else {
+            return;
+        }
+
         const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const relX = ((clientX - rect.left) / rect.width) * logicalWidth;
         PLAYER.targetX = Math.max(PLAYER.w / 2, Math.min(logicalWidth - PLAYER.w / 2, relX));
     }
@@ -808,17 +834,8 @@
         updateShooterCardBest();
         showShooterOverlay('STARSHIP ASSAULT', 0, highScore, false);
 
-        // Bind events (remove old first)
-        canvas.removeEventListener('touchmove', handleShooterInput);
-        canvas.removeEventListener('touchstart', handleShooterInput);
-        canvas.removeEventListener('mousemove', handleShooterInput);
-        canvas.removeEventListener('pointermove', handleShooterInput);
-        canvas.removeEventListener('pointerdown', handleShooterInput);
-        canvas.addEventListener('touchmove', handleShooterInput, { passive: false });
-        canvas.addEventListener('touchstart', handleShooterInput, { passive: false });
-        canvas.addEventListener('mousemove', handleShooterInput);
-        canvas.addEventListener('pointermove', handleShooterInput);
-        canvas.addEventListener('pointerdown', handleShooterInput);
+        // Clean up any lingering listeners
+        removeShooterListeners();
 
         // Draw initial frame
         drawBg();
@@ -830,6 +847,9 @@
         const ov = document.getElementById('shooter-overlay');
         if (ov) ov.style.display = 'none';
         spawnWave();
+
+        addShooterListeners();
+
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(gameLoop);
         if (typeof playSynthSound === 'function') {
@@ -840,6 +860,7 @@
 
     window.stopShooterGame = function () {
         gameActive = false;
+        removeShooterListeners();
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
         const hudToggle = document.getElementById('global-hud-toggle');
         if (hudToggle) hudToggle.style.display = '';

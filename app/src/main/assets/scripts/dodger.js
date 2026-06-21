@@ -87,19 +87,15 @@
         asteroids = [];
         particles = [];
         score = 0;
+        // Reset game state
+        asteroids = [];
+        particles = [];
+        score = 0;
         asteroidSpeedMultiplier = 1.0;
         spawnRate = 35;
 
-        // Set up interactive click/drag/touch handlers on the whole parent wrap
-        const wrap2 = canvas.parentElement || canvas;
-        wrap2.removeEventListener('touchmove', handleInput);
-        wrap2.removeEventListener('touchstart', handleInput);
-        wrap2.removeEventListener('mousemove', handleInput);
-        wrap2.removeEventListener('pointerdown', handleInput);
-        wrap2.addEventListener('touchmove', handleInput, { passive: false });
-        wrap2.addEventListener('touchstart', handleInput, { passive: false });
-        wrap2.addEventListener('mousemove', handleInput);
-        wrap2.addEventListener('pointerdown', handleInput);
+        // Clean up any lingering listeners
+        removeDodgerListeners();
 
         // Pre-populate background stars relative to canvas logical size
         const lw = canvas.width / (window.devicePixelRatio || 1);
@@ -118,20 +114,37 @@
         draw();
     }
 
+    function addDodgerListeners() {
+        window.addEventListener('touchmove', handleInput, { passive: false });
+        window.addEventListener('touchstart', handleInput, { passive: false });
+        window.addEventListener('mousemove', handleInput);
+        window.addEventListener('pointermove', handleInput);
+        window.addEventListener('pointerdown', handleInput);
+    }
+
+    function removeDodgerListeners() {
+        window.removeEventListener('touchmove', handleInput);
+        window.removeEventListener('touchstart', handleInput);
+        window.removeEventListener('mousemove', handleInput);
+        window.removeEventListener('pointermove', handleInput);
+        window.removeEventListener('pointerdown', handleInput);
+    }
+
     function handleInput(e) {
         if (!gameActive) return;
-        e.preventDefault();
+        
+        let clientX;
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+        } else if (e.clientX !== undefined) {
+            clientX = e.clientX;
+        } else {
+            return;
+        }
 
         // Resolve canvas logical dimensions accounting for DPR
         const dpr = window.devicePixelRatio || 1;
         const logicalW = canvas.width / dpr;
-
-        let clientX;
-        if (e.touches && e.touches.length > 0) {
-            clientX = e.touches[0].clientX;
-        } else {
-            clientX = e.clientX;
-        }
 
         // Convert page coordinates to canvas logical space
         const rect = canvas.getBoundingClientRect();
@@ -157,6 +170,8 @@
             setTimeout(() => playSynthSound(780, 150, 0.4, 'sine'), 120);
         }
 
+        addDodgerListeners();
+
         // Reset Global turning epoch
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
@@ -166,6 +181,7 @@
 
     window.stopDodgerGame = function() {
         gameActive = false;
+        removeDodgerListeners();
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
@@ -443,6 +459,7 @@
 
     function gameOver() {
         gameActive = false;
+        removeDodgerListeners();
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;

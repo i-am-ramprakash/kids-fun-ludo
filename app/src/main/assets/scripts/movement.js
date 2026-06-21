@@ -563,16 +563,77 @@ function finishTurnPawnLanding(playerIdx, pawnIdx, finalPosition, isPowerUp = fa
             const captureOutput = resolveCaptures(playerIdx, pawnIdx, finalPosition, coord);
             finalPosition = captureOutput.updatedFinalPosition;
             
-            if (captureOutput.captureOccurred) {
-                playExplodeSound();
-                raiseToast(`💥 Attack of ${players[playerIdx].name}! Opponent starships vaporized back to base!`, "💥");
-                triggerBoardShake('heavy');
-                grantExtraTurn = true;
-            } else {
-                triggerBoardShake('light');
-                if (typeof isCellSafe === 'function' && isCellSafe(playerIdx, finalPosition)) {
-                    if (typeof triggerEmojiReaction === 'function') {
-                        triggerEmojiReaction('safe_zone', playerIdx, coord[0], coord[1]);
+            // Alien devouring landing check
+            const isMini = (state && state.gameConfig && state.gameConfig.mode === 'miniLudo');
+            const track = isMini ? miniCommonTrack : commonTrack;
+            const safeList = isMini ? miniSafeCoordinates : safeCoordinates;
+            
+            const isSafeCell = safeList.some(c => c[0] === coord[0] && c[1] === coord[1]);
+            let devouredByAlien = false;
+            
+            if (!isSafeCell && state.aliensOnBoard && state.aliensOnBoard.length > 0) {
+                const landedAlienIndex = state.aliensOnBoard.findIndex(alien => {
+                    const alienCoord = track[alien.cellIdx];
+                    return alienCoord && alienCoord[0] === coord[0] && alienCoord[1] === coord[1];
+                });
+                
+                if (landedAlienIndex !== -1) {
+                    const alien = state.aliensOnBoard[landedAlienIndex];
+                    const hasShield = state.shieldedPawns && state.shieldedPawns[playerIdx][pawnIdx] > 0;
+                    if (!hasShield) {
+                        state.pawnPositions[playerIdx][pawnIdx] = -1; // Send Home Base
+                        state.canDeployAliens[playerIdx] = true; // Unlock alien deployment
+                        
+                        // Increment alien stats
+                        state.alienKills[alien.playerIdx]++;
+                        state.timesCaptured[playerIdx]++;
+                        
+                        // Increment alien kills for human achievement tracking
+                        if (typeof isBot === 'function' && !isBot(alien.playerIdx)) {
+                            if (typeof commanderProfile !== 'undefined') {
+                                if (!commanderProfile.alienKillsCount) commanderProfile.alienKillsCount = 0;
+                                commanderProfile.alienKillsCount += 1;
+                                if (commanderProfile.alienKillsCount >= 10 && !commanderProfile.unlockedBadges.includes("Alien Nemesis")) {
+                                    commanderProfile.unlockedBadges.push("Alien Nemesis");
+                                    if (typeof raiseToast === 'function') {
+                                        raiseToast("Achievement Unlocked: Alien Nemesis! 👾", "🏆");
+                                    }
+                                }
+                                if (typeof saveProfile === 'function') {
+                                    saveProfile();
+                                }
+                            }
+                        }
+                        
+                        playAlienSound();
+                        raiseToast(`👾 Landed on Alien! Devourer swallowed ${players[playerIdx].name}'s starship at sector index [${coord[0]}, ${coord[1]}]!`, "👾");
+                        
+                        alien.killsLeft--;
+                        if (alien.killsLeft <= 0) {
+                            raiseToast(`👾 Alien devourer expended its energy and dissipated!`, "🌌");
+                            state.aliensOnBoard = state.aliensOnBoard.filter(al => al.id !== alien.id);
+                        }
+                        
+                        finalPosition = -1;
+                        devouredByAlien = true;
+                        renderPawns();
+                        renderAliens();
+                    }
+                }
+            }
+            
+            if (!devouredByAlien) {
+                if (captureOutput.captureOccurred) {
+                    playExplodeSound();
+                    raiseToast(`💥 Attack of ${players[playerIdx].name}! Opponent starships vaporized back to base!`, "💥");
+                    triggerBoardShake('heavy');
+                    grantExtraTurn = true;
+                } else {
+                    triggerBoardShake('light');
+                    if (typeof isCellSafe === 'function' && isCellSafe(playerIdx, finalPosition)) {
+                        if (typeof triggerEmojiReaction === 'function') {
+                            triggerEmojiReaction('safe_zone', playerIdx, coord[0], coord[1]);
+                        }
                     }
                 }
             }
@@ -700,6 +761,23 @@ function executeWarpTeleport(playerIdx, pawnIdx) {
 
     playTeleportSound();
     raiseToast(`⚡ ${players[playerIdx].name}'s starship initiated quantum wormhole directly to coordinates 55!`, "⚡");
+
+    // Increment warp drive count for achievements
+    if (typeof isBot === 'function' && !isBot(playerIdx)) {
+        if (typeof commanderProfile !== 'undefined') {
+            if (!commanderProfile.warpCount) commanderProfile.warpCount = 0;
+            commanderProfile.warpCount += 1;
+            if (commanderProfile.warpCount >= 5 && !commanderProfile.unlockedBadges.includes("Warp Hopper")) {
+                commanderProfile.unlockedBadges.push("Warp Hopper");
+                if (typeof raiseToast === 'function') {
+                    raiseToast("Achievement Unlocked: Warp Hopper! ⚡", "🏆");
+                }
+            }
+            if (typeof saveProfile === 'function') {
+                saveProfile();
+            }
+        }
+    }
 
     const btn = document.getElementById(`warp-${playerIdx}`);
     if (btn) {

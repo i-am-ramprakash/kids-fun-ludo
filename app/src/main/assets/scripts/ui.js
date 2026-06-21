@@ -251,7 +251,8 @@ function renderPawns() {
                     skinId = botSkins[playerIdx % botSkins.length];
                 }
             }
-            pawnDOM.innerHTML = `<img src="images/generated/pawns/skin_pawn_${skinId}.png" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none; z-index: 2;" /><div class="engine-flame"></div>`;
+            pawnDOM.classList.add('has-skin');
+            pawnDOM.innerHTML = `<img src="images/generated/pawns/skin_pawn_${skinId}.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 2;" /><div class="engine-flame"></div>`;
 
             // Determine targeting container
             if (pos === -1) {
@@ -1168,9 +1169,14 @@ function openMultiplayerLobby() {
     if (window.Multiplayer) {
         window.Multiplayer.init().then(() => {
             authStatus.innerText = "Connection Established. Identity Secured.";
+            authStatus.style.color = '';
             actions.style.display = 'flex';
         }).catch(err => {
-            authStatus.innerText = "Network Error: " + err.message;
+            let errMsg = err.message;
+            if (errMsg.includes('auth/admin-restricted-operation') || errMsg.includes('admin-restricted-operation')) {
+                errMsg = "Firebase Error: Anonymous Sign-in is disabled in your Firebase console. Please go to your Firebase Console -> Authentication -> Sign-in method, and enable the 'Anonymous' and 'Email/Password' providers.";
+            }
+            authStatus.innerHTML = `<span style="font-weight: bold; color: #ff3366;">${errMsg}</span>`;
             authStatus.style.color = 'red';
         });
     } else {

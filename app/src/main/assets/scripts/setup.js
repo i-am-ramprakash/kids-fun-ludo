@@ -569,6 +569,20 @@ function adjustPlayerColorsAndSlots() {
 function beginMatch() {
     adjustPlayerColorsAndSlots();
     state = createFreshGameState();
+    if (typeof commanderProfile !== 'undefined') {
+        if (!commanderProfile.unlockedBadges) {
+            commanderProfile.unlockedBadges = [];
+        }
+        if (!commanderProfile.unlockedBadges.includes("First Flight")) {
+            commanderProfile.unlockedBadges.push("First Flight");
+            if (typeof saveProfile === 'function') {
+                saveProfile();
+            }
+            if (typeof raiseToast === 'function') {
+                raiseToast("Achievement Unlocked: First Flight! 🚀", "🏆");
+            }
+        }
+    }
     if (typeof initPathMaps === 'function') {
         initPathMaps();
     }

@@ -43,50 +43,36 @@
 
     <!-- MULTIPLAYER LOBBY SCREEN -->
     <div id="multiplayer-lobby-screen" class="view hidden">
-        <div class="multiplayer-content-wrapper"
-            style="background: rgba(9, 18, 44, 0.92); border: 2px solid var(--cyan); padding: 30px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%;">
-            <h2 style="color: var(--cyan); margin-bottom: 20px;">🌐 Play With Friends!</h2>
-
-            <div id="mp-auth-status" style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 20px;">Connecting to game servers...</div>
-
-            <div id="mp-actions" style="display: none; flex-direction: column; gap: 15px;">
-                <button class="action-btn" onclick="quickMatchMultiplayer()"
-                    style="padding: 15px; border-radius: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white;">🌍 Find Online Game</button>
-                <div style="color: #64748b; font-size: 0.8rem;">- OR -</div>
-                <button class="action-btn roll-btn" onclick="hostMultiplayerRoom()"
-                    style="padding: 15px; border-radius: 8px;">🏠 Create My Room</button>
-                <div style="color: #64748b; font-size: 0.8rem;">— OR —</div>
-                <input type="text" id="mp-join-code" placeholder="ENTER 6-DIGIT CODE" maxLength="6"
-                    style="background: #000; color: #fff; border: 1px solid var(--gold); padding: 10px; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; font-family: monospace;">
-                <button class="action-btn" onclick="joinMultiplayerRoom()"
-                    style="background: var(--gold); color: #000; padding: 15px; border-radius: 8px;">✅ Join Room</button>
-                <button class="action-btn" onclick="navigateTo('home-screen')"
-                    style="margin-top: 15px; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 15px; border-radius: 8px;">🏠 Go Home</button>
+        <div class="multiplayer-content-wrapper">
+            <h2 class="multiplayer-title">🌐 Play With Friends!</h2>
+ 
+            <div id="mp-auth-status">Connecting to game servers...</div>
+ 
+            <div id="mp-actions" style="display: none;">
+                <button class="action-btn mp-online-btn" onclick="quickMatchMultiplayer()">🌍 Find Online Game</button>
+                <div class="mp-divider">- OR -</div>
+                <button class="action-btn roll-btn mp-create-btn" onclick="hostMultiplayerRoom()">🏠 Create My Room</button>
+                <div class="mp-divider">— OR —</div>
+                <input type="text" id="mp-join-code" placeholder="ENTER 6-DIGIT CODE" maxLength="6">
+                <button class="action-btn mp-join-btn" onclick="joinMultiplayerRoom()">✅ Join Room</button>
+                <button class="action-btn mp-home-btn" onclick="navigateTo('home-screen')">🏠 Go Home</button>
             </div>
-
+ 
             <div id="mp-room-lobby" style="display: none;">
-                <h3 style="color: #fff;">🔑 Room Code</h3>
-                <div id="mp-room-code-display"
-                    style="font-size: 2.5rem; color: var(--gold); letter-spacing: 5px; font-family: monospace; margin: 10px 0;">
-                    ------</div>
-
-                <div style="text-align: left; margin: 20px 0;">
-                    <div style="color: var(--cyan); margin-bottom: 5px;">Player 1 (Host): <span id="mp-p1-status"
-                            style="color: #10b981;">Waiting...</span></div>
-                    <div style="color: var(--yellow); margin-bottom: 5px;">Player 2: <span id="mp-p2-status"
-                            style="color: #64748b;">Empty</span></div>
-                    <div style="color: var(--red); margin-bottom: 5px;">Player 3: <span id="mp-p3-status"
-                            style="color: #64748b;">Empty</span></div>
-                    <div style="color: var(--blue);">Player 4: <span id="mp-p4-status"
-                            style="color: #64748b;">Empty</span></div>
+                <h3 class="mp-lobby-header">🔑 Room Code</h3>
+                <div id="mp-room-code-display">------</div>
+ 
+                <div class="mp-players-list">
+                    <div class="mp-player-row mp-p1">Player 1 (Host): <span id="mp-p1-status">Waiting...</span></div>
+                    <div class="mp-player-row mp-p2">Player 2: <span id="mp-p2-status">Empty</span></div>
+                    <div class="mp-player-row mp-p3">Player 3: <span id="mp-p3-status">Empty</span></div>
+                    <div class="mp-player-row mp-p4">Player 4: <span id="mp-p4-status">Empty</span></div>
                 </div>
-
-                <button id="mp-start-btn" class="action-btn roll-btn" onclick="startMultiplayerMatch()"
-                    style="padding: 15px; border-radius: 8px; width: 100%; display: none;">🚀 Start the Game!</button>
+ 
+                <button id="mp-start-btn" class="action-btn roll-btn" onclick="startMultiplayerMatch()">🚀 Start the Game!</button>
             </div>
-
-            <button class="action-btn" onclick="closeMultiplayerLobby()"
-                style="margin-top: 20px; background: transparent; border: 1px solid #ef4444; color: #ef4444;">❌ Cancel</button>
+ 
+            <button class="action-btn mp-cancel-btn" onclick="closeMultiplayerLobby()">❌ Cancel</button>
         </div>
     </div>
 

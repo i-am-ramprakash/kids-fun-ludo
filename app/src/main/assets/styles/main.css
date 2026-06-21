@@ -184,20 +184,169 @@ h1, h2, h3, h4,
 /* Multiplayer Lobby Background */
 #multiplayer-lobby-screen {
     background: url('../images/generated/backgrounds/bg_multiplayer.png') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #multiplayer-lobby-screen::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(5, 2, 20, 0.72);
     z-index: 1;
 }
 
-#multiplayer-lobby-screen>div,
-#multiplayer-lobby-screen>div>* {
+.multiplayer-content-wrapper {
     position: relative;
     z-index: 2;
+    background: rgba(13, 27, 62, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 229, 255, 0.25);
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    margin: auto;
+}
+
+.multiplayer-title {
+    color: var(--cyan);
+    font-family: 'Fredoka One', 'Nunito', sans-serif;
+    font-weight: 400;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+#mp-auth-status {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+#mp-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mp-divider {
+    color: #64748b;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    font-weight: bold;
+    margin: 4px 0;
+}
+
+.action-btn.mp-online-btn {
+    padding: 14px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    font-weight: bold;
+    border-color: #10b981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.action-btn.mp-create-btn {
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+#mp-join-code {
+    background: rgba(0, 0, 0, 0.45);
+    color: #ffffff;
+    border: 1px solid var(--gold);
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 4px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+#mp-join-code:focus {
+    box-shadow: 0 0 12px rgba(255, 214, 0, 0.35);
+    border-color: #ffd600;
+}
+
+.action-btn.mp-join-btn {
+    background: var(--gold) !important;
+    color: #03081e !important;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(255, 214, 0, 0.2);
+}
+
+.action-btn.mp-home-btn {
+    background: transparent !important;
+    border: 1px solid var(--cyan) !important;
+    color: var(--cyan) !important;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.mp-lobby-header {
+    color: #fff;
+    font-size: 1.1rem;
+    margin: 10px 0;
+}
+
+#mp-room-code-display {
+    font-size: 2.8rem;
+    color: var(--gold);
+    letter-spacing: 6px;
+    font-family: 'Orbitron', monospace;
+    margin: 12px 0;
+    text-shadow: 0 0 15px rgba(255, 214, 0, 0.4);
+    font-weight: bold;
+}
+
+.mp-players-list {
+    text-align: left;
+    margin: 20px 0;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mp-player-row {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.mp-player-row:last-child {
+    margin-bottom: 0;
+}
+
+.mp-player-row.mp-p1 { color: var(--cyan); }
+.mp-player-row.mp-p2 { color: var(--yellow); }
+.mp-player-row.mp-p3 { color: var(--red); }
+.mp-player-row.mp-p4 { color: var(--blue); }
+
+.action-btn.mp-cancel-btn {
+    margin-top: 20px;
+    background: transparent !important;
+    border: 1px solid #ef4444 !important;
+    color: #ef4444 !important;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    width: auto;
 }
 
 /* Snakes & Ladders Background */

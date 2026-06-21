@@ -665,7 +665,22 @@
     box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
 }
 
-.cmd-icon-mini  { font-size: 0.85rem; }
+.cmd-icon-mini {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.cmd-icon-mini img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    display: block !important;
+}
 .cmd-name-mini  {
     font-family: 'Nunito', sans-serif;
     font-size: 0.6rem;

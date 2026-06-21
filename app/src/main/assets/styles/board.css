@@ -438,6 +438,13 @@
 .pawn.red-p { background: radial-gradient(circle at 35% 35%, #ffb6c7 0%, #cc0033 60%, #6f001b 100%); border: 1px solid var(--red); }
 .pawn.blue-p { background: radial-gradient(circle at 35% 35%, #bce0ff 0%, #0077e6 60%, #003e7c 100%); border: 1px solid var(--blue); }
 
+.pawn.has-skin { background: transparent !important; border: none !important; box-shadow: none !important; }
+.pawn.has-skin img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+.pawn.has-skin.green-p img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0 5px rgba(0, 230, 118, 0.95)) !important; }
+.pawn.has-skin.yellow-p img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0 5px rgba(255, 214, 0, 0.95)) !important; }
+.pawn.has-skin.red-p img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0 5px rgba(255, 64, 129, 0.95)) !important; }
+.pawn.has-skin.blue-p img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0 5px rgba(68, 138, 255, 0.95)) !important; }
+
 /* Aliens system */
 .alien {
     font-size: 0.95rem;
@@ -1208,8 +1215,8 @@
 /* SILENT FLAT HUD TAPE REPLACING POPUP TOASTS */
 .toast-overlay {
     position: absolute !important;
-    top: auto !important;
-    bottom: 8px !important;
+    top: 72px !important;
+    bottom: auto !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: calc(100% - 24px) !important;
@@ -1219,7 +1226,7 @@
     flex-direction: column !important;
     pointer-events: none !important;
     align-items: center !important;
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
     gap: 4px !important;
 }
 
@@ -1227,8 +1234,8 @@
     background: rgba(5, 10, 26, 0.88) !important;
     border: 1px dashed var(--cyan) !important;
     border-radius: 6px !important;
-    padding: 6px 12px !important;
-    font-size: clamp(8px, 1.6vw, 10px) !important;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
     line-height: 1.25 !important;
     letter-spacing: 0.6px !important;
     box-shadow: 0 0 12px rgba(0, 229, 255, 0.2) !important;
@@ -1245,7 +1252,7 @@
 }
 
 @keyframes slideInHUD {
-    0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+    0% { opacity: 0; transform: translateY(-8px) scale(0.98); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes fadeOutHUD {

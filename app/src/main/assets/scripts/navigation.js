@@ -392,6 +392,15 @@ window.loginAsGuest = function() {
     saveProfile();
     syncHeaderAndPilotData();
 
+    if (window.Multiplayer) {
+        window.Multiplayer.init().then(() => {
+            console.log("Guest authenticated anonymously on Firebase.");
+            syncProfileToFirebase();
+        }).catch(err => {
+            console.warn("Guest Firebase Auth disabled or offline:", err.message);
+        });
+    }
+
     if (typeof playSynthSound === 'function') {
         playSynthSound(600, 800, 0.45, 'sine');
     }
@@ -663,9 +672,9 @@ function syncHeaderAndPilotData() {
 
 // All possible achievements/badges
 const PATH_ACHIEVEMENTS = [
-    { id: "First Flight", desc: "Launch your first UFO mission", icon: "🚀", unlocked: true },
-    { id: "Solar Core", desc: "Win a match on any difficulty level", icon: "⭐", unlocked: true },
-    { id: "Warp Hopper", desc: "Trigger 5 warp drive jumps in total", icon: "⚡", unlocked: true },
+    { id: "First Flight", desc: "Launch your first UFO mission", icon: "🚀", unlocked: false },
+    { id: "Solar Core", desc: "Win a match on any difficulty level", icon: "⭐", unlocked: false },
+    { id: "Warp Hopper", desc: "Trigger 5 warp drive jumps in total", icon: "⚡", unlocked: false },
     { id: "Alien Nemesis", desc: "Exterminate 10 opponent pieces with Aliens", icon: "👾", unlocked: false },
     { id: "Clash Master", desc: "Survive and win a UFO Clash special match", icon: "☄️", unlocked: false }
 ];
@@ -1394,6 +1403,15 @@ function selectMoreFun() {
 async function renderLeaderboard() {
     const listContainer = document.getElementById('leaderboard-record-list');
     if (!listContainer) return;
+
+    // Try initializing auth in the background to sync leaderboard if possible
+    if (window.Multiplayer && !window.Multiplayer.auth.currentUser) {
+        try {
+            await window.Multiplayer.init();
+        } catch (e) {
+            console.warn("Firebase Auth init failed for leaderboard:", e.message);
+        }
+    }
 
     // Show glowing loading state first
     listContainer.innerHTML = `

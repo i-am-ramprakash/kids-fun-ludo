@@ -4,6 +4,7 @@ function getDiceSixProbability() {
 
 // Dynamic Dice history log tracker
 function updateDiceHistoryLog(roll, playerIdx) {
+    return;
     if (typeof document === 'undefined') return;
     
     if (!state.diceHistory) {
@@ -230,6 +231,19 @@ function rollPlayerDice(playerIdx) {
         const pColor = pObj ? pObj.color : 'green';
         board3DContainer.classList.add(`active-${pColor}`);
         
+        // Dynamically position 3D dice directly over the active player's dice container
+        if (diceContainer) {
+            const targetRect = diceContainer.getBoundingClientRect();
+            const parentRect = board3DContainer.offsetParent ? board3DContainer.offsetParent.getBoundingClientRect() : { top: 0, left: 0 };
+            const topOffset = targetRect.top - parentRect.top;
+            const leftOffset = targetRect.left - parentRect.left;
+            board3DContainer.style.setProperty('top', `${topOffset + targetRect.height / 2}px`, 'important');
+            board3DContainer.style.setProperty('left', `${leftOffset + targetRect.width / 2}px`, 'important');
+        } else {
+            board3DContainer.style.setProperty('top', '50%', 'important');
+            board3DContainer.style.setProperty('left', '50%', 'important');
+        }
+        
         if (diceContainer) {
             diceContainer.classList.remove('active-roll-glowing');
         }
@@ -269,10 +283,10 @@ function rollPlayerDice(playerIdx) {
                 // Settle face alignment target
                 const faceRotations = {
                     1: { x: 0, y: 0 },
-                    2: { x: -90, y: 0 },
+                    2: { x: 90, y: 0 },
                     3: { x: 0, y: -90 },
                     4: { x: 0, y: 90 },
-                    5: { x: 90, y: 0 },
+                    5: { x: -90, y: 0 },
                     6: { x: 180, y: 0 }
                 };
                 const targetRot = faceRotations[roll] || { x: 0, y: 0 };
@@ -290,14 +304,10 @@ function rollPlayerDice(playerIdx) {
                 // Display resolved dot face on panel backup
                 displayDiceDots(playerIdx, roll);
                 
-                // Show number notation helper overlay in center
+                // Show number notation helper overlay in center (DISABLED)
                 const notation = document.getElementById('dice-number-notation');
                 if (notation) {
-                    const pObj = (typeof players !== 'undefined') ? players[playerIdx] : null;
-                    const pColorName = pObj ? pObj.color : 'cyan';
-                    notation.style.color = `var(--${pColorName})`;
-                    notation.innerText = roll;
-                    notation.classList.add('show');
+                    notation.classList.remove('show');
                 }
 
                 // Haptic feedback double vibration
@@ -375,14 +385,10 @@ function rollPlayerDice(playerIdx) {
                 playSynthSound(350, 440, 0.25, 'triangle');
                 triggerBoardShake('light');
                 
-                // Show number notation helper overlay in center
+                // Show number notation helper overlay in center (DISABLED)
                 const notation = document.getElementById('dice-number-notation');
                 if (notation) {
-                    const pObj = (typeof players !== 'undefined') ? players[playerIdx] : null;
-                    const pColorName = pObj ? pObj.color : 'cyan';
-                    notation.style.color = `var(--${pColorName})`;
-                    notation.innerText = roll;
-                    notation.classList.add('show');
+                    notation.classList.remove('show');
                 }
                 
                 if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
