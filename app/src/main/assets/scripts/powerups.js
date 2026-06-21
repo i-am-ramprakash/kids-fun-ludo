@@ -173,6 +173,15 @@ function triggerRocketAnimation(playerIdx, pawnIdx) {
     }
 }
 
+const POWERUP_ICON_SRCS = {
+    'shield_token': 'images/generated/icons/icon_shield_powerup.png',
+    'freeze_opponent': 'images/generated/icons/icon_freeze_powerup.png',
+    'teleport_jump': 'images/generated/icons/icon_wormhole_powerup.png',
+    'rocket_boost': 'images/generated/icons/icon_rocket_powerup.png',
+    'lightning_fire': 'images/generated/icons/icon_fire_powerup.png',
+    'extra_roll': 'images/generated/icons/icon_dice_extra.png'
+};
+
 const POWERUPS_CONFIG = {
     'shield_token': {
         name: 'SHIELD BARRIER',
@@ -503,7 +512,9 @@ class PowerUpManager {
                              ontouchcancel="handleSlotPressEnd(event, ${i}, ${j})"
                              onclick="handleSlotClick(event, ${i}, ${j})"
                              style="--slot-color:${info.color}; --slot-color-glow:${info.color}50;">
-                            <span class="powerup-slot-icon">${info.icon}</span>
+                            <span class="powerup-slot-icon">
+                                ${POWERUP_ICON_SRCS[itemKey] ? `<img src="${POWERUP_ICON_SRCS[itemKey]}" style="width: 24px; height: 24px; object-fit: contain; vertical-align: middle;" />` : info.icon}
+                            </span>
                             <span class="powerup-slot-text">${info.name.split(' ')[0]}</span>
                             ${isLocked ? '<div class="powerup-slot-lock-overlay">🔒</div>' : ''}
                             <div class="powerup-tooltip">
@@ -628,7 +639,12 @@ function updateCellDOMForPowerCell(r, c) {
             cell.appendChild(marker);
         }
         const info = POWERUPS_CONFIG[powerCell.type];
-        marker.textContent = info ? info.icon : '✨';
+        const iconSrc = POWERUP_ICON_SRCS[powerCell.type];
+        if (iconSrc) {
+            marker.innerHTML = `<img src="${iconSrc}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle;" />`;
+        } else {
+            marker.textContent = info ? info.icon : '✨';
+        }
         marker.title = info ? info.name : 'Power-up';
     } else {
         cell.classList.remove('power-cell-glow');

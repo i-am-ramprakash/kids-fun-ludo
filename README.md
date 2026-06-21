@@ -120,7 +120,16 @@ kids-fun-ludo/
 
 ## Configuration
 
-Firebase is configured under project `space-ludo`. Multiplayer uses Anonymous Auth with Firestore for real-time game state synchronization at `space-ludo.firebaseapp.com`.
+### Firebase Config Setup
+Multiplayer uses Firebase Auth (Anonymous) with Firestore for real-time game state synchronization. To prevent exposing API keys in Git:
+1. Locate the template configuration file at `app/src/main/assets/scripts/firebase-config.example.js`.
+2. Copy it to `app/src/main/assets/scripts/firebase-config.js`:
+   ```bash
+   cp app/src/main/assets/scripts/firebase-config.example.js app/src/main/assets/scripts/firebase-config.js
+   ```
+3. Open `app/src/main/assets/scripts/firebase-config.js` and enter your actual Firebase API keys and config values. 
+*(Note: `firebase-config.js` is ignored by Git in `.gitignore` so your secrets stay safe).*
+
 
 Release signing is configured via environment variables:
 - `KEYSTORE_PATH`

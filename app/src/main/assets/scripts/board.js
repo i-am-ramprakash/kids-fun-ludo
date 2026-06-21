@@ -156,7 +156,12 @@ function buildBoardDOM() {
                 const info = typeof POWERUPS_CONFIG !== 'undefined' ? POWERUPS_CONFIG[powerCell.type] : null;
                 const marker = document.createElement('span');
                 marker.className = 'path-powerup-emoji';
-                marker.textContent = info ? info.icon : '✨';
+                const iconSrc = (typeof POWERUP_ICON_SRCS !== 'undefined') ? POWERUP_ICON_SRCS[powerCell.type] : null;
+                if (iconSrc) {
+                    marker.innerHTML = `<img src="${iconSrc}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle;" />`;
+                } else {
+                    marker.textContent = info ? info.icon : '✨';
+                }
                 marker.title = info ? info.name : 'Power-up';
                 cell.appendChild(marker);
             }
@@ -276,7 +281,12 @@ function refreshExistingBoardDOM(board) {
                             cell.appendChild(marker);
                         }
                         const info = typeof POWERUPS_CONFIG !== 'undefined' ? POWERUPS_CONFIG[powerCell.type] : null;
-                        marker.textContent = info ? info.icon : '✨';
+                        const iconSrc = (typeof POWERUP_ICON_SRCS !== 'undefined') ? POWERUP_ICON_SRCS[powerCell.type] : null;
+                        if (iconSrc) {
+                            marker.innerHTML = `<img src="${iconSrc}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle;" />`;
+                        } else {
+                            marker.textContent = info ? info.icon : '✨';
+                        }
                         marker.title = info ? info.name : 'Power-up';
                     } else {
                         cell.classList.remove('power-cell-glow');

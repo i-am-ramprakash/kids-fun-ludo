@@ -1,16 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot, getDoc, updateDoc, collection, query, where, getDocs, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDRquDpIQ9PhET7ggQtLsIh4BhNcW2ksuI",
-  authDomain: "kidsfunludo.firebaseapp.com",
-  projectId: "kidsfunludo",
-  storageBucket: "kidsfunludo.firebasestorage.app",
-  messagingSenderId: "1002366028340",
-  appId: "1:1002366028340:web:8f385a7015cea66ed99861",
-  measurementId: "G-8V22HKJ9RP"
-};
+import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

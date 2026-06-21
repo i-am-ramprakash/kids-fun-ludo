@@ -18,6 +18,16 @@ const SPECIES_EMOJIS = {
     "Android": "🤖"
 };
 
+// Species to custom headshot portrait mappings
+const SPECIES_AVATARS = {
+    "Terran (Human)": "images/generated/avatars/avatar_terran.png",
+    "Martian Invader": "images/generated/avatars/avatar_martian.png",
+    "Andromedan Android": "images/generated/avatars/avatar_android.png",
+    "Neptunian Explorer": "images/generated/avatars/avatar_neptunian.png",
+    "Gromflomite Bounty Hunter": "images/generated/avatars/avatar_gromflomite.png",
+    "Proxima Centaurian Elf": "images/generated/avatars/avatar_proxima_elf.png"
+};
+
 // Fallback visual character avatars
 const PLAYER_CHARACTERS = ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'];
 
@@ -39,6 +49,37 @@ function isHumanInSession(playerIdx) {
         return lobbyConfig.playerTypes[playerIdx] === 'human';
     }
     return false;
+}
+
+/**
+ * Resolves the character avatar HTML for the specified player.
+ */
+function getPlayerCharacterHTML(playerIdx) {
+    const isMultiplayer = (typeof state !== 'undefined' && state && state.isMultiplayer) || (window.Multiplayer && window.Multiplayer.isOnline);
+    let speciesName = "";
+
+    if (isMultiplayer && window.onlinePlayersMap && window.onlinePlayersMap[playerIdx]) {
+        const uid = window.onlinePlayersMap[playerIdx];
+        const profile = window.onlinePlayersProfiles && window.onlinePlayersProfiles[uid];
+        if (profile && profile.species) {
+            speciesName = profile.species;
+        }
+    } else if (isHumanInSession(playerIdx)) {
+        if (typeof commanderProfile !== 'undefined' && commanderProfile.species) {
+            speciesName = commanderProfile.species;
+        }
+    }
+
+    let src = "";
+    if (speciesName && SPECIES_AVATARS[speciesName]) {
+        src = SPECIES_AVATARS[speciesName];
+    } else if (isHumanInSession(playerIdx) || isMultiplayer) {
+        src = SPECIES_AVATARS["Terran (Human)"];
+    } else {
+        src = "images/generated/icons/icon_bot.png";
+    }
+
+    return `<img src="${src}" style="width: 22px; height: 22px; border-radius: 50%; object-fit: contain; display: block;" />`;
 }
 
 /**
@@ -70,7 +111,7 @@ function initPlayerCharacters() {
     for (let i = 0; i < 4; i++) {
         const el = document.getElementById(`player-char-${i}`);
         if (el) {
-            el.textContent = getPlayerCharacter(i);
+            el.innerHTML = getPlayerCharacterHTML(i);
             if (typeof players !== 'undefined' && players[i]) {
                 el.title = players[i].name;
             }

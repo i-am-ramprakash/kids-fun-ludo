@@ -11,23 +11,26 @@ let ambientVolume = parseFloat(localStorage.getItem('cosmic_music_volume') || '0
 
 // Audio Cache and Mappings for MP3 Playback
 const EMOJI_SFX_MAP = {
-    'pawn_captured': 'pawn captured.mp3',
-    'capture_opponent': 'capture moment.mp3',
-    'roll_six': 'roll 6.mp3',
-    'safe_zone': 'safe zone.mp3',
-    'reach_home': 'Reach home.mp3',
-    'lose_turn': 'loose turn.mp3',
-    'invalid_move': 'invalid move.mp3',
-    'shield_activated': 'shield activated.mp3',
+    'pawn_captured': 'pawn_captured.mp3',
+    'capture_opponent': 'capture_opponent.mp3',
+    'roll_six': 'dice_roll_six.mp3',
+    'safe_zone': 'pawn_enter_safe.mp3',
+    'reach_home': 'pawn_reach_home.mp3',
+    'lose_turn': 'lose_turn.mp3',
+    'invalid_move': 'dice_invalid.mp3',
+    'shield_activated': 'shield_activate.mp3',
     'frozen_by_crystal': 'frozen.mp3',
-    'rocket_boost': 'rocket boost.mp3',
-    'teleport_wormhole': 'wormholes.mp3',
-    'near_victory': 'near home.mp3',
-    'win_game': 'wingame.mp3',
-    'lose_game': 'loosegame.mp3'
+    'rocket_boost': 'rocket_boost_activate.mp3',
+    'teleport_wormhole': 'teleport_activate.mp3',
+    'near_victory': 'pawn_near_home.mp3',
+    'win_game': 'win_game.mp3',
+    'lose_game': 'lose_game.mp3'
 };
 
 const audioCache = {};
+
+let currentBgmAudio = null;
+let currentBgmFilename = "";
 
 function isAudioMuted() {
     if (typeof document === 'undefined') return false;
@@ -51,6 +54,28 @@ function preloadAudioFiles() {
             }
         }
     }
+    // Also preload BGM files
+    const bgmFiles = [
+        'music_menu_ambient.mp3',
+        'music_multiplayer.mp3',
+        'music_game_main.mp3',
+        'music_results.mp3',
+        'music_snakes_ladder.mp3',
+        'music_mini_game_doger.mp3',
+        'music_mini_game_shooter.mp3',
+        'music_store.mp3'
+    ];
+    bgmFiles.forEach(filename => {
+        if (!audioCache[filename]) {
+            try {
+                const audio = new Audio('audio/' + encodeURIComponent(filename));
+                audio.preload = 'auto';
+                audioCache[filename] = audio;
+            } catch (e) {
+                console.warn("Failed to preload BGM: " + filename, e);
+            }
+        }
+    });
 }
 
 function playAudioFile(filename) {
@@ -74,6 +99,94 @@ function playAudioFile(filename) {
     } catch (e) {
         console.error("Audio error for: " + filename, e);
     }
+}
+
+function playBackgroundMusic(filename) {
+    if (currentBgmFilename === filename) {
+        if (currentBgmAudio) {
+            currentBgmAudio.volume = ambientVolume;
+            if (isAudioMuted()) {
+                currentBgmAudio.pause();
+            } else {
+                if (currentBgmAudio.paused) {
+                    currentBgmAudio.play().catch(err => console.warn("BGM play error", err));
+                }
+            }
+        }
+        return;
+    }
+
+    if (currentBgmAudio) {
+        currentBgmAudio.pause();
+        currentBgmAudio = null;
+    }
+
+    currentBgmFilename = filename;
+    if (!filename) return;
+
+    try {
+        let audio = audioCache[filename];
+        if (!audio) {
+            audio = new Audio('audio/' + encodeURIComponent(filename));
+            audioCache[filename] = audio;
+        }
+        audio.loop = true;
+        audio.volume = ambientVolume;
+        currentBgmAudio = audio;
+
+        if (!isAudioMuted() && ambientSynth) {
+            audio.play().catch(err => {
+                console.warn("BGM autoplay prevented or failed for: " + filename, err);
+            });
+        }
+    } catch (e) {
+        console.error("BGM creation error", e);
+    }
+}
+
+function playBackgroundMusicForView(viewId) {
+    if (!viewId) return;
+    
+    let track = "music_menu_ambient.mp3"; // default menu music
+    
+    switch(viewId) {
+        case 'splash-screen':
+        case 'login-screen':
+        case 'home-screen':
+        case 'home':
+        case 'leaderboard':
+        case 'morefun':
+        case 'settings':
+            track = 'music_menu_ambient.mp3';
+            break;
+        case 'profile': // customization shop & premium store
+            track = 'music_store.mp3';
+            break;
+        case 'multiplayer-lobby-screen':
+        case 'multiplayer':
+            track = 'music_multiplayer.mp3';
+            break;
+        case 'game-screen':
+            track = 'music_game_main.mp3';
+            break;
+        case 'results-screen':
+            track = 'music_results.mp3';
+            break;
+        case 'snakes-ladders-view':
+            track = 'music_snakes_ladder.mp3';
+            break;
+        case 'cosmic-dodger-view':
+            track = 'music_mini_game_doger.mp3';
+            break;
+        case 'starship-shooter-view':
+            track = 'music_mini_game_shooter.mp3';
+            break;
+        default:
+            track = 'music_menu_ambient.mp3';
+            break;
+    }
+    
+    playBackgroundMusic(track);
 }
 
 // Injection of Volume Slider retro styles
@@ -160,150 +273,53 @@ function startAudioContext() {
         audioCtx.resume();
     }
     
-    // Ensure the drones and intervals are running if ambientSynth is enabled
+    // Ensure BGM plays
     if (ambientSynth) {
-        startSpaceAmbientDrone();
+        if (currentBgmAudio) {
+            if (currentBgmAudio.paused && !isAudioMuted()) {
+                currentBgmAudio.play().catch(err => console.warn("BGM play resume failed", err));
+            }
+        } else {
+            playBackgroundMusicForView(currentScreen || 'splash-screen');
+        }
     }
 }
 
 function playRealisticDiceRollStart() {
-    if (!audioCtx || audioCtx.state === 'suspended') return;
-    try {
-        const osc = audioCtx.createOscillator();
-        const filter = audioCtx.createBiquadFilter();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(350, audioCtx.currentTime + 0.05);
-        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.18);
-        
-        gain.gain.setValueAtTime(0.16 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-        
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(600, audioCtx.currentTime);
-        filter.Q.value = 3.0;
-        
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.2);
-    } catch(e) {}
+    playAudioFile('dice_roll_star.mp3');
 }
 
+let lastClatterTime = 0;
 function playRealisticDiceClatter() {
-    if (!audioCtx || audioCtx.state === 'suspended') return;
-    try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'sine';
-        const pitch = 180 + Math.random() * 120;
-        osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.038);
-        
-        gain.gain.setValueAtTime(0.15 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.038);
-        
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 400;
-        
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.04);
-        
-        // Quick noise brush sound
-        const bufferSize = audioCtx.sampleRate * 0.02;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
-        const noiseFilter = audioCtx.createBiquadFilter();
-        noiseFilter.type = 'bandpass';
-        noiseFilter.frequency.value = 1400 + Math.random() * 400;
-        noiseFilter.Q.value = 5.0;
-        
-        const noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(0.04 * sfxVolume, audioCtx.currentTime);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
-        
-        noise.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(audioCtx.destination);
-        noise.start();
-        noise.stop(audioCtx.currentTime + 0.02);
-    } catch(e) {}
+    const now = Date.now();
+    if (now - lastClatterTime < 150) return;
+    lastClatterTime = now;
+    playAudioFile('dice_roll_mid.mp3');
 }
 
 function playRealisticDiceLanding() {
-    if (!audioCtx || audioCtx.state === 'suspended') return;
-    try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.22);
-        
-        gain.gain.setValueAtTime(0.24 * sfxVolume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
-        
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 250;
-        
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.23);
-        
-        // Mini secondary rebound clatter
-        setTimeout(() => {
-            if (!audioCtx || audioCtx.state === 'suspended') return;
-            const bOsc = audioCtx.createOscillator();
-            const bGain = audioCtx.createGain();
-            bOsc.type = 'sine';
-            bOsc.frequency.setValueAtTime(210, audioCtx.currentTime);
-            bOsc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.03);
-            
-            bGain.gain.setValueAtTime(0.08 * sfxVolume, audioCtx.currentTime);
-            bGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-            
-            bOsc.connect(bGain);
-            bGain.connect(audioCtx.destination);
-            bOsc.start();
-            bOsc.stop(audioCtx.currentTime + 0.04);
-        }, 60);
-    } catch(e) {}
+    playAudioFile('dice_land.mp3');
 }
 
 function playSynthSound(freqStart, freqEnd, duration, type = 'sine') {
     if (isAudioMuted()) return;
+    
+    // Realistic dice roll sound effects interception
+    if (duration === 0.04 && type === 'sawtooth') {
+        playRealisticDiceClatter();
+        return;
+    }
+    if (duration === 0.25 && freqStart === 350 && freqEnd === 440) {
+        playRealisticDiceLanding();
+        return;
+    }
+    if (duration === 0.2 && freqStart === 440 && freqEnd === 880) {
+        playRealisticDiceRollStart();
+        return;
+    }
+
     if (!audioCtx || audioCtx.state === 'suspended') return;
     try {
-        // Realistic dice roll sound effects interception
-        if (duration === 0.04 && type === 'sawtooth') {
-            playRealisticDiceClatter();
-            return;
-        }
-        if (duration === 0.25 && freqStart === 350 && freqEnd === 440) {
-            playRealisticDiceLanding();
-            return;
-        }
-        if (duration === 0.2 && freqStart === 440 && freqEnd === 880) {
-            playRealisticDiceRollStart();
-            return;
-        }
-
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
@@ -606,6 +622,9 @@ function stopAllDroneAndLoops() {
 
 function stopAllAudio() {
     stopAllDroneAndLoops();
+    if (currentBgmAudio) {
+        currentBgmAudio.pause();
+    }
 }
 
 function toggleAudio() {
@@ -619,8 +638,12 @@ function toggleAudio() {
             btn.style.boxShadow = '0 0 10px var(--cyan)';
             btn.style.borderColor = 'var(--cyan)';
             
-            // Reinitialize and start standard drone oscillators
-            startSpaceAmbientDrone();
+            // Reinitialize and start BGM instead of drone
+            if (currentBgmFilename) {
+                playBackgroundMusic(currentBgmFilename);
+            } else {
+                playBackgroundMusicForView(currentScreen || 'splash-screen');
+            }
             
             // Show custom volume controls panel
             showVolumePanel();
@@ -629,7 +652,7 @@ function toggleAudio() {
             btn.style.boxShadow = '';
             btn.style.borderColor = '';
             
-            // Instantly stop audio to avoid background activity or double drone overlays
+            // Instantly stop audio to avoid background activity
             stopAllAudio();
             
             // Hide custom volume controls panel
@@ -712,10 +735,8 @@ window.updateAmbientVolume = function(val) {
     if (advancedSlider) advancedSlider.value = ambientVolume;
     const advancedDisplay = document.getElementById('music-volume-display');
     if (advancedDisplay) advancedDisplay.innerText = `${val}%`;
-    if (audioCtx && ambientMasterGain) {
-        try {
-            ambientMasterGain.gain.linearRampToValueAtTime(0.14 * ambientVolume, audioCtx.currentTime + 0.1);
-        } catch(e) {}
+    if (currentBgmAudio) {
+        currentBgmAudio.volume = ambientVolume;
     }
 };
 
@@ -730,10 +751,8 @@ window.setAmbientVolume = function(vol) {
     if (slider) {
         slider.value = Math.round(ambientVolume * 100);
     }
-    if (audioCtx && ambientMasterGain) {
-        try {
-            ambientMasterGain.gain.linearRampToValueAtTime(0.14 * ambientVolume, audioCtx.currentTime + 0.1);
-        } catch(e) {}
+    if (currentBgmAudio) {
+        currentBgmAudio.volume = ambientVolume;
     }
 };
 

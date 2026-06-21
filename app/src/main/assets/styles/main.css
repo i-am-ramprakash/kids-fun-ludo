@@ -86,12 +86,12 @@ h1, h2, h3, h4,
 /* Only splash screen should be centered — it has a single logo */
 #splash-screen {
     justify-content: center !important;
-    background: url('../images/Splash Screen.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_splash.png') center/cover no-repeat;
 }
 
 /* Login Screen Background */
 #login-screen {
-    background: url('../images/Login Screen.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_login.png') center/cover no-repeat;
 }
 
 #login-screen::before {
@@ -111,7 +111,7 @@ h1, h2, h3, h4,
 /* Home Screen Background */
 #home-screen {
     justify-content: flex-start;
-    background: url('../images/Home page-Hub.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_home.png') center/cover no-repeat;
 }
 
 #home-screen::before {
@@ -153,13 +153,13 @@ h1, h2, h3, h4,
     height: 100vh;
     z-index: -2;
     overflow: hidden;
-    background: url('../images/App Logo.webp') center/cover no-repeat,
+    background: url('../images/generated/promo/art_app_logo.png') center/cover no-repeat,
                 radial-gradient(ellipse at 30% 20%, #1a0050 0%, #0d0630 60%, #000 100%);
 }
 
 /* Game Screen Background */
 .game-wrapper {
-    background: url('../images/Main game screen board.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_game.png') center/cover no-repeat;
     position: relative;
 }
 
@@ -178,12 +178,12 @@ h1, h2, h3, h4,
 
 /* Setup Screen Background */
 #setup-modal .modal-content {
-    background: url('../images/Setup Screen.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_setup.png') center/cover no-repeat;
 }
 
 /* Multiplayer Lobby Background */
 #multiplayer-lobby-screen {
-    background: url('../images/Multiplayer Lobby.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_multiplayer.png') center/cover no-repeat;
 }
 
 #multiplayer-lobby-screen::before {
@@ -202,7 +202,7 @@ h1, h2, h3, h4,
 
 /* Snakes & Ladders Background */
 #snakes-ladders-view {
-    background: url('../images/Rocket and Wormholes board.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_snakes_ladders.png') center/cover no-repeat;
 }
 
 #snakes-ladders-view .sl-fs-body {
@@ -217,7 +217,7 @@ h1, h2, h3, h4,
 
 /* Starship Shooter Background */
 #starship-shooter-view {
-    background: url('../images/Starship Shooter minigame.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_minigame_shooter.png') center/cover no-repeat;
 }
 
 #starship-shooter-view::before {
@@ -230,7 +230,7 @@ h1, h2, h3, h4,
 
 /* Cosmic Dodger Background */
 #cosmic-dodger-view {
-    background: url('../images/Nebula flight run minigame.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_minigame_dodger.png') center/cover no-repeat;
 }
 
 #cosmic-dodger-view::before {
@@ -244,7 +244,7 @@ h1, h2, h3, h4,
 /* Results Screen Background */
 #results-screen {
     justify-content: center !important;
-    background: url('../images/Result Screen.webp') center/cover no-repeat;
+    background: url('../images/generated/backgrounds/bg_results.png') center/cover no-repeat;
 }
 
 #results-screen .results-container {
@@ -254,7 +254,12 @@ h1, h2, h3, h4,
 
 /* Daily Reward Overlay Background */
 #daily-reward-overlay {
-    background: url('../images/Daily reward Overlay.webp') center/cover no-repeat;
+    background: url('../images/generated/promo/art_daily_reward.png') center/cover no-repeat;
+}
+
+/* Profile Tab Background */
+#tab-profile {
+    background: linear-gradient(rgba(5, 2, 20, 0.7), rgba(5, 2, 20, 0.7)), url('../images/generated/backgrounds/bg_store.png') center/cover no-repeat !important;
 }
 
 #daily-reward-overlay::before {

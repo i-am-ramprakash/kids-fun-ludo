@@ -234,40 +234,24 @@ function renderPawns() {
             pawnDOM.id = `pawn-${playerIdx}-${pawnIdx}`;
             pawnDOM.setAttribute('data-player', playerIdx);
             pawnDOM.setAttribute('data-pawn', pawnIdx);
-            let pawnEmoji = '🛸';
-            const getSkinEmoji = (skinId) => {
-                const skins = {
-                    classic: "🛸",
-                    cruiser: "🚀",
-                    vortex: "🔮",
-                    quantum: "🛰️",
-                    phoenix: "☄️",
-                    hyperdrive: "⚡",
-                    nebula: "🪐"
-                };
-                return skins[skinId] || "🛸";
-            };
-
+            let skinId = 'classic';
             if (state.isMultiplayer && window.Multiplayer && window.onlinePlayersMap) {
                 const uid = window.onlinePlayersMap[playerIdx];
                 if (uid === window.Multiplayer.userId) {
-                    pawnEmoji = getSkinEmoji((typeof commanderProfile !== 'undefined') ? commanderProfile.equippedSkin : 'classic');
+                    skinId = (typeof commanderProfile !== 'undefined' && commanderProfile.equippedSkin) ? commanderProfile.equippedSkin : 'classic';
                 } else if (uid) {
                     const profile = window.onlinePlayersProfiles && window.onlinePlayersProfiles[uid];
-                    pawnEmoji = getSkinEmoji((profile && profile.equippedSkin) || 'classic');
-                } else {
-                    const themeEmojis = typeof getThemePawnEmojis === 'function' ? getThemePawnEmojis() : null;
-                    pawnEmoji = (themeEmojis && themeEmojis[playerIdx]) ? themeEmojis[playerIdx] : '🛸';
+                    skinId = (profile && profile.equippedSkin) || 'classic';
                 }
             } else {
                 if (typeof isBot === 'function' && !isBot(playerIdx)) {
-                    pawnEmoji = getSkinEmoji((typeof commanderProfile !== 'undefined') ? commanderProfile.equippedSkin : 'classic');
+                    skinId = (typeof commanderProfile !== 'undefined' && commanderProfile.equippedSkin) ? commanderProfile.equippedSkin : 'classic';
                 } else {
-                    const themeEmojis = typeof getThemePawnEmojis === 'function' ? getThemePawnEmojis() : null;
-                    pawnEmoji = (themeEmojis && themeEmojis[playerIdx]) ? themeEmojis[playerIdx] : '🛸';
+                    const botSkins = ['classic', 'cruiser', 'vortex', 'quantum'];
+                    skinId = botSkins[playerIdx % botSkins.length];
                 }
             }
-            pawnDOM.innerHTML = `${pawnEmoji}<div class="engine-flame"></div>`;
+            pawnDOM.innerHTML = `<img src="images/generated/pawns/skin_pawn_${skinId}.png" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none; z-index: 2;" /><div class="engine-flame"></div>`;
 
             // Determine targeting container
             if (pos === -1) {

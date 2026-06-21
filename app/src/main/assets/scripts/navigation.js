@@ -42,6 +42,16 @@ const DEFAULT_PROFILE = {
     equippedSkin: "classic"
 };
 
+// Species to custom headshot portrait mappings
+const SPECIES_AVATARS = {
+    "Terran (Human)": "images/generated/avatars/avatar_terran.png",
+    "Martian Invader": "images/generated/avatars/avatar_martian.png",
+    "Andromedan Android": "images/generated/avatars/avatar_android.png",
+    "Neptunian Explorer": "images/generated/avatars/avatar_neptunian.png",
+    "Gromflomite Bounty Hunter": "images/generated/avatars/avatar_gromflomite.png",
+    "Proxima Centaurian Elf": "images/generated/avatars/avatar_proxima_elf.png"
+};
+
 // Available custom UFO token skins
 const UFO_SKINS = [
     { id: "classic", name: "Classic Saucer", emoji: "🛸", cost: 0, desc: "Standard pilot issue saucer token." },
@@ -50,7 +60,15 @@ const UFO_SKINS = [
     { id: "quantum", name: "Quantum Probe", emoji: "🛰️", cost: 500, desc: "Equipped with hyper-sensitive sensors for deep space paths." },
     { id: "phoenix", name: "Phoenix Rocket", emoji: "☄️", cost: 800, desc: "Harnessing the heat of passing solar flares." },
     { id: "hyperdrive", name: "Hyperdrive Saucer", emoji: "⚡", cost: 1200, desc: "Prototype electro-charged saucer sparking cosmic electricity." },
-    { id: "nebula", name: "Nebula Eclipse", emoji: "🪐", cost: 2000, desc: "Prestige token carved from dense ring system asteroids." }
+    { id: "nebula", name: "Nebula Eclipse", emoji: "🪐", cost: 2000, desc: "Prestige token carved from dense ring system asteroids." },
+    // 7 Expansion Skins:
+    { id: "dragon", name: "Dragon Cruiser", emoji: "🐲", cost: 500, desc: "Fierce predator vessel armored with solar scales." },
+    { id: "stealth", name: "Stealth Void", emoji: "🛸", cost: 800, desc: "Radar-absorbent plating for silent covert flight paths." },
+    { id: "crystal", name: "Crystal Prism", emoji: "💎", cost: 1000, desc: "Refracts ambient starlight into glowing forcefields." },
+    { id: "mech", name: "Mech Saucer", emoji: "🤖", cost: 1500, desc: "Hydraulically reinforced defense saucer built to ram." },
+    { id: "pumpkin", name: "Jack-o-Lantern", emoji: "🎃", cost: 300, desc: "Spooky seasonal probe with eerie glowing plasma core." },
+    { id: "candy", name: "Candy Ship", emoji: "🍬", cost: 300, desc: "Sweet dessert-styled saucer coated in hyper-sugar fuel." },
+    { id: "dino", name: "Dino Fighter", emoji: "🦖", cost: 400, desc: "Jurassic-class scout vessel with heavy carbon scales." }
 ];
 
 // Profile data initialized from default
@@ -74,12 +92,13 @@ function initLoginAvatarGrid() {
     const grid = document.getElementById('login-avatar-grid');
     if (!grid) return;
     grid.innerHTML = ALIEN_SPECIES.map(spec => {
-        const emoji = SPECIES_EMOJIS[spec] || "👽";
+        const avatarSrc = SPECIES_AVATARS[spec];
         const shortName = spec.split(' ')[0]; // E.g. "Terran", "Martian"
         const isSelected = spec === selectedLoginSpecies ? 'selected' : '';
+        const imgHTML = avatarSrc ? `<img src="${avatarSrc}" class="avatar-emoji" style="width: 48px; height: 48px; border-radius: 50%; object-fit: contain;" />` : `<span class="avatar-emoji">${SPECIES_EMOJIS[spec] || "👽"}</span>`;
         return `
             <div class="avatar-card ${isSelected}" onclick="selectLoginSpecies('${spec}')" id="avatar-card-${spec.replace(/\s+/g, '-').replace(/[()]/g, '')}">
-                <span class="avatar-emoji">${emoji}</span>
+                ${imgHTML}
                 <span class="avatar-name">${shortName}</span>
             </div>
         `;
@@ -536,7 +555,12 @@ function syncHeaderAndPilotData() {
     
     const headerAvatar = document.getElementById('header-commander-avatar');
     if (headerAvatar) {
-        headerAvatar.innerText = SPECIES_EMOJIS[species] || "🧑‍🚀";
+        const avatarSrc = SPECIES_AVATARS[species];
+        if (avatarSrc) {
+            headerAvatar.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block;" />`;
+        } else {
+            headerAvatar.innerText = SPECIES_EMOJIS[species] || "🧑‍🚀";
+        }
     }
 
     const headerStars = document.getElementById('header-stars-balance');
@@ -597,7 +621,14 @@ function syncHeaderAndPilotData() {
     if (xpProgressFill) xpProgressFill.style.width = `${xpPercent}%`;
 
     const avatarDisplay = document.getElementById('pilot-avatar-display');
-    if (avatarDisplay) avatarDisplay.innerText = SPECIES_EMOJIS[species] || "🧑‍🚀";
+    if (avatarDisplay) {
+        const avatarSrc = SPECIES_AVATARS[species];
+        if (avatarSrc) {
+            avatarDisplay.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block;" />`;
+        } else {
+            avatarDisplay.innerText = SPECIES_EMOJIS[species] || "🧑‍🚀";
+        }
+    }
 
     // Update Security Clearance Details
     const clearanceEmailEl = document.getElementById('pilot-clearance-email');
@@ -698,7 +729,12 @@ function initNavigation() {
             
             const welcomeAvatar = document.getElementById('welcome-avatar-display');
             if (welcomeAvatar) {
-                welcomeAvatar.innerText = SPECIES_EMOJIS[commanderProfile.species] || "🧑‍🚀";
+                const avatarSrc = SPECIES_AVATARS[commanderProfile.species];
+                if (avatarSrc) {
+                    welcomeAvatar.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block;" />`;
+                } else {
+                    welcomeAvatar.innerText = SPECIES_EMOJIS[commanderProfile.species] || "🧑‍🚀";
+                }
             }
             
             const played = document.getElementById('welcome-stat-played');
@@ -832,6 +868,11 @@ function navigateTo(screenId, pushToHistory = true) {
     }
 
     currentScreen = screenId;
+
+    // Trigger view background music routing
+    if (typeof playBackgroundMusicForView === 'function') {
+        playBackgroundMusicForView(screenId);
+    }
 
     // Set canvas for particle engine
     if (window.particleEngine) {
@@ -1141,6 +1182,11 @@ function switchTab(tabId, event) {
             panel.classList.add('hidden');
         }
     });
+
+    // Play tab background music
+    if (typeof playBackgroundMusicForView === 'function') {
+        playBackgroundMusicForView(tabId);
+    }
 }
 
 // ─── Power-Up Briefing Pop-up ───────────────────────────────────────────────
@@ -1151,12 +1197,12 @@ function showPowerUpBriefing(onConfirm) {
     }
 
     const POWERUPS_BRIEFING = [
-        { icon: '🛡️', name: 'SHIELD BARRIER', desc: 'Protects your UFO from being captured for 3 turns.', color: '#38bdf8' },
-        { icon: '❄️', name: 'CRYSTAL STORM',  desc: 'Freezes the next player — their turn is completely skipped!', color: '#3cc6ff' },
-        { icon: '🌀', name: 'WORMHOLE PORTAL', desc: 'Instantly teleports your starship 6 steps forward.', color: '#d946ef' },
-        { icon: '🚀', name: 'ROCKET BOOST',   desc: 'Blasts your starship 10 steps forward at full throttle.', color: '#ef4444' },
-        { icon: '🔥', name: 'LIGHTNING CORE', desc: 'Your UFO burns hot — any opponent that touches it gets vaporized!', color: '#ff4500' },
-        { icon: '🎲', name: 'TIME LOOP',      desc: 'Bends time to grant you an immediate extra dice roll.', color: '#22c55e' }
+        { id: 'shield_token', icon: '🛡️', name: 'SHIELD BARRIER', desc: 'Protects your UFO from being captured for 3 turns.', color: '#38bdf8' },
+        { id: 'freeze_opponent', icon: '❄️', name: 'CRYSTAL STORM',  desc: 'Freezes the next player — their turn is completely skipped!', color: '#3cc6ff' },
+        { id: 'teleport_jump', icon: '🌀', name: 'WORMHOLE PORTAL', desc: 'Instantly teleports your starship 6 steps forward.', color: '#d946ef' },
+        { id: 'rocket_boost', icon: '🚀', name: 'ROCKET BOOST',   desc: 'Blasts your starship 10 steps forward at full throttle.', color: '#ef4444' },
+        { id: 'lightning_fire', icon: '🔥', name: 'LIGHTNING CORE', desc: 'Your UFO burns hot — any opponent that touches it gets vaporized!', color: '#ff4500' },
+        { id: 'extra_roll', icon: '🎲', name: 'TIME LOOP',      desc: 'Bends time to grant you an immediate extra dice roll.', color: '#22c55e' }
     ];
 
     const overlay = document.createElement('div');
@@ -1182,7 +1228,9 @@ function showPowerUpBriefing(onConfirm) {
             padding: 10px 14px;
             transition: transform 0.15s ease;
         ">
-            <span style="font-size: 1.6rem; flex-shrink:0;">${p.icon}</span>
+            <span style="font-size: 1.6rem; flex-shrink:0; display: flex; align-items: center;">
+                ${(typeof POWERUP_ICON_SRCS !== 'undefined' && POWERUP_ICON_SRCS[p.id]) ? `<img src="${POWERUP_ICON_SRCS[p.id]}" style="width: 32px; height: 32px; object-fit: contain;" />` : p.icon}
+            </span>
             <div style="flex:1; min-width:0;">
                 <div style="font-size: 0.6rem; font-weight: 900; color: ${p.color}; letter-spacing: 1.5px; margin-bottom: 2px;">${p.name}</div>
                 <div style="font-size: 0.65rem; color: #cbd5e1; line-height: 1.4; font-family: 'Nunito', sans-serif; font-weight: 600;">${p.desc}</div>
@@ -1205,7 +1253,7 @@ function showPowerUpBriefing(onConfirm) {
         ">
             <!-- Header -->
             <div style="text-align:center; margin-bottom: 18px;">
-                <div style="font-size: 2rem; margin-bottom: 6px;">⚡</div>
+                <img src="images/generated/promo/art_feature_powerups.png" style="width: 100%; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); object-fit: cover; max-height: 120px;" />
                 <h2 style="margin:0 0 4px; font-size: 1rem; letter-spacing: 2px; color: #ffffff; font-weight: 900;">POWER-UP BRIEFING</h2>
                 <p style="margin:0; font-size: 0.65rem; color: #64748b; font-family:'Nunito',sans-serif; letter-spacing:0.5px;">Land on glowing cells to activate these instantly!</p>
             </div>
@@ -1406,26 +1454,32 @@ async function renderLeaderboard() {
     }
 
     if (records.length === 0) {
-        listContainer.innerHTML = `<div class="leaderboard-empty">Telemetry core empty.</div>`;
+        listContainer.innerHTML = `
+            <div class="leaderboard-empty" style="text-align: center; padding: 24px;">
+                <img src="images/generated/promo/art_empty_leaderboard.png" style="width: 150px; opacity: 0.85; margin-bottom: 12px;" />
+                <div>Telemetry core empty. Be the first to rank!</div>
+            </div>
+        `;
         return;
     }
 
     listContainer.innerHTML = records.map((r, i) => {
-        let goldMedal = "";
-        if (i === 0) goldMedal = "🥇 ";
-        else if (i === 1) goldMedal = "🥈 ";
-        else if (i === 2) goldMedal = "🥉 ";
+        let medalHTML = "";
+        if (i === 0) medalHTML = `<img src="images/generated/icons/icon_crown.png" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;" />`;
+        else if (i === 1) medalHTML = `<img src="images/generated/icons/icon_medal_silver.png" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;" />`;
+        else if (i === 2) medalHTML = `<img src="images/generated/icons/icon_medal_bronze.png" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;" />`;
         
-        const specEmoji = SPECIES_EMOJIS[r.species] || "👽";
+        const avatarSrc = SPECIES_AVATARS[r.species];
+        const avatarHTML = avatarSrc ? `<img src="${avatarSrc}" style="width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; margin-right: 6px; object-fit: contain;" />` : (SPECIES_EMOJIS[r.species] || "👽");
         
         const isSelf = r.name === commanderProfile.commanderName;
         const rowClass = isSelf ? 'leaderboard-row-self' : '';
         
         return `
             <div class="leaderboard-row ${rowClass}">
-                <div class="lead-rank">${goldMedal || (i + 1)}</div>
+                <div class="lead-rank">${medalHTML || (i + 1)}</div>
                 <div class="lead-name-box">
-                    <span class="lead-name">${specEmoji} ${escapeHTML(r.name)}</span>
+                    <span class="lead-name" style="display: flex; align-items: center; gap: 4px;">${avatarHTML} ${escapeHTML(r.name)}</span>
                     <span class="lead-species">${r.species}</span>
                 </div>
                 <div class="lead-pts">${r.rankPoints} ⭐️</div>
@@ -1494,7 +1548,7 @@ function renderSkinsShop() {
 
         return `
             <div class="skin-item-card ${equippedCardClass}">
-                <div class="skin-item-emoji">${skin.emoji}</div>
+                <div class="skin-item-emoji"><img src="images/generated/pawns/skin_pawn_${skin.id}.png" style="width: 48px; height: 48px; object-fit: contain;" /></div>
                 <div class="skin-item-title">${skin.name}</div>
                 <div class="skin-item-desc">${skin.desc}</div>
                 <button type="button" class="skin-item-btn ${btnClass}" ${btnClick}>${btnText}</button>
@@ -1585,9 +1639,25 @@ function updateCommanderName(val) {
 function updateCommanderSpecies(val) {
     commanderProfile.species = val;
     saveProfile();
+    
     const headerAvatar = document.getElementById('header-commander-avatar');
     if (headerAvatar) {
-        headerAvatar.innerText = SPECIES_EMOJIS[val] || "🧑‍🚀";
+        const avatarSrc = SPECIES_AVATARS[val];
+        if (avatarSrc) {
+            headerAvatar.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block;" />`;
+        } else {
+            headerAvatar.innerText = SPECIES_EMOJIS[val] || "🧑‍🚀";
+        }
+    }
+    
+    const avatarDisplay = document.getElementById('pilot-avatar-display');
+    if (avatarDisplay) {
+        const avatarSrc = SPECIES_AVATARS[val];
+        if (avatarSrc) {
+            avatarDisplay.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block;" />`;
+        } else {
+            avatarDisplay.innerText = SPECIES_EMOJIS[val] || "🧑‍🚀";
+        }
     }
 }
 
@@ -1850,6 +1920,13 @@ function renderMoreFunSection() {
             <button class="action-btn mode-card-btn" onclick="openMiniLudo()" style="background: linear-gradient(135deg, #10b981, #059669) !important; border-color: #34d399 !important;">LAUNCH MINI MISSION</button>
         </div>
 
+        <div class="mini-challenge-card" style="border-color: var(--kid-pink); background: linear-gradient(135deg, rgba(2,0,16,0.95), rgba(40,0,30,0.9)); position:relative;">
+            <div class="challenge-pill" style="background: var(--kid-pink);">TUTORIAL</div>
+            <h4 class="challenge-lbl" style="color:var(--kid-pink);">🛸 FLIGHT COCKPIT GUIDE</h4>
+            <p class="challenge-body" style="color:#fbcfe8;">Master Ludo coordinates, board movement paths, and warp drives. Inspect the official starship cockpit telemetry manual before taking off.</p>
+            <button class="action-btn mode-card-btn" onclick="window.openTutorialModal()" style="background: linear-gradient(135deg, var(--kid-pink), #ec4899) !important; border-color: var(--kid-pink) !important;">OPEN MANUAL</button>
+        </div>
+
         <div class="quick-fact-card">
             <span class="fact-icon">🌟</span>
             <div>
@@ -2050,3 +2127,105 @@ window.addEventListener('load', () => {
         }
     }, 1500);
 });
+
+// Premium Cosmic Pack logic
+window.buyPremiumCosmicPack = function() {
+    if (!commanderProfile.unlockedSkins) {
+        commanderProfile.unlockedSkins = ["classic"];
+    }
+
+    const premiumSkins = ["dragon", "stealth", "crystal", "mech", "pumpkin", "candy", "dino"];
+    const allAlreadyUnlocked = premiumSkins.every(skinId => commanderProfile.unlockedSkins.includes(skinId));
+
+    if (allAlreadyUnlocked) {
+        raiseToast("You have already unlocked all premium pack skins!", "👑");
+        return;
+    }
+
+    const cost = 8000;
+    const stars = commanderProfile.stars || 0;
+
+    if (stars >= cost) {
+        commanderProfile.stars -= cost;
+        premiumSkins.forEach(skinId => {
+            if (!commanderProfile.unlockedSkins.includes(skinId)) {
+                commanderProfile.unlockedSkins.push(skinId);
+            }
+        });
+        commanderProfile.equippedSkin = "dragon";
+        
+        saveProfile();
+        syncHeaderAndPilotData();
+        renderSkinsShop();
+        
+        if (typeof playSynthSound === 'function') {
+            playSynthSound(523.25, 120, 0.1, 'sine');
+            setTimeout(() => {
+                playSynthSound(659.25, 120, 0.1, 'sine');
+                setTimeout(() => {
+                    playSynthSound(783.99, 200, 0.15, 'sine');
+                }, 100);
+            }, 100);
+        }
+        
+        if (typeof playAudioFile === 'function') {
+            playAudioFile('purchase_success.mp3');
+        }
+        
+        raiseToast("Premium Cosmic Pack unlocked! All 7 expansion skins are now accessible.", "👑");
+    } else {
+        if (typeof playAudioFile === 'function') {
+            playAudioFile('purchase_fail.mp3');
+        }
+        raiseToast("Insufficient stars! Complete missions or visit Star Store to buy stars.", "❌");
+    }
+};
+
+// Cockpit Guide Tutorial modal
+window.openTutorialModal = function() {
+    let modal = document.getElementById('tutorial-modal');
+    if (modal) modal.remove();
+
+    modal = document.createElement('div');
+    modal.id = 'tutorial-modal';
+    modal.style.cssText = `
+        position: fixed; inset: 0;
+        background: rgba(2, 0, 20, 0.95);
+        backdrop-filter: blur(8px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 999999;
+        opacity: 0; transition: opacity 0.3s ease;
+        font-family: 'Orbitron', 'Nunito', sans-serif;
+        padding: 16px; box-sizing: border-box;
+    `;
+    modal.innerHTML = `
+        <div style="
+            background: linear-gradient(160deg, #0d0525 0%, #050a1a 60%, #0a0220 100%);
+            border: 2px solid var(--kid-pink);
+            box-shadow: 0 0 50px rgba(255,107,157,0.3);
+            border-radius: 20px;
+            width: 100%; max-width: 480px;
+            max-height: 90vh; overflow-y: auto;
+            padding: 24px;
+            box-sizing: border-box;
+            position: relative;
+            text-align: center;
+        ">
+            <button type="button" onclick="document.getElementById('tutorial-modal').remove()" style="
+                position: absolute; top: 16px; right: 16px;
+                background: none; border: none; font-size: 1.5rem; color: #ffffff; cursor: pointer;
+            ">✕</button>
+            <h2 style="margin: 0 0 8px; font-size: 1.2rem; color: var(--kid-pink); font-weight: 900; letter-spacing: 1.5px;">PILOT COCKPIT MANUAL</h2>
+            <p style="margin: 0 0 16px; font-size: 0.7rem; color: #94a3b8; font-family: 'Nunito', sans-serif;">Review coordinate maps, warp sectors, and safe zones.</p>
+            <img src="images/generated/promo/art_tutorial_board.png" style="width: 100%; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); object-fit: contain;" />
+            <button type="button" class="action-btn" onclick="document.getElementById('tutorial-modal').remove()" style="
+                background: linear-gradient(135deg, var(--kid-pink), #ec4899) !important;
+                border-color: var(--kid-pink) !important; width: 100%;
+            ">ACKNOWLEDGED</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => {
+        modal.style.opacity = '1';
+    }, 50);
+};

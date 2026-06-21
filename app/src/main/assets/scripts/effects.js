@@ -466,6 +466,31 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(style);
 }
 
+const REACTION_IMAGE_MAP = {
+    pawn_captured: 'images/generated/emojis/emoji_reaction_cry.png',
+    capture_opponent: 'images/generated/emojis/emoji_reaction_smirk.png',
+    roll_six: 'images/generated/emojis/emoji_reaction_starstruck.png',
+    safe_zone: 'images/generated/emojis/emoji_reaction_relieved.png',
+    reach_home: 'images/generated/emojis/emoji_reaction_party.png',
+    lose_turn: 'images/generated/emojis/emoji_reaction_exhausted.png',
+    invalid_move: 'images/generated/emojis/emoji_reaction_thinking.png',
+    shield_activated: 'images/generated/emojis/emoji_reaction_shield.png',
+    frozen_by_crystal: 'images/generated/emojis/emoji_reaction_frozen.png',
+    rocket_boost: 'images/generated/emojis/emoji_reaction_rocket.png',
+    teleport_wormhole: 'images/generated/emojis/emoji_reaction_warp.png',
+    near_victory: 'images/generated/emojis/emoji_reaction_smirk.png',
+    win_game: 'images/generated/emojis/emoji_reaction_crown.png',
+    lose_game: 'images/generated/emojis/emoji_reaction_dizzy.png'
+};
+
+const FLOATING_EMOTE_MAP = {
+    '😎': 'images/generated/emojis/emote_alien_cool.png',
+    '🔥': 'images/generated/emojis/emote_fire.png',
+    '😭': 'images/generated/emojis/emoji_reaction_cry.png',
+    '🤪': 'images/generated/emojis/emote_lol.png',
+    '💥': 'images/generated/emojis/emote_thunder.png'
+};
+
 const EMOJI_MAP = {
     pawn_captured: '👽😭',
     capture_opponent: '👽😎',
@@ -538,14 +563,21 @@ function triggerEmojiReaction(type, playerIdx, xCoord, yCoord) {
     const activeP = (typeof players !== 'undefined' && players[playerIdx]) ? players[playerIdx] : null;
     const playerColor = activeP ? activeP.color : 'cyan';
     const charSpan = document.getElementById('player-char-' + playerIdx);
-    const avatar = charSpan ? charSpan.innerText : '👽';
+    const avatar = charSpan ? charSpan.innerHTML : '👽';
     
-    const rawEmoji = EMOJI_MAP[type] || '👽';
-    const reactionEmotes = rawEmoji.replace(/👽/g, '');
+    const reactionImage = REACTION_IMAGE_MAP[type];
+    let bubbleTextHTML = '';
+    if (reactionImage) {
+        bubbleTextHTML = `<img src="${reactionImage}" style="width: 24px; height: 24px; object-fit: contain; vertical-align: middle;" />`;
+    } else {
+        const rawEmoji = EMOJI_MAP[type] || '👽';
+        const reactionEmotes = rawEmoji.replace(/👽/g, '');
+        bubbleTextHTML = reactionEmotes;
+    }
     
     div.innerHTML = `
         <span class="emoji-bubble-avatar" style="text-shadow: 0 0 8px var(--${playerColor});">${avatar}</span>
-        <span class="emoji-bubble-text">${reactionEmotes}</span>
+        <span class="emoji-bubble-text">${bubbleTextHTML}</span>
     `;
     
     let animClass = 'animate-pop-up';
@@ -639,7 +671,13 @@ function triggerFloatingEmote(emoji, senderPlayerIdx = null) {
     
     const emoteEl = document.createElement('div');
     emoteEl.className = 'floating-emote';
-    emoteEl.textContent = emoji;
+    
+    const imageSrc = FLOATING_EMOTE_MAP[emoji];
+    if (imageSrc) {
+        emoteEl.innerHTML = `<img src="${imageSrc}" style="width: 32px; height: 32px; object-fit: contain;" />`;
+    } else {
+        emoteEl.textContent = emoji;
+    }
     
     const driftX = (Math.random() * 80 - 40) + 'px';
     emoteEl.style.setProperty('--drift-x', driftX);

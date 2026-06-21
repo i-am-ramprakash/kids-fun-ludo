@@ -26,3 +26,11 @@ debug.keystore.base64
 # OS files
 .DS_Store
 Thumbs.db
+
+# Firebase Configuration
+app/src/main/assets/scripts/firebase-config.js
+
+# Environment Files
+.env
+.env.local
+.env.*
