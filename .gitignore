@@ -34,3 +34,6 @@ app/src/main/assets/scripts/firebase-config.js
 .env
 .env.local
 .env.*
+
+# CSS Backup
+*.bak

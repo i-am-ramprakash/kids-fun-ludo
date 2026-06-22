@@ -206,7 +206,7 @@
 
                 <!-- Welcome Hero Banner -->
                 <div class="welcome-banner" style="padding: 10px 14px;">
-                    <span class="welcome-banner-emoji" style="font-size: initial; display: block; filter: none; margin-bottom: 10px;"><img src="images/generated/promo/art_welcome_banner.png" style="width: 100%; border-radius: 12px; object-fit: cover; max-height: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);" /></span>
+                    <span class="welcome-banner-emoji" style="font-size: initial; display: block; filter: none; margin-bottom: 10px;"><img src="images/generated/promo/art_welcome_banner.png" style="width: 100%; border-radius: 12px; object-fit: cover; max-height: 140px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);" /></span>
                     <h3>Ready to Play?</h3>
                     <p>Pick a game and guide your UFOs home! 🌟</p>
                 </div>
@@ -226,7 +226,7 @@
 
                     <div class="mode-card card-pass-play" onclick="selectPassAndPlay()">
                         <div class="card-icon">🎉</div>
-                        <div class="card-title">Party Mode</div>
+                        <div class="card-title">Classic Mode</div>
                         <div class="card-desc">Play together on one device!</div>
                         <button type="button" class="action-btn mode-card-btn">Let's Go!</button>
                     </div>
@@ -240,7 +240,7 @@
 
                     <div class="mode-card card-ufo-clash" onclick="selectUFOClash()">
                         <div class="card-icon">⚡</div>
-                        <div class="card-title">Super Battle</div>
+                        <div class="card-title">Powerup Battle</div>
                         <div class="card-desc">Powers &amp; surprises!</div>
                         <button type="button" class="action-btn mode-card-btn">Battle!</button>
                     </div>
@@ -418,16 +418,16 @@
             <!-- TAB 4: SETTINGS -->
             <div id="tab-settings" class="tab-content hidden">
                 <div class="tab-header-banner" style="border-color: var(--cyan);">
-                    <h4>⚙️ Advanced System Console</h4>
-                    <p>Configure device telemetry, holographic displays, and synthesizer node weights.</p>
+                    <h4>⚙️ Game Settings</h4>
+                    <p>Adjust game sounds, visuals, and robot preferences.</p>
                 </div>
 
                 <div class="settings-rows-sheet">
                     <!-- Volume Controls -->
                     <div class="settings-row-item">
                         <div class="settings-col">
-                            <span class="settings-title">🎵 AMBIENT MUSIC VOLUME</span>
-                            <span class="settings-desc">Adjust the volume of the space synth background nodes.</span>
+<span class="settings-title">🎵 Music Volume</span>
+                             <span class="settings-desc">Adjust the volume of the background music.</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; width:100%; margin-top:8px;">
                             <input type="range" id="settings-music-volume" min="0" max="1" step="0.05" value="0.5"
@@ -439,8 +439,8 @@
 
                     <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">🔊 SOUND FX VOLUME</span>
-                            <span class="settings-desc">Adjust the volume of dice rolling and button telemetry sounds.</span>
+<span class="settings-title">🔊 Sound Effects</span>
+                             <span class="settings-desc">Adjust the volume of game sounds.</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; width:100%; margin-top:8px;">
                             <input type="range" id="settings-sfx-volume" min="0" max="1" step="0.05" value="0.6"
@@ -453,8 +453,8 @@
                     <!-- Dice Display Selector -->
                     <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">🎲 DICE TELEMETRY MODE</span>
-                            <span class="settings-desc">Switch between 3D holographic projection and 2D classic dice.</span>
+<span class="settings-title">🎲 Dice Style</span>
+                             <span class="settings-desc">Switch between 3D or 2D dice.</span>
                         </div>
                         <select id="settings-dice-mode" class="setup-slot-input"
                             style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
@@ -467,8 +467,8 @@
                     <!-- Particle Density Throttle -->
                     <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">✨ PARTICLE FX LEVEL</span>
-                            <span class="settings-desc">Control particle rendering counts to prevent device heating.</span>
+<span class="settings-title">✨ Special Effects</span>
+                             <span class="settings-desc">Control visual effects level.</span>
                         </div>
                         <select id="settings-particle-level" class="setup-slot-input"
                             style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(255,107,157,0.5) !important; border-bottom:2px solid rgba(255,107,157,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
@@ -482,8 +482,8 @@
                     <!-- Wake Lock Option -->
                     <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">📱 WAKE LOCK TELEMETRY</span>
-                            <span class="settings-desc">Prevent your device screen from sleeping during navigation.</span>
+<span class="settings-title">📱 Keep Screen On</span>
+                             <span class="settings-desc">Prevent your device screen from sleeping during games.</span>
                         </div>
                         <select id="settings-wake-lock" class="setup-slot-input"
                             style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
@@ -496,8 +496,8 @@
                     <!-- Interface Language Selector -->
                     <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">🌐 CONSOLE INTERFACE LANGUAGE</span>
-                            <span class="settings-desc">Configure cockpit console text translation protocols.</span>
+<span class="settings-title">🌐 Language</span>
+                             <span class="settings-desc">Configure app language.</span>
                         </div>
                         <select id="settings-language" class="setup-slot-input"
                             style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(255,107,157,0.5) !important; border-bottom:2px solid rgba(255,107,157,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
@@ -511,8 +511,8 @@
 
                     <div class="settings-row-item" style="margin-top: 10px;">
                         <div class="settings-col">
-                            <span class="settings-title">🤖 Robot Thinking Speed</span>
-                            <span class="settings-desc">Configure local robot flight telemetry computing time.</span>
+<span class="settings-title">🤖 Robot Speed</span>
+                             <span class="settings-desc">Configure how fast robots play.</span>
                         </div>
                         <select id="settings-flight-speed" class="setup-slot-input"
                             style="background:rgba(0,0,0,0.7) !important; border:2px solid rgba(0,229,255,0.5) !important; border-bottom:2px solid rgba(0,229,255,0.7) !important; height:46px; margin-top:6px; color:#fff !important; border-radius:12px;"
@@ -822,7 +822,7 @@
 
             <!-- Change 2: CHOOSE YOUR COLOR Picker Segment -->
             <div class="setup-section" id="theme-section">
-                <span class="setup-label">🎨 Pick a Theme!</span>
+                <span class="setup-label">🎨 Pick a Board!</span>
                 <div class="color-swatches-grid" id="theme-swatches-grid"></div>
             </div>
 
@@ -1313,3 +1313,8 @@
 </body>
 
 </html>
+
+
+
+
+

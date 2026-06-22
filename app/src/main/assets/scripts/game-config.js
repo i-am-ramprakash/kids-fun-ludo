@@ -1,5 +1,20 @@
-// Kid-friendly theme definitions
-const KID_THEMES = {
+// Kid-friendly board definitions
+const KID_BOARDS = {
+classic: {
+        name: 'Classic',
+        emoji: '🎮',
+        colors: {
+             bg: '#0d0630', cellBg: '#1a0a4d', cellBorder: '#FF6B9D',
+             green: '#2ED573', yellow: '#FFC312', red: '#FF4757', blue: '#1E90FF',
+             purple: '#FF6B9D', gold: '#FFD600', cyan: '#00E5FF'
+         },
+         pawnEmojis: ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'],
+        modeNames: {
+            passAndPlay: 'Classic Mode', quick: 'Solo Adventure', clash: 'Powerup Battle', sl: 'Rocket Race'
+        },
+        cost: 0,
+        locked: false
+    },
     candyLand: {
         name: 'Candy Land',
         emoji: '🍭',
@@ -10,8 +25,10 @@ const KID_THEMES = {
         },
         pawnEmojis: ['🟢🛸', '🟡🛸', '🔴🛸', '🔵🛸'],
         modeNames: {
-            passAndPlay: 'Party Mode', quick: 'Solo Adventure', clash: 'Super Battle', sl: 'Rocket Race'
-        }
+            passAndPlay: 'Classic Mode', quick: 'Solo Adventure', clash: 'Powerup Battle', sl: 'Rocket Race'
+        },
+        cost: 10000,
+        locked: true
     },
     jungle: {
         name: 'Jungle Adventure',
@@ -24,7 +41,9 @@ const KID_THEMES = {
         pawnEmojis: ['🦁', '🐯', '🐻', '🐵'],
         modeNames: {
             passAndPlay: 'Safari Party', quick: 'Jungle Solo', clash: 'Wild Battle', sl: 'Banana Race'
-        }
+        },
+        cost: 10000,
+        locked: true
     },
     ocean: {
         name: 'Ocean World',
@@ -37,7 +56,9 @@ const KID_THEMES = {
         pawnEmojis: ['🐬', '🐙', '🐠', '🐡'],
         modeNames: {
             passAndPlay: 'Beach Party', quick: 'Ocean Solo', clash: 'Wave Battle', sl: 'Coral Race'
-        }
+        },
+        cost: 10000,
+        locked: true
     },
     heroes: {
         name: 'Super Heroes',
@@ -47,16 +68,36 @@ const KID_THEMES = {
             green: '#00E676', yellow: '#FFD600', red: '#FF1744', blue: '#2979FF',
             purple: '#D500F9', gold: '#FFC400', cyan: '#00E5FF'
         },
-        pawnEmojis: ['🦸', '🦹', '🦺', '🦸‍♀️'],
+        pawnEmojis: ['🦸', '🦹', '🦺', '🦸\u200d♀️'],
         modeNames: {
             passAndPlay: 'Hero Party', quick: 'Hero Solo', clash: 'Epic Battle', sl: 'Hero Race'
-        }
+        },
+        cost: 10000,
+        locked: true
     }
 };
 
+// Keep theme system compatibility
+const KID_THEMES = KID_BOARDS;
+
 function getThemeCSSVars(themeKey) {
-    const t = KID_THEMES[themeKey] || KID_THEMES.candyLand;
+    const t = KID_BOARDS[themeKey] || KID_BOARDS.classic;
     return `--bg-color:${t.colors.bg}; --cell-bg:${t.colors.cellBg}; --cell-border:${t.colors.cellBorder}; --green:${t.colors.green}; --yellow:${t.colors.yellow}; --red:${t.colors.red}; --blue:${t.colors.blue}; --purple:${t.colors.purple}; --gold:${t.colors.gold}; --cyan:${t.colors.cyan};`;
+}
+
+function getCurrentBoardKey() {
+    return localStorage.getItem('kids_ludo_board') || 'classic';
+}
+
+function getCurrentThemeKey() {
+    return getCurrentBoardKey();
+}
+
+function isBoardUnlocked(boardKey) {
+    const board = KID_BOARDS[boardKey];
+    if (!board) return false;
+    if (!board.locked) return true;
+    return localStorage.getItem(`kids_ludo_board_${boardKey}_unlocked`) === 'true';
 }
 
 function applyThemeToRoot(themeKey) {
@@ -67,11 +108,7 @@ function applyThemeToRoot(themeKey) {
         const [k, val] = v.split(':');
         if (k && val) root.style.setProperty(k.trim(), val.trim());
     });
-    localStorage.setItem('kids_ludo_theme', themeKey);
-}
-
-function getCurrentThemeKey() {
-    return localStorage.getItem('kids_ludo_theme') || 'candyLand';
+    localStorage.setItem('kids_ludo_board', themeKey);
 }
 
 function getCurrentThemeModeNames() {
@@ -98,7 +135,7 @@ function getDefaultGameConfig() {
         botDifficulty: 'medium',
         humanColorIndex: 0,
         ufoCount: 4,
-        theme: getCurrentThemeKey() || 'candyLand',
+        theme: getCurrentBoardKey(),
         gameStarted: false
     };
 }
@@ -325,3 +362,4 @@ function updatePlayerTypeBadges() {
         }
     }
 }
+

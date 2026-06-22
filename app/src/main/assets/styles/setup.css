@@ -506,9 +506,52 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
+.color-swatch.locked {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.color-swatch.locked.selected {
+    opacity: 0.6;
+}
+
+.board-price-label {
+    font-size: 0.6rem;
+    color: var(--gold);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+.buy-board-btn {
+    background: linear-gradient(135deg, #FF6B9D, #FF4757) !important;
+    border: none !important;
+    box-shadow: 0 3px 10px rgba(255, 71, 87, 0.3) !important;
+    color: #fff !important;
+    padding: 4px 12px !important;
+    font-weight: 900 !important;
+    font-size: 0.65rem !important;
+    border-radius: 10px !important;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.2s;
+}
+
+.buy-board-btn:hover {
+    box-shadow: 0 5px 14px rgba(255, 71, 87, 0.45) !important;
+    transform: translateY(-1px);
+}
+
+/* Footer icons transparency */
+.nav-icon img {
+    background: transparent;
+    filter: brightness(0) invert(1);
+}
+
 /* ═══════════════════════════════════════════════
-   SPLASH SCREEN
-   ═══════════════════════════════════════════════ */
+    SPLASH SCREEN
+    ═══════════════════════════════════════════════ */
 .splash-container {
     display: flex;
     flex-direction: column;
@@ -2046,3 +2089,5 @@
     50% { transform: translateY(20px); opacity: 1; }
     100% { transform: translateY(0); opacity: 0.3; }
 }
+
+

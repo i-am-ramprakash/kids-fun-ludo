@@ -143,9 +143,9 @@ function setLobbyBotDifficulty(diff, event) {
 function getModeDisplayName(mode) {
     const themeModeNames = getCurrentThemeModeNames();
     const map = {
-        passAndPlay: 'Party Mode',
+        passAndPlay: 'Classic Mode',
         quick: 'Solo Adventure',
-        clash: 'Super Battle',
+        clash: 'Powerup Battle',
         sl: 'Rocket Race',
         miniLudo: 'Mini Ludo'
     };
@@ -262,6 +262,12 @@ function renderUFODotsSelector() {
     displayLabel.textContent = `${currentCount} Pawns`;
 }
 
+function unlockBoard(boardKey) {
+    localStorage.setItem(`kids_ludo_board_${boardKey}_unlocked`, 'true');
+    saveProfile();
+    syncHeaderAndPilotData();
+}
+
 function renderThemeSwatches() {
     const grid = document.getElementById('theme-swatches-grid');
     if (!grid) return;
@@ -273,10 +279,35 @@ function renderThemeSwatches() {
         wrapper.className = 'color-swatch-wrapper';
 
         const swatch = document.createElement('div');
-        swatch.className = `color-swatch ${lobbyConfig.theme === key ? 'selected' : ''}`;
-        swatch.style.backgroundColor = t.colors.bg;
-        swatch.style.borderColor = (lobbyConfig.theme === key) ? '#ffffff' : 'rgba(255,255,255,0.3)';
-        swatch.textContent = t.emoji;
+        const isSelected = lobbyConfig.theme === key;
+        const unlocked = isBoardUnlocked(key);
+        const isClassic = key === 'classic';
+
+        if (unlocked || isClassic) {
+            swatch.className = `color-swatch ${isSelected ? 'selected' : ''}`;
+            swatch.style.backgroundColor = t.colors.bg;
+            swatch.style.borderColor = isSelected ? '#ffffff' : 'rgba(255,255,255,0.3)';
+            swatch.style.cursor = 'pointer';
+            swatch.textContent = t.emoji;
+
+            wrapper.addEventListener('click', (e) => {
+                e.stopPropagation();
+                lobbyConfig.theme = key;
+                applyThemeToRoot(key);
+                saveLobbyConfigToStorage();
+                renderThemeSwatches();
+                renderSetupUI();
+                if (typeof playSynthSound === 'function') {
+                    playSynthSound(600, 120, 0.35, 'triangle');
+                }
+            });
+        } else {
+            swatch.className = 'color-swatch locked';
+            swatch.style.backgroundColor = '#666';
+            swatch.style.borderColor = 'rgba(255,255,255,0.2)';
+            swatch.style.cursor = 'default';
+            swatch.textContent = '🔒';
+        }
 
         const label = document.createElement('span');
         label.className = 'color-swatch-label';
@@ -285,17 +316,36 @@ function renderThemeSwatches() {
         wrapper.appendChild(swatch);
         wrapper.appendChild(label);
 
-        wrapper.addEventListener('click', (e) => {
-            e.stopPropagation();
-            lobbyConfig.theme = key;
-            applyThemeToRoot(key);
-            saveLobbyConfigToStorage();
-            renderThemeSwatches();
-            renderSetupUI();
-            if (typeof playSynthSound === 'function') {
-                playSynthSound(600, 120, 0.35, 'triangle');
-            }
-        });
+        if (!unlocked && !isClassic) {
+            const priceLabel = document.createElement('span');
+            priceLabel.className = 'board-price-label';
+            priceLabel.innerHTML = '💫 10,000';
+            wrapper.appendChild(priceLabel);
+
+            const buyBtn = document.createElement('button');
+            buyBtn.className = 'buy-board-btn';
+            buyBtn.textContent = 'Unlock';
+            buyBtn.onclick = (e) => {
+                e.stopPropagation();
+                const stars = commanderProfile.stars || 0;
+                if (stars >= 10000) {
+                    commanderProfile.stars -= 10000;
+                    unlockBoard(key);
+                    renderThemeSwatches();
+                    if (typeof playSynthSound === 'function') {
+                        playSynthSound(523.25, 120, 0.1, 'sine');
+                        setTimeout(() => playSynthSound(783.99, 120, 0.1, 'sine'), 120);
+                    }
+                    raiseToast(`${t.name} unlocked!`, "✨");
+                } else {
+                    if (typeof playSynthSound === 'function') {
+                        playSynthSound(180, 400, 0.45, 'sawtooth');
+                    }
+                    raiseToast(`Need ${10000 - stars} more stars!`, "⚠️");
+                }
+            };
+            wrapper.appendChild(buyBtn);
+        }
 
         grid.appendChild(wrapper);
     });
@@ -890,3 +940,4 @@ window.resumeSavedGame = function() {
         scheduleBotTurn(600);
     }
 };
+

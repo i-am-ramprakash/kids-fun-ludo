@@ -1286,20 +1286,33 @@ function showPowerUpBriefing(onConfirm) {
                 </span>
             </div>
 
-            <!-- CTA Button -->
-            <button id="powerup-briefing-btn" style="
-                width: 100%;
-                padding: 14px;
-                background: linear-gradient(135deg, #00e5ff 0%, #7c3aed 100%);
-                border: none; border-radius: 12px;
-                color: #ffffff; font-weight: 900;
-                font-size: 0.85rem; letter-spacing: 2px;
-                cursor: pointer; font-family: 'Orbitron', sans-serif;
-                box-shadow: 0 0 20px rgba(0,229,255,0.35);
-                transition: transform 0.15s ease, box-shadow 0.15s ease;
-            ">🚀 LET'S PLAY!</button>
-        </div>
-    `;
+<!-- CTA Button -->
+             <button id="powerup-briefing-btn" style="
+                 width: 100%;
+                 padding: 14px;
+                 background: linear-gradient(135deg, #00e5ff 0%, #7c3aed 100%);
+                 border: none; border-radius: 12px;
+                 color: #ffffff; font-weight: 900;
+                 font-size: 0.85rem; letter-spacing: 2px;
+                 cursor: pointer; font-family: 'Orbitron', sans-serif;
+                 box-shadow: 0 0 20px rgba(0,229,255,0.35);
+                 transition: transform 0.15s ease, box-shadow 0.15s ease;
+             ">🚀 LET'S PLAY!</button>
+             <!-- Cancel Button -->
+             <button id="powerup-briefing-cancel-btn" style="
+                 width: 100%;
+                 padding: 12px;
+                 background: rgba(255, 255, 255, 0.08);
+                 border: 1px solid rgba(255, 255, 255, 0.2);
+                 border-radius: 12px;
+                 color: #cbd5e1; font-weight: 700;
+                 font-size: 0.8rem; letter-spacing: 1.5px;
+                 cursor: pointer; font-family: 'Orbitron', sans-serif;
+                 margin-top: 12px;
+                 transition: background 0.2s ease;
+             ">CANCEL</button>
+         </div>
+     `;
 
     document.body.appendChild(overlay);
 
@@ -1332,6 +1345,20 @@ function showPowerUpBriefing(onConfirm) {
     }
 
     if (typeof playSynthSound === 'function') playSynthSound(300, 800, 0.25, 'triangle');
+
+    // Cancel button handler
+    const cancelBtn = document.getElementById('powerup-briefing-cancel-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            const card3 = document.getElementById('powerup-briefing-card');
+            if (card3) card3.style.transform = 'scale(0.9) translateY(10px)';
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 320);
+            if (typeof playSynthSound === 'function') playSynthSound(200, 200, 0.2, 'sine');
+        });
+    }
 }
 
 // Mode card initializers in setup modal
@@ -2247,3 +2274,4 @@ window.openTutorialModal = function() {
         modal.style.opacity = '1';
     }, 50);
 };
+
